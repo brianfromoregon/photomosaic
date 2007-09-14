@@ -4,8 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.bcharris.mosaic.db.ImageDao;
@@ -21,16 +21,21 @@ import edu.wlu.cs.levy.CG.KeySizeException;
 
 public class ImagePalette
 {
+	// Drill down amount
 	public final int ddx, ddy;
 
+	// Stores palette image color info for quick nearest neighbor searching
 	private final KDTree kdTree;
 
+	// Thread-safe kd-tree size counter
 	private final AtomicInteger kdTreeSize = new AtomicInteger(0);
 
+	// DAO for storing image color information
 	private final ImageDao dao;
 
 	private final Log log = LogFactory.getLog(ImagePalette.class);
 
+	// Size to resize images to before performing calculations on them.
 	public int resizeWidth, resizeHeight;
 
 	public ImagePalette(int resizeWidth, int resizeHeight, ImageDao dao)
@@ -43,6 +48,8 @@ public class ImagePalette
 		kdTree = new KDTree(3 * ddx * ddy);
 	}
 
+	// Insert an image into this palette.
+	// throws IOException if specified file context does not describe an image file.
 	public boolean insert(ImageFileContext imageFileContext) throws IOException
 	{
 		ImageContext imageContext = getImageContext(imageFileContext);
@@ -72,6 +79,7 @@ public class ImagePalette
 		return true;
 	}
 
+	// Creates a photomosaic of the specified target image using the current palette.
 	public BufferedImage createMosaic(BufferedImage target, double scale, int numWide, int numTall,
 			int maxSameImageUsage) throws IOException
 	{
@@ -109,6 +117,7 @@ public class ImagePalette
 		return mosaic;
 	}
 
+	// Get a grid of images which can be used to compose the specified target image as a mosaic.
 	private ImageFileContext[][] bestMatches(final BufferedImage target, final int numWide, final int numTall,
 			final int maxSameImageUsage)
 	{
@@ -120,7 +129,7 @@ public class ImagePalette
 		final int targetWidth = target.getWidth();
 		final int targetHeight = target.getHeight();
 
-		final Map<ImageFileContext, Integer> usages = new ConcurrentHashMap<ImageFileContext, Integer>();
+		final Map<ImageFileContext, Integer> usages = new HashMap<ImageFileContext, Integer>();
 
 		for (int i = 0; i < numWide; i++)
 		{
@@ -164,6 +173,7 @@ public class ImagePalette
 										try
 										{
 											kdTree.delete(getImageContext(best).meanRgb);
+											kdTreeSize.decrementAndGet();
 										}
 										catch (Exception e)
 										{
@@ -195,6 +205,7 @@ public class ImagePalette
 		return bestMatches;
 	}
 
+	// Recursively add all images in the specified file or directory to this palette.
 	public void addImages(File f)
 	{
 		CompletableExecutor executor = new SimpleCompletableExecutor(10);
@@ -204,6 +215,7 @@ public class ImagePalette
 		log.info("Done adding images to palette");
 	}
 
+	// Recursive, multi-threaded implementation of public method.
 	private void addImages(final File f, final CompletableExecutor executor)
 	{
 		if (f.isDirectory())
@@ -234,6 +246,7 @@ public class ImagePalette
 		}
 	}
 
+	// Utility function to get an ImageContext from an ImageFileContext
 	private ImageContext getImageContext(ImageFileContext imageFileContext) throws IOException
 	{
 		ImageContext imageContext = dao.loadImageContext(imageFileContext.imageFile);
