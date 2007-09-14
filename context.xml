@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="defaultValues" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties">
+			<value>
+				derby.system.home=${user.home}${file.separator}.mosaic
+				dbName=Mosaic_BrianParents
+				ddx=5
+				ddy=5
+				resizeWidth=150
+				resizeHeight=150
+			</value>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
+		<property name="url" value="jdbc:derby:${dbName};create=true" />
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="30" />
+		<property name="maxWait" value="1000" />
+		<property name="defaultAutoCommit" value="true" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="60" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+
+	<bean id="jdbcTemplate"	class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+	<bean id="imageDao" class="net.bcharris.mosaic.db.ImageDao">
+		<constructor-arg index="0" value="${ddx}" />
+		<constructor-arg index="1" value="${ddy}" />
+		<constructor-arg index="2" value="${dbName}" />
+		<constructor-arg index="3" value="${derby.system.home}" />
+		<constructor-arg ref="jdbcTemplate" />
+	</bean>
+
+	<bean id="imagePalette" class="net.bcharris.mosaic.ImagePalette">
+		<constructor-arg index="0" value="${resizeWidth}" />
+		<constructor-arg index="1" value="${resizeHeight}" />
+		<constructor-arg ref="imageDao" />
+	</bean>
+	
+	<bean id="mosaic" class="net.bcharris.mosaic.Mosaic">
+		<constructor-arg ref="imagePalette" />
+	</bean>
+
+</beans>
