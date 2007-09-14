@@ -10,8 +10,10 @@ import javax.imageio.ImageIO;
 
 public class ImageFileContext
 {
+	// Location on disk of the image this context describes
 	public final File imageFile;
 
+	// Cache of previousily requested image
 	private SoftReference<BufferedImage> bufferedImage;
 
 	public ImageFileContext(File image)
@@ -20,6 +22,7 @@ public class ImageFileContext
 		this.bufferedImage = new SoftReference<BufferedImage>(null);
 	}
 
+	// Get a BufferedImage without resizing first, null if not an image
 	public BufferedImage getBufferedImage()
 	throws IOException
 	{
@@ -36,7 +39,8 @@ public class ImageFileContext
 		
 		return bi;
 	}
-	
+
+	// Get a BufferedImage of the specified size, resizing if necessary
 	public BufferedImage getBufferedImage(int resizeWidth, int resizeHeight)
 	throws IOException
 	{
@@ -53,9 +57,16 @@ public class ImageFileContext
 			g.drawImage(bi, 0, 0, resizeWidth, resizeHeight, null);
 			g.dispose();
 			bi = resized;
+			bufferedImage = new SoftReference<BufferedImage>(bi);
 		}
 
 		return bi;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return 37 * (this.imageFile == null ? 37 : this.imageFile.hashCode());
 	}
 	
 	@Override
