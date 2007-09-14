@@ -40,7 +40,7 @@ public class ImageDao
 		if (!dbDir.isDirectory())
 		{
 			log.info("Database not found, creating new one at: " + dbDir.getAbsolutePath());
-			createDb(Util.read(new File("net/bcharris/mosaic/db/createDb.sql"), "\\s*;\\s*"));
+			createDb(Util.read(new File("sql/createDb.sql"), "\\s*;\\s*"));
 			log.info("Done creating database");
 		}
 		loadAllContexts();
