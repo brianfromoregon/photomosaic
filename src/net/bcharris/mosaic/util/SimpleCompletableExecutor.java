@@ -27,7 +27,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 
 	public void execute(Runnable job)
 	{
-		jobs.add(service.submit(job));
+		jobs.add(service.submit(new LoggingRunnable(job)));
 	}
 
 	public void awaitCompletionAndShutdown()
@@ -43,11 +43,13 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 				}
 				catch (InterruptedException e)
 				{
+					log.debug("Interrupted while calling get() on a Future, will retry later.", e);
 					jobs.add(job);
 				}
 				catch (ExecutionException e)
 				{
-					log.error(e);
+					// The LoggingRunnable wrapper will produce a better message
+//					log.error(e);
 				}
 				catch (CancellationException e)
 				{
