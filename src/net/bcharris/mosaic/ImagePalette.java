@@ -201,7 +201,7 @@ public class ImagePalette
 		}
 
 		executor.awaitCompletionAndShutdown();
-		log.info("Done finding best image matches");
+		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall*numWide + " grid cells.");
 		return bestMatches;
 	}
 
