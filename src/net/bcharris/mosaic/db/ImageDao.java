@@ -109,9 +109,10 @@ public class ImageDao
 
 			// update maps
 			imageFileMap.put(fileKey, context);
+			
 			if (uniqueFileLengths.containsKey(context.imageFileLength))
 			{
-				if (!uniqueFileLengths.get(context.imageFileLength).equals(context))
+				if (uniqueFileLengths.get(context.imageFileLength) != null && !uniqueFileLengths.get(context.imageFileLength).equals(context))
 				{
 					uniqueFileLengths.put(context.imageFileLength, null);
 				}
