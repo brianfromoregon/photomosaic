@@ -7,7 +7,6 @@
 		<property name="properties">
 			<value>
 				derby.system.home=${user.home}${file.separator}.mosaic
-				dbName=Mosaic_BrianParents
 				ddx=5
 				ddy=5
 				resizeWidth=150

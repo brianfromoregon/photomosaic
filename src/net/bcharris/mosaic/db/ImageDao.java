@@ -10,6 +10,7 @@ import net.bcharris.mosaic.Util;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,13 +31,22 @@ public class ImageDao
 
 	private final Log log = LogFactory.getLog(ImageDao.class);
 
-	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbc) throws IOException
+	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbc)
+	throws IOException
 	{
 		this.jdbc = jdbc;
 		this.ddx = ddx;
 		this.ddy = ddy;
 		System.setProperty("derby.system.home", derbySystemHome);
-		File dbDir = new File(derbySystemHome + System.getProperty("file.separator") + dbName);
+		String dbLoc = derbySystemHome + System.getProperty("file.separator") + dbName;
+		System.setProperty("dbDir", dbLoc);
+		init();
+	}
+	
+	private void init()
+	throws IOException
+	{
+		File dbDir = new File(System.getProperty("dbLoc"));
 		if (!dbDir.isDirectory())
 		{
 			log.info("Database not found, creating new one at: " + dbDir.getAbsolutePath());
@@ -46,6 +56,12 @@ public class ImageDao
 		loadAllContexts();
 	}
 
+	/**
+	 * Try to find an image context for a file.  Currently the implementation
+	 * does not go to the database because it loads all contexts on startup.
+	 * @param imageFile The file to find a context for.
+	 * @return An image context describing the file, or null if none exists.
+	 */
 	public ImageContext loadImageContext(File imageFile)
 	{
 		long len = imageFile.length();
@@ -64,80 +80,87 @@ public class ImageDao
 
 		try
 		{
-			String Sha256 = Util.sha256(imageFile);
-			return imageFileMap.get(new FileKey(Sha256, len));
+			String sha256 = Util.sha256(imageFile);
+			return imageFileMap.get(new FileKey(sha256, len));
 		}
 		catch (IOException e)
 		{
 			log.warn("could not get sha256 for file", e);
 			return null;
 		}
+		catch (IllegalArgumentException e)
+		{
+			log.error("Programmer mistake", e);
+			return null;
+		}
 	}
 
-	public void saveImageContext(ImageContext context)
+	public synchronized void saveImageContext(ImageContext imageContext)
 	{
 		Integer id;
-		FileKey fileKey = new FileKey(context.sha256, context.imageFileLength);
+		FileKey fileKey = null;
+		try
+		{
+			fileKey = new FileKey(imageContext.sha256, imageContext.imageFileLength);
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.error("Programmer mistake", e);
+			return;
+		}
 
 		try
 		{
 			id = jdbc.queryForInt("Select id From Image Where SHA256 = ? And fileSize = ? ", new Object[] {
-					context.sha256, context.imageFileLength });
+					imageContext.sha256, imageContext.imageFileLength });
 		}
 		catch (EmptyResultDataAccessException e)
 		{
 			id = null;
 		}
 
-		if (id != null && imageFileMap.containsKey(fileKey))
+		// if this image already exists in the database
+		if (id != null)
 		{
 			// delete existing db ddx,ddy rows
 			jdbc.update("Delete From ImageSection " + "Where imageId = ? And ddx = ? And ddy = ?", new Object[] { id,
-					context.ddx, context.ddy });
+					imageContext.ddx, imageContext.ddy });
 		}
 		else
 		{
-			if (id == null)
+			// insert into Image
+			jdbc.update("Insert Into Image (SHA256, fileSize) Values (?, ?)", new Object[] { imageContext.sha256,
+					imageContext.imageFileLength });
+
+			id = jdbc.queryForInt("Select id " + "From Image " + "Where SHA256 = ? ",
+					new Object[] { imageContext.sha256 });
+
+			// sanity check
+			if (imageFileMap.containsKey(fileKey))
 			{
-				// insert into Image
-				jdbc.update("Insert Into Image (SHA256, fileSize) Values (?, ?)", new Object[] { context.sha256,
-						context.imageFileLength });
-
-				id = jdbc.queryForInt("Select id " + "From Image " + "Where SHA256 = ? ",
-						new Object[] { context.sha256 });
+				log.warn("Programmer error, imageFileMap contained image file key, but database didn't:" + fileKey.toString());
 			}
-
-			// update maps
-			imageFileMap.put(fileKey, context);
 			
-			if (uniqueFileLengths.containsKey(context.imageFileLength))
-			{
-				if (uniqueFileLengths.get(context.imageFileLength) != null && !uniqueFileLengths.get(context.imageFileLength).equals(context))
-				{
-					uniqueFileLengths.put(context.imageFileLength, null);
-				}
-			}
-			else
-			{
-				uniqueFileLengths.put(context.imageFileLength, context);
-			}
+			// update maps
+			imageFileMap.put(fileKey, imageContext);
+			updateUniqueFileLengths(imageContext);
 		}
 
 		// insert values into ImageSection
-		for (int i = 0, section = 0; i < context.meanRgb.length; i += 3, section++)
+		for (int i = 0, section = 0; i < imageContext.meanRgb.length; i += 3, section++)
 		{
 			jdbc.update("Insert Into ImageSection (imageId, ddx, ddy, section, meanR, meanG, meanB) Values "
-					+ "(?,?,?,?,?,?,?) ", new Object[] { id, context.ddx, context.ddy, section, context.meanRgb[i],
-					context.meanRgb[i + 1], context.meanRgb[i + 2], });
+					+ "(?,?,?,?,?,?,?) ", new Object[] { id, imageContext.ddx, imageContext.ddy, section, imageContext.meanRgb[i],
+					imageContext.meanRgb[i + 1], imageContext.meanRgb[i + 2], });
 		}
 	}
 
-	private void createDb(String[] createStatements)
+	private synchronized void createDb(String[] createStatements)
 	{
 		jdbc.batchUpdate(createStatements);
 	}
 
-	private void loadAllContexts()
+	private synchronized void loadAllContexts()
 	{
 		log.info("Loading saved image info from database");
 		log.info("Issuing SQL query");
@@ -170,24 +193,42 @@ public class ImageDao
 			ImageContext imageContext = new ImageContext(sha256, fileSize, ddx, ddy, meanRgb);
 
 			// add the loaded image context to the lookup maps
-			FileKey fileKey = new FileKey(imageContext.sha256, imageContext.imageFileLength);
+			FileKey fileKey = null;
+			try
+			{
+				fileKey = new FileKey(imageContext.sha256, imageContext.imageFileLength);
+			}
+			catch (IllegalArgumentException e)
+			{
+				log.error("Programmer mistake", e);
+				continue;
+			}
 			imageFileMap.put(fileKey, imageContext);
-			if (uniqueFileLengths.containsKey(imageContext.imageFileLength))
-			{
-				if (!uniqueFileLengths.get(imageContext.imageFileLength).equals(imageContext))
-				{
-					uniqueFileLengths.put(imageContext.imageFileLength, null);
-				}
-			}
-			else
-			{
-				uniqueFileLengths.put(imageContext.imageFileLength, imageContext);
-			}
+			updateUniqueFileLengths(imageContext);
 		}
 		log.info("Done processing all " + numRows + " rows");
 	}
+	
+	private void updateUniqueFileLengths(ImageContext imageContext)
+	{
+		if (uniqueFileLengths.containsKey(imageContext.imageFileLength))
+		{
+			if (uniqueFileLengths.get(imageContext.imageFileLength) != null && !uniqueFileLengths.get(imageContext.imageFileLength).equals(imageContext))
+			{
+				uniqueFileLengths.put(imageContext.imageFileLength, null);
+			}
+		}
+		else
+		{
+			uniqueFileLengths.put(imageContext.imageFileLength, imageContext);
+		}
+	}
 }
 
+/**
+ * Assuming a file can be uniquely identified by a FileKey, a SHA256 and
+ * its file size.  This assumption is theoretically false, but it's good enough for me.
+ */
 class FileKey
 {
 	public final String Sha256;
@@ -196,6 +237,14 @@ class FileKey
 
 	public FileKey(String Sha256, long fileSize)
 	{
+		if (Sha256 == null)
+		{
+			throw new IllegalArgumentException("null SHA256");
+		}
+		if (fileSize < 1)
+		{
+			throw new IllegalArgumentException("illegal file size");
+		}
 		this.Sha256 = Sha256;
 		this.fileSize = fileSize;
 	}
@@ -210,5 +259,11 @@ class FileKey
 	public boolean equals(Object obj)
 	{
 		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return ToStringBuilder.reflectionToString(this);
 	}
 }

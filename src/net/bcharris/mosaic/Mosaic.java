@@ -13,7 +13,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Mosaic
 {
-	private final Log log = LogFactory.getLog(Mosaic.class);
+	private static final Log log = LogFactory.getLog(Mosaic.class);
 
 	private ImagePalette palette;
 
@@ -88,15 +88,63 @@ public class Mosaic
 		// f.setVisible(true);
 	}
 
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
+    private static final String srcArg="srcLoc", targetArg="targetImg", destArg = "destFile";
+	
 	public static void main(String[] args) throws Exception
 	{
-		BeanFactory factory = new ClassPathXmlApplicationContext("context.xml");
-		Mosaic mosaic = (Mosaic) factory.getBean("mosaic");
-		File src = new File("C:\\Documents and Settings\\brian\\Desktop\\Addie");
-		File dest = new File("C:\\Documents and Settings\\brian\\Desktop\\out.png");
-		File target = new File("C:/Documents and Settings/brian/Desktop/IMG_3635.jpg");
+		File src, dest, target;
+		Mosaic mosaic;
 
+		if (System.getProperty(srcArg) == null || System.getProperty(targetArg) == null || System.getProperty(destArg) == null)
+		{
+			log.fatal(LINE_SEPARATOR + usage());
+			return;
+		}
+
+		src = new File(System.getProperty(srcArg));
+		target = new File(System.getProperty(targetArg));
+		dest = new File(System.getProperty(destArg));
+
+		if (!src.exists())
+		{
+			log.fatal("Non-existant source location specified in argument: " +srcArg + LINE_SEPARATOR + usage());
+			return;
+		}
+		if (!target.exists())
+		{
+			log.fatal("Non-existant target location specified in argument: " +targetArg + LINE_SEPARATOR + usage());
+			return;
+		}
+		if (dest.exists())
+		{
+			log.fatal("Invalid destination argument, file or directory in the way at: " +destArg + LINE_SEPARATOR + usage());
+			return;
+		}
+		
+		try
+		{
+			BeanFactory factory = new ClassPathXmlApplicationContext("context.xml");
+			mosaic = (Mosaic) factory.getBean("mosaic");
+		}
+		catch (Throwable t)
+		{
+			log.fatal("Program startup failed.", t);
+			log.fatal(LINE_SEPARATOR + usage());
+			return;
+		}
+		
 		mosaic.palette.addImages(src);
-		mosaic.doMosaic(target, dest, .2, 10, 10, 1);
+		mosaic.doMosaic(target, dest, .2, 10, 10, 2);
+	}
+	
+	private static String usage()
+	{
+		return "" +
+				"Usage: java -jar App.jar -DdbName=A -DsrcLoc=B -DtargetImg=C -DdestFile=D" + LINE_SEPARATOR + 
+				"\tA - The name of the database to use for storing image information." + LINE_SEPARATOR +
+				"\tB - The directory or image file to recursively process the image files within." + LINE_SEPARATOR +
+				"\tC - The image file to recreate as a mosaic." + LINE_SEPARATOR +
+				"\tD - Where to write the created mosaic image file.";
 	}
 }

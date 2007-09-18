@@ -86,8 +86,8 @@ public class ImagePalette
 		if (numWide * numTall > kdTreeSize.get() * maxSameImageUsage)
 		{
 			throw new IllegalArgumentException(
-					"Not enough palette images to create mosaic given usage constraints; need at least " + numWide
-							* numTall);
+					"Not enough palette images to create mosaic given usage constraints; need at least " + 
+					(int)Math.ceil((numWide * numTall) / maxSameImageUsage) + " and you only supplied " + kdTreeSize.get());
 		}
 
 		log.info("Creating mosaic");
