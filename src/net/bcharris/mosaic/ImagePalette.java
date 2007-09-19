@@ -240,8 +240,10 @@ public class ImagePalette
 			ImageFileContext imageFileContext = new ImageFileContext(f);
 			try
 			{
-				insert(imageFileContext);
-				kdTreeSize.incrementAndGet();
+				if (insert(imageFileContext))
+				{
+					kdTreeSize.incrementAndGet();					
+				}
 			}
 			catch (IOException e)
 			{
