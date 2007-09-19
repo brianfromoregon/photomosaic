@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.bcharris.mosaic.db.ImageDao;
+import net.bcharris.mosaic.db.ImageDaoImpl;
 import net.bcharris.mosaic.util.CompletableExecutor;
 import net.bcharris.mosaic.util.SimpleCompletableExecutor;
 
@@ -38,7 +39,7 @@ public class ImagePalette
 	// Size to resize images to before performing calculations on them.
 	public int resizeWidth, resizeHeight;
 
-	public ImagePalette(int resizeWidth, int resizeHeight, ImageDao dao)
+	public ImagePalette(int resizeWidth, int resizeHeight, ImageDaoImpl dao)
 	{
 		this.ddx = dao.ddx;
 		this.ddy = dao.ddy;

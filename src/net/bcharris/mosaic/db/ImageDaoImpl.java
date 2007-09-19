@@ -23,7 +23,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-public class ImageDao
+public class ImageDaoImpl implements ImageDao
 {
 	private final JdbcTemplate jdbcTemplate;
 
@@ -37,9 +37,9 @@ public class ImageDao
 	// map a filesize to an ImageContext if it is unique, or null if not
 	private final Map<Long, ImageContext> uniqueFileLengths = new HashMap<Long, ImageContext>();
 
-	private final Log log = LogFactory.getLog(ImageDao.class);
+	private final Log log = LogFactory.getLog(ImageDaoImpl.class);
 
-	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbcTemplate,
+	public ImageDaoImpl(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbcTemplate,
 			TransactionTemplate transactionTemplate) throws IOException
 	{
 		this.transactionTemplate = transactionTemplate;
@@ -64,12 +64,8 @@ public class ImageDao
 		loadAllContexts();
 	}
 
-	/**
-	 * Try to find an image context for a file. Currently the implementation does not go to the database because it
-	 * loads all contexts on startup.
-	 * 
-	 * @param imageFile The file to find a context for.
-	 * @return An image context describing the file, or null if none exists.
+	/* (non-Javadoc)
+	 * @see net.bcharris.mosaic.db.ImageDao#loadImageContext(java.io.File)
 	 */
 	public ImageContext loadImageContext(File imageFile)
 	{
@@ -104,6 +100,9 @@ public class ImageDao
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bcharris.mosaic.db.ImageDao#saveImageContext(net.bcharris.mosaic.ImageContext)
+	 */
 	public synchronized void saveImageContext(final ImageContext imageContext)
 	{
 		Integer id;
