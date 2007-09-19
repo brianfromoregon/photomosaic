@@ -116,9 +116,10 @@ public class Mosaic
 			log.fatal("Non-existant target location specified in argument: " +targetArg + LINE_SEPARATOR + usage());
 			return;
 		}
+		dest.delete();
 		if (dest.exists())
 		{
-			log.fatal("Invalid destination argument, file or directory in the way at: " +destArg + LINE_SEPARATOR + usage());
+			log.fatal("Invalid destination argument, directory in the way at: " +destArg + LINE_SEPARATOR + usage());
 			return;
 		}
 		
