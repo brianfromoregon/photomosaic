@@ -33,18 +33,21 @@ public class ImagePalette
 
 	// DAO for storing image color information
 	private final ImageDao dao;
+	
+	private final int numThreads;
 
 	private final Log log = LogFactory.getLog(ImagePalette.class);
 
 	// Size to resize images to before performing calculations on them.
 	public int resizeWidth, resizeHeight;
 
-	public ImagePalette(int resizeWidth, int resizeHeight, ImageDaoImpl dao)
+	public ImagePalette(int resizeWidth, int resizeHeight, int numThreads, ImageDaoImpl dao)
 	{
 		this.ddx = dao.ddx;
 		this.ddy = dao.ddy;
 		this.resizeHeight = resizeHeight;
 		this.resizeWidth = resizeWidth;
+		this.numThreads = numThreads;
 		this.dao = dao;
 		kdTree = new KDTree(3 * ddx * ddy);
 	}
@@ -125,7 +128,7 @@ public class ImagePalette
 		log.info("Finding best image matches for target image sections");
 		final ImageFileContext[][] bestMatches = new ImageFileContext[numWide][numTall];
 
-		final CompletableExecutor executor = new SimpleCompletableExecutor(10);
+		final CompletableExecutor executor = new SimpleCompletableExecutor(numThreads);
 
 		final int targetWidth = target.getWidth();
 		final int targetHeight = target.getHeight();
@@ -209,7 +212,7 @@ public class ImagePalette
 	// Recursively add all images in the specified file or directory to this palette.
 	public void addImages(File f)
 	{
-		CompletableExecutor executor = new SimpleCompletableExecutor(10);
+		CompletableExecutor executor = new SimpleCompletableExecutor(numThreads);
 		log.info("Adding images in this dir (recursively) to palette: " + f.getAbsolutePath());
 		addImages(f, executor);
 		executor.awaitCompletionAndShutdown();

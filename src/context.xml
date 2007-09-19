@@ -11,6 +11,7 @@
 				ddy=5
 				resizeWidth=150
 				resizeHeight=150
+				numThreads=10
 			</value>
 		</property>
 	</bean>
@@ -51,6 +52,7 @@
 	<bean id="imagePalette" class="net.bcharris.mosaic.ImagePalette">
 		<constructor-arg index="0" value="${resizeWidth}" />
 		<constructor-arg index="1" value="${resizeHeight}" />
+		<constructor-arg index="2" value="${numThreads}" />
 		<constructor-arg ref="imageDao" />
 	</bean>
 	
