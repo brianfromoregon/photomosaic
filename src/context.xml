@@ -30,6 +30,14 @@
 	<bean id="jdbcTemplate"	class="org.springframework.jdbc.core.JdbcTemplate">
 		<constructor-arg ref="dataSource" />
 	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+	
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<constructor-arg ref="transactionManager"/>
+	</bean>
 
 	<bean id="imageDao" class="net.bcharris.mosaic.db.ImageDao">
 		<constructor-arg index="0" value="${ddx}" />
@@ -37,6 +45,7 @@
 		<constructor-arg index="2" value="${dbName}" />
 		<constructor-arg index="3" value="${derby.system.home}" />
 		<constructor-arg ref="jdbcTemplate" />
+		<constructor-arg ref="transactionTemplate" />
 	</bean>
 
 	<bean id="imagePalette" class="net.bcharris.mosaic.ImagePalette">

@@ -2,6 +2,8 @@ package net.bcharris.mosaic.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +16,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public class ImageDao
 {
-	private final JdbcTemplate jdbc;
+	private final JdbcTemplate jdbcTemplate;
+
+	private final TransactionTemplate transactionTemplate;
 
 	public final int ddx, ddy;
 
@@ -31,9 +39,11 @@ public class ImageDao
 
 	private final Log log = LogFactory.getLog(ImageDao.class);
 
-	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbc) throws IOException
+	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbcTemplate,
+			TransactionTemplate transactionTemplate) throws IOException
 	{
-		this.jdbc = jdbc;
+		this.transactionTemplate = transactionTemplate;
+		this.jdbcTemplate = jdbcTemplate;
 		this.ddx = ddx;
 		this.ddy = ddy;
 		System.setProperty("derby.system.home", derbySystemHome);
@@ -94,7 +104,7 @@ public class ImageDao
 		}
 	}
 
-	public synchronized void saveImageContext(ImageContext imageContext)
+	public synchronized void saveImageContext(final ImageContext imageContext)
 	{
 		Integer id;
 		FileKey fileKey = null;
@@ -110,7 +120,7 @@ public class ImageDao
 
 		try
 		{
-			id = jdbc.queryForInt("Select id From Image Where SHA256 = ? And fileSize = ? ", new Object[] {
+			id = jdbcTemplate.queryForInt("Select id From Image Where SHA256 = ? And fileSize = ? ", new Object[] {
 					imageContext.sha256, imageContext.imageFileLength });
 		}
 		catch (EmptyResultDataAccessException e)
@@ -122,16 +132,16 @@ public class ImageDao
 		if (id != null)
 		{
 			// delete existing db ddx,ddy rows
-			jdbc.update("Delete From ImageSection " + "Where imageId = ? And ddx = ? And ddy = ?", new Object[] { id,
-					imageContext.ddx, imageContext.ddy });
+			jdbcTemplate.update("Delete From ImageSection " + "Where imageId = ? And ddx = ? And ddy = ?",
+					new Object[] { id, imageContext.ddx, imageContext.ddy });
 		}
 		else
 		{
 			// insert into Image
-			jdbc.update("Insert Into Image (SHA256, fileSize) Values (?, ?)", new Object[] { imageContext.sha256,
-					imageContext.imageFileLength });
+			jdbcTemplate.update("Insert Into Image (SHA256, fileSize) Values (?, ?)", new Object[] {
+					imageContext.sha256, imageContext.imageFileLength });
 
-			id = jdbc.queryForInt("Select id " + "From Image " + "Where SHA256 = ? ",
+			id = jdbcTemplate.queryForInt("Select id " + "From Image " + "Where SHA256 = ? ",
 					new Object[] { imageContext.sha256 });
 
 			// sanity check
@@ -146,27 +156,47 @@ public class ImageDao
 			updateUniqueFileLengths(imageContext);
 		}
 
+		final int finalId = id;
+
 		// insert values into ImageSection
-		for (int i = 0, section = 0; i < imageContext.meanRgb.length; i += 3, section++)
-		{
-			jdbc.update("Insert Into ImageSection (imageId, ddx, ddy, section, meanR, meanG, meanB) Values "
-					+ "(?,?,?,?,?,?,?) ", new Object[] { id, imageContext.ddx, imageContext.ddy, section,
-					imageContext.meanRgb[i], imageContext.meanRgb[i + 1], imageContext.meanRgb[i + 2], });
-		}
+		transactionTemplate.execute(new TransactionCallback() {
+			public Object doInTransaction(TransactionStatus status)
+			{
+				return jdbcTemplate.batchUpdate(
+						"Insert Into ImageSection (imageId, ddx, ddy, section, meanR, meanG, meanB) Values "
+								+ "(?,?,?,?,?,?,?) ", new BatchPreparedStatementSetter() {
+							public int getBatchSize()
+							{
+								return imageContext.meanRgb.length / 3;
+							}
+
+							public void setValues(PreparedStatement ps, int i) throws SQLException
+							{
+								ps.setInt(1, finalId);
+								ps.setInt(2, imageContext.ddx);
+								ps.setInt(3, imageContext.ddy);
+								ps.setInt(4, i);
+								ps.setDouble(5, imageContext.meanRgb[i * 3 + 0]);
+								ps.setDouble(6, imageContext.meanRgb[i * 3 + 1]);
+								ps.setDouble(7, imageContext.meanRgb[i * 3 + 2]);
+							}
+						});
+			}
+		});
 	}
 
 	private synchronized void createDb(String[] createStatements)
 	{
-		jdbc.batchUpdate(createStatements);
+		jdbcTemplate.batchUpdate(createStatements);
 	}
 
 	private synchronized void loadAllContexts()
 	{
 		log.info("Loading saved image info from database");
 		log.info("Issuing SQL query");
-		SqlRowSet rows = jdbc.queryForRowSet("Select SHA256, fileSize, section, meanR, meanG, meanB " + "From Image "
-				+ "	Join ImageSection On id = imageId And ddx = ? And ddy = ?" + "Order By SHA256, fileSize, section",
-				new Object[] { ddx, ddy });
+		SqlRowSet rows = jdbcTemplate.queryForRowSet("Select SHA256, fileSize, section, meanR, meanG, meanB "
+				+ "From Image " + "	Join ImageSection On id = imageId And ddx = ? And ddy = ?"
+				+ "Order By SHA256, fileSize, section", new Object[] { ddx, ddy });
 
 		int numRows = 0;
 		log.info("Processing result set");
