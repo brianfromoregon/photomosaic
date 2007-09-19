@@ -31,20 +31,18 @@ public class ImageDao
 
 	private final Log log = LogFactory.getLog(ImageDao.class);
 
-	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbc)
-	throws IOException
+	public ImageDao(int ddx, int ddy, String dbName, String derbySystemHome, JdbcTemplate jdbc) throws IOException
 	{
 		this.jdbc = jdbc;
 		this.ddx = ddx;
 		this.ddy = ddy;
 		System.setProperty("derby.system.home", derbySystemHome);
 		String dbLoc = derbySystemHome + System.getProperty("file.separator") + dbName;
-		System.setProperty("dbDir", dbLoc);
+		System.setProperty("dbLoc", dbLoc);
 		init();
 	}
-	
-	private void init()
-	throws IOException
+
+	private void init() throws IOException
 	{
 		File dbDir = new File(System.getProperty("dbLoc"));
 		if (!dbDir.isDirectory())
@@ -57,8 +55,9 @@ public class ImageDao
 	}
 
 	/**
-	 * Try to find an image context for a file.  Currently the implementation
-	 * does not go to the database because it loads all contexts on startup.
+	 * Try to find an image context for a file. Currently the implementation does not go to the database because it
+	 * loads all contexts on startup.
+	 * 
 	 * @param imageFile The file to find a context for.
 	 * @return An image context describing the file, or null if none exists.
 	 */
@@ -138,9 +137,10 @@ public class ImageDao
 			// sanity check
 			if (imageFileMap.containsKey(fileKey))
 			{
-				log.warn("Programmer error, imageFileMap contained image file key, but database didn't:" + fileKey.toString());
+				log.warn("Programmer error, imageFileMap contained image file key, but database didn't:"
+						+ fileKey.toString());
 			}
-			
+
 			// update maps
 			imageFileMap.put(fileKey, imageContext);
 			updateUniqueFileLengths(imageContext);
@@ -150,8 +150,8 @@ public class ImageDao
 		for (int i = 0, section = 0; i < imageContext.meanRgb.length; i += 3, section++)
 		{
 			jdbc.update("Insert Into ImageSection (imageId, ddx, ddy, section, meanR, meanG, meanB) Values "
-					+ "(?,?,?,?,?,?,?) ", new Object[] { id, imageContext.ddx, imageContext.ddy, section, imageContext.meanRgb[i],
-					imageContext.meanRgb[i + 1], imageContext.meanRgb[i + 2], });
+					+ "(?,?,?,?,?,?,?) ", new Object[] { id, imageContext.ddx, imageContext.ddy, section,
+					imageContext.meanRgb[i], imageContext.meanRgb[i + 1], imageContext.meanRgb[i + 2], });
 		}
 	}
 
@@ -173,7 +173,7 @@ public class ImageDao
 		while (!rows.isAfterLast() && rows.next())
 		{
 			numRows++;
-			
+
 			// construct an ImageContext from the selected rows
 			String sha256 = rows.getString("SHA256");
 			long fileSize = rows.getLong("fileSize");
@@ -208,12 +208,13 @@ public class ImageDao
 		}
 		log.info("Done processing all " + numRows + " rows");
 	}
-	
+
 	private void updateUniqueFileLengths(ImageContext imageContext)
 	{
 		if (uniqueFileLengths.containsKey(imageContext.imageFileLength))
 		{
-			if (uniqueFileLengths.get(imageContext.imageFileLength) != null && !uniqueFileLengths.get(imageContext.imageFileLength).equals(imageContext))
+			if (uniqueFileLengths.get(imageContext.imageFileLength) != null
+					&& !uniqueFileLengths.get(imageContext.imageFileLength).equals(imageContext))
 			{
 				uniqueFileLengths.put(imageContext.imageFileLength, null);
 			}
@@ -226,8 +227,8 @@ public class ImageDao
 }
 
 /**
- * Assuming a file can be uniquely identified by a FileKey, a SHA256 and
- * its file size.  This assumption is theoretically false, but it's good enough for me.
+ * Assuming a file can be uniquely identified by a FileKey, a SHA256 and its file size. This assumption is theoretically
+ * false, but it's good enough for me.
  */
 class FileKey
 {
@@ -260,7 +261,7 @@ class FileKey
 	{
 		return EqualsBuilder.reflectionEquals(this, obj);
 	}
-	
+
 	@Override
 	public String toString()
 	{
