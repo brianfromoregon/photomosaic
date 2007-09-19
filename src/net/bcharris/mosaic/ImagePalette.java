@@ -69,18 +69,20 @@ public class ImagePalette
 			synchronized (kdTree)
 			{
 				kdTree.insert(imageContext.meanRgb, imageFileContext);
+				log.debug("Added image to palette: " + imageFileContext.imageFile.getAbsolutePath());
+				return true;
 			}
 		}
 		catch (KeyDuplicateException e)
 		{
+			log.debug("Duplicate key in kdtree, ignoring: " + imageFileContext.imageFile.getAbsolutePath());
+			return false;
 		}
 		catch (KeySizeException e)
 		{
 			log.error("Programmer error!", e);
+			return false;
 		}
-
-		log.debug("Added image to palette: " + imageFileContext.imageFile.getAbsolutePath());
-		return true;
 	}
 
 	// Creates a photomosaic of the specified target image using the current palette.
@@ -186,11 +188,6 @@ public class ImagePalette
 									}
 
 									bestMatches[ii][jj] = best;
-
-									if (best == null)
-									{
-										System.out.println();
-									}
 								}
 							}
 						}
