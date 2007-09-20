@@ -115,6 +115,7 @@ public class ImagePalette
 				// (right?)
 				g.drawImage(bestMatches[i][j].getBufferedImage(sliceWidth, sliceHeight), (mosaic.getWidth() * i)
 						/ numWide, (mosaic.getHeight() * j) / numTall, null);
+				log.debug("Drew cell ("+i+","+j+")");
 			}
 		}
 
@@ -188,6 +189,7 @@ public class ImagePalette
 									}
 
 									bestMatches[ii][jj] = best;
+									log.debug("Found best match for cell ("+ii+","+jj+")");
 								}
 							}
 						}
