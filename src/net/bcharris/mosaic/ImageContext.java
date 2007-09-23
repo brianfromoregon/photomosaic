@@ -4,6 +4,7 @@ public class ImageContext
 {
 	public final int ddx, ddy;
 
+	// allows nulls
 	public final String sha256;
 
 	public final Long imageFileLength;
@@ -12,11 +13,11 @@ public class ImageContext
 
 	public ImageContext(String sha256, long imageFileLength, int ddx, int ddy, double[] meanRgb)
 	{
-		if (sha256 == null || meanRgb == null)
+		if (meanRgb == null)
 		{
-			throw new IllegalArgumentException("null argument");
+			throw new IllegalArgumentException("null mean RGB array");
 		}
-		if (sha256.length() != 64)
+		if (sha256 != null && sha256.length() != 64)
 		{
 			throw new IllegalArgumentException("sha256 is not 64 chars long");
 		}
