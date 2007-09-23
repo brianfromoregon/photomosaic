@@ -135,8 +135,16 @@ public class Mosaic
 			return;
 		}
 		
-		mosaic.palette.addImages(src);
-		mosaic.doMosaic(target, dest, .2, 10, 10, 2);
+		try
+		{
+			mosaic.palette.addImages(src);
+			mosaic.doMosaic(target, dest, .4, 80, 90, 1);
+		}
+		catch (Throwable t)
+		{
+			log.error("", t);
+			return;
+		}
 	}
 	
 	private static String usage()
