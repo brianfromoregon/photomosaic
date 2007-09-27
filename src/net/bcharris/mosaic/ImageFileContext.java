@@ -1,6 +1,5 @@
 package net.bcharris.mosaic;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -8,67 +7,63 @@ import java.lang.ref.SoftReference;
 
 import javax.imageio.ImageIO;
 
+import net.bcharris.mosaic.util.ColorUtil;
+
 public class ImageFileContext
 {
 	// Location on disk of the image this context describes
-	public final File imageFile;
+	public final File file;
 
-	// Cache of previousily requested image
 	private SoftReference<BufferedImage> bufferedImage;
 
-	public ImageFileContext(File image)
+	private double[] meanRgb;
+
+	private final int ddx, ddy;
+
+	public ImageFileContext(File image, int ddx, int ddy)
 	{
-		this.imageFile = image;
+		this.file = image;
 		this.bufferedImage = new SoftReference<BufferedImage>(null);
+		this.ddx = ddx;
+		this.ddy = ddy;
 	}
 
-	// Get a BufferedImage without resizing first, null if not an image
-	public BufferedImage getBufferedImage()
-	throws IOException
+	public BufferedImage getBufferedImage() throws IOException
 	{
 		BufferedImage bi = bufferedImage.get();
 		if (bi == null)
 		{
-			bi = ImageIO.read(imageFile);
+			bi = ImageIO.read(file);
 			if (bi == null)
 			{
 				return null;
 			}
 			bufferedImage = new SoftReference<BufferedImage>(bi);
 		}
-		
 		return bi;
 	}
 
-	// Get a BufferedImage of the specified size, resizing if necessary
-	public BufferedImage getBufferedImage(int resizeWidth, int resizeHeight)
+	public double[] getMeanRgb()
 	throws IOException
 	{
-		BufferedImage bi = getBufferedImage();
-		if (bi == null)
+		if (meanRgb == null)
 		{
-			return null;
+			BufferedImage bi = getBufferedImage();
+			if (bi == null)
+			{
+				return null;
+			}
+			this.meanRgb = ColorUtil.meanColors(bi, ddx, ddy);
 		}
-		
-		if (bi.getWidth() != resizeWidth || bi.getHeight() != resizeHeight)
-		{
-			BufferedImage resized = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g = resized.createGraphics();
-			g.drawImage(bi, 0, 0, resizeWidth, resizeHeight, null);
-			g.dispose();
-			bi = resized;
-			bufferedImage = new SoftReference<BufferedImage>(bi);
-		}
-
-		return bi;
+		return this.meanRgb;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return 37 * (this.imageFile == null ? 37 : this.imageFile.hashCode());
+		return 37 * (this.file == null ? 37 : this.file.hashCode());
 	}
-	
+
 	@Override
 	public boolean equals(Object that)
 	{
@@ -76,12 +71,12 @@ public class ImageFileContext
 		{
 			return true;
 		}
-		
+
 		if (that == null || !(that instanceof ImageFileContext))
 		{
 			return false;
 		}
-		
-		return this.imageFile.equals(((ImageFileContext)that).imageFile);
+
+		return this.file.equals(((ImageFileContext) that).file);
 	}
 }

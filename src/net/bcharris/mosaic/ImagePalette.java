@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.bcharris.mosaic.db.ImageDao;
-import net.bcharris.mosaic.db.ImageDaoImpl;
+import net.bcharris.mosaic.util.ColorUtil;
 import net.bcharris.mosaic.util.CompletableExecutor;
 import net.bcharris.mosaic.util.SimpleCompletableExecutor;
 
@@ -31,97 +30,58 @@ public class ImagePalette
 	// Thread-safe kd-tree size counter
 	private final AtomicInteger kdTreeSize = new AtomicInteger(0);
 
-	// DAO for storing image color information
-	private final ImageDao dao;
-	
 	private final int numThreads;
 
 	private final Log log = LogFactory.getLog(ImagePalette.class);
 
-	// Size to resize images to before performing calculations on them.
-	public int resizeWidth, resizeHeight;
-
-	public ImagePalette(int resizeWidth, int resizeHeight, int numThreads, ImageDaoImpl dao)
+	public ImagePalette(int ddx, int ddy, int numThreads)
 	{
-		this.ddx = dao.ddx;
-		this.ddy = dao.ddy;
-		this.resizeHeight = resizeHeight;
-		this.resizeWidth = resizeWidth;
+		this.ddx = ddx;
+		this.ddy = ddy;
 		this.numThreads = numThreads;
-		this.dao = dao;
 		kdTree = new KDTree(3 * ddx * ddy);
 	}
 
-	// Insert an image into this palette.
-	// throws IOException if specified file context does not describe an image file.
-	public boolean insert(ImageFileContext imageFileContext) throws IOException
+	// Recursively add all images in the specified file or directory to this palette.
+	public void addImages(File f)
 	{
-		ImageContext imageContext = getImageContext(imageFileContext);
-
-		if (imageContext == null)
-		{
-			log.debug("tried to insert non-image into palette: " + imageFileContext.imageFile.getAbsolutePath());
-			return false;
-		}
-
-		try
-		{
-			synchronized (kdTree)
-			{
-				kdTree.insert(imageContext.meanRgb, imageFileContext);
-				log.debug("Added image to palette: " + imageFileContext.imageFile.getAbsolutePath());
-				return true;
-			}
-		}
-		catch (KeyDuplicateException e)
-		{
-			log.debug("Duplicate key in kdtree, ignoring: " + imageFileContext.imageFile.getAbsolutePath());
-			return false;
-		}
-		catch (KeySizeException e)
-		{
-			log.error("Programmer error!", e);
-			return false;
-		}
+		CompletableExecutor executor = new SimpleCompletableExecutor(numThreads);
+		log.info("Adding images in this dir (recursively) to palette: " + f.getAbsolutePath());
+		addImages(f, executor);
+		executor.awaitCompletionAndShutdown();
+		log.info("Done adding images to palette");
 	}
 
-	// Creates a photomosaic of the specified target image using the current palette.
-	public BufferedImage createMosaic(BufferedImage target, double scale, int numWide, int numTall,
-			int maxSameImageUsage) throws IOException
+	// Recursive, multi-threaded implementation of public method.
+	private void addImages(final File f, final CompletableExecutor executor)
 	{
-		if (numWide * numTall > kdTreeSize.get() * maxSameImageUsage)
+		if (f.isDirectory())
 		{
-			throw new IllegalArgumentException(
-					"Not enough palette images to create mosaic given usage constraints; need at least " + 
-					(int)Math.ceil((numWide * numTall) / maxSameImageUsage) + " and you only supplied " + kdTreeSize.get());
-		}
-
-		log.info("Creating mosaic");
-
-		int sliceWidth = (int) ((target.getWidth() * scale) / numWide);
-		int sliceHeight = (int) ((target.getHeight() * scale) / numTall);
-		BufferedImage mosaic = new BufferedImage(sliceWidth * numWide, sliceHeight * numTall,
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = mosaic.createGraphics();
-
-		ImageFileContext[][] bestMatches = bestMatches(target, numWide, numTall, maxSameImageUsage);
-
-		log.info("Drawing mosaic");
-		for (int i = 0; i < bestMatches.length; i++)
-		{
-			for (int j = 0; j < bestMatches[i].length; j++)
+			File[] files = f.listFiles();
+			for (final File f2 : files)
 			{
-				// no point in having this drawing being multithreaded as it gets executed on the event dispatch thread
-				// (right?)
-				g.drawImage(bestMatches[i][j].getBufferedImage(sliceWidth, sliceHeight), (mosaic.getWidth() * i)
-						/ numWide, (mosaic.getHeight() * j) / numTall, null);
-				log.debug("Drew cell ("+i+","+j+")");
+				executor.execute(new Runnable() {
+					public void run()
+					{
+						addImages(f2, executor);
+					}
+				});
 			}
 		}
-
-		g.dispose();
-		log.info("Done drawing mosaic");
-		return mosaic;
+		else
+		{
+			try
+			{
+				if (/*f.getName().startsWith("__resized") && */insert(new ImageFileContext(f, ddx, ddy)))
+				{
+					kdTreeSize.incrementAndGet();
+				}
+			}
+			catch (IOException e)
+			{
+				log.info("error while trying to insert image file into palette", e);
+			}
+		}
 	}
 
 	// Get a grid of images which can be used to compose the specified target image as a mosaic.
@@ -156,7 +116,7 @@ public class ImagePalette
 					{
 						BufferedImage image = target.getSubimage(xStart, yStart, w, h);
 
-						double[] sliceMeanColors = Util.meanColors(image, ddx, ddy);
+						double[] sliceMeanColors = ColorUtil.meanColors(image, ddx, ddy);
 
 						try
 						{
@@ -179,7 +139,7 @@ public class ImagePalette
 									{
 										try
 										{
-											kdTree.delete(getImageContext(best).meanRgb);
+											kdTree.delete(best.getMeanRgb());
 											kdTreeSize.decrementAndGet();
 										}
 										catch (Exception e)
@@ -189,7 +149,7 @@ public class ImagePalette
 									}
 
 									bestMatches[ii][jj] = best;
-									log.debug("Found best match for cell ("+ii+","+jj+")");
+									log.debug("Found best match for cell (" + ii + "," + jj + ")");
 								}
 							}
 						}
@@ -204,69 +164,73 @@ public class ImagePalette
 		}
 
 		executor.awaitCompletionAndShutdown();
-		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall*numWide + " grid cells.");
+		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall
+				* numWide + " grid cells.");
 		return bestMatches;
 	}
 
-	// Recursively add all images in the specified file or directory to this palette.
-	public void addImages(File f)
+	// Creates a photomosaic of the specified target image using the current palette.
+	public BufferedImage createMosaic(BufferedImage target, int numWide, int numTall, int sliceWidth, int sliceHeight,
+			int maxSameImageUsage) throws IOException
 	{
-		CompletableExecutor executor = new SimpleCompletableExecutor(numThreads);
-		log.info("Adding images in this dir (recursively) to palette: " + f.getAbsolutePath());
-		addImages(f, executor);
-		executor.awaitCompletionAndShutdown();
-		log.info("Done adding images to palette");
-	}
-
-	// Recursive, multi-threaded implementation of public method.
-	private void addImages(final File f, final CompletableExecutor executor)
-	{
-		if (f.isDirectory())
+		if (numWide * numTall > kdTreeSize.get() * maxSameImageUsage)
 		{
-			File[] files = f.listFiles();
-			for (final File f2 : files)
+			throw new IllegalArgumentException(
+					"Not enough palette images to create mosaic given usage constraints; need at least "
+							+ (int) Math.ceil((numWide * numTall) / maxSameImageUsage) + " and you only supplied "
+							+ kdTreeSize.get());
+		}
+
+		log.info("Creating mosaic");
+
+		BufferedImage mosaic = new BufferedImage(sliceWidth * numWide, sliceHeight * numTall,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = mosaic.createGraphics();
+
+		ImageFileContext[][] bestMatches = bestMatches(target, numWide, numTall, maxSameImageUsage);
+
+		log.info("Drawing mosaic");
+		for (int i = 0; i < bestMatches.length; i++)
+		{
+			for (int j = 0; j < bestMatches[i].length; j++)
 			{
-				executor.execute(new Runnable() {
-					public void run()
-					{
-						addImages(f2, executor);
-					}
-				});
+				// no point in having this drawing being multithreaded as it gets executed on the event dispatch thread
+				// (right?)
+				g.drawImage(bestMatches[i][j].getBufferedImage(), (mosaic.getWidth() * i) / numWide, (mosaic.getHeight() * j) / numTall, null);
+				log.debug("Drew cell (" + i + "," + j + ")");
 			}
 		}
-		else
+
+		g.dispose();
+		log.info("Done drawing mosaic");
+		return mosaic;
+	}
+
+	public boolean insert(ImageFileContext ctx) throws IOException
+	{
+		try
 		{
-			ImageFileContext imageFileContext = new ImageFileContext(f);
-			try
+			synchronized (kdTree)
 			{
-				if (insert(imageFileContext))
+				double[] meanRgb = ctx.getMeanRgb();
+				if (meanRgb == null)
 				{
-					kdTreeSize.incrementAndGet();					
+					return false;
 				}
-			}
-			catch (IOException e)
-			{
-				log.info("error while trying to insert image file into palette", e);
+				kdTree.insert(meanRgb, ctx);
+				log.debug("Added image to palette: " + ctx.file.getAbsolutePath());
+				return true;
 			}
 		}
-	}
-
-	// Utility function to get an ImageContext from an ImageFileContext
-	private ImageContext getImageContext(ImageFileContext imageFileContext) throws IOException
-	{
-		ImageContext imageContext = dao.loadImageContext(imageFileContext.imageFile);
-		if (imageContext == null)
+		catch (KeyDuplicateException e)
 		{
-			BufferedImage bufferedImage = imageFileContext.getBufferedImage(resizeWidth, resizeHeight);
-			if (bufferedImage == null)
-			{
-				return null;
-			}
-
-			imageContext = new ImageContext(Util.sha256(imageFileContext.imageFile), imageFileContext.imageFile
-					.length(), ddx, ddy, Util.meanColors(bufferedImage, ddx, ddy));
-			dao.saveImageContext(imageContext);
+			log.debug("Duplicate key in kdtree, ignoring: " + ctx.file.getAbsolutePath());
+			return false;
 		}
-		return imageContext;
+		catch (KeySizeException e)
+		{
+			log.error("Programmer error!", e);
+			return false;
+		}
 	}
 }

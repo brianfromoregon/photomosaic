@@ -22,13 +22,13 @@ public class Mosaic
 		this.palette = palette;
 	}
 
-	public void doMosaic(File target, File dest, double scale, int numWide, int numTall, int maxSameImageUsage)
+	public void doMosaic(File target, File dest, int numWide, int numTall,  int sliceWidth, int sliceHeight, int maxSameImageUsage)
 	{
 		BufferedImage targetImage = null;
 
 		try
 		{
-			targetImage = new ImageFileContext(target).getBufferedImage();
+			targetImage = ImageIO.read(target);
 		}
 		catch (IOException e)
 		{
@@ -44,7 +44,7 @@ public class Mosaic
 
 		try
 		{
-			mosaic = palette.createMosaic(targetImage, scale, numWide, numTall, maxSameImageUsage);
+			mosaic = palette.createMosaic(targetImage, numWide, numTall, sliceWidth, sliceHeight, maxSameImageUsage);
 		}
 		catch (IOException e)
 		{
@@ -61,31 +61,6 @@ public class Mosaic
 		{
 			log.error("while writing mosaic image", e);
 		}
-
-		// JFrame f = new JFrame();
-		// JPanel cp = new JPanel(new GridBagLayout())
-		// {
-		// public void paint(Graphics g)
-		// {
-		// int w = getWidth();
-		// int h = getHeight();
-		// int imageW = mosaic.getWidth(this);
-		// int imageH = mosaic.getHeight(this);
-		// int x = (w - imageW)/2;
-		// int y = (h - imageH)/2;
-		// g.drawImage(mosaic, x, y, this);
-		// super.paint(g);
-		// }
-		// };
-		// cp.setOpaque(false);
-		// GridBagConstraints gbc = new GridBagConstraints();
-		// gbc.gridwidth = GridBagConstraints.REMAINDER;
-		// gbc.weighty = 1.0;
-		// f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// f.setContentPane(cp);
-		// f.setSize(mosaic.getWidth(), mosaic.getHeight()+30);
-		// f.setLocation(0, 0);
-		// f.setVisible(true);
 	}
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
@@ -138,7 +113,7 @@ public class Mosaic
 		try
 		{
 			mosaic.palette.addImages(src);
-			mosaic.doMosaic(target, dest, .4, 80, 90, 1);
+			mosaic.doMosaic(target, dest, 72, 96, 150, 113, 100);
 		}
 		catch (Throwable t)
 		{
@@ -150,8 +125,7 @@ public class Mosaic
 	private static String usage()
 	{
 		return "" +
-				"Usage: java -jar App.jar -DdbName=A -DsrcLoc=B -DtargetImg=C -DdestFile=D" + LINE_SEPARATOR + 
-				"\tA - The name of the database to use for storing image information." + LINE_SEPARATOR +
+				"Usage: java -jar App.jar -DsrcLoc=B -DtargetImg=C -DdestFile=D" + LINE_SEPARATOR + 
 				"\tB - The directory or image file to recursively process the image files within." + LINE_SEPARATOR +
 				"\tC - The image file to recreate as a mosaic." + LINE_SEPARATOR +
 				"\tD - Where to write the created mosaic image file.";
