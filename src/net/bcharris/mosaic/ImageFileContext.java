@@ -3,35 +3,33 @@ package net.bcharris.mosaic;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
 
 import javax.imageio.ImageIO;
 
 import net.bcharris.mosaic.util.ColorUtil;
 
-public class ImageFileContext
+public class ImageFileContext implements Serializable
 {
 	// Location on disk of the image this context describes
 	public final File file;
 
-	private SoftReference<BufferedImage> bufferedImage;
+	private transient SoftReference<BufferedImage> bufferedImage;
 
-	private double[] meanRgb;
+	private double[][] meanRgb = new double[6][];
 
-	private final int ddx, ddy;
-
-	public ImageFileContext(File image, int ddx, int ddy)
+	public ImageFileContext(File image)
 	{
 		this.file = image;
 		this.bufferedImage = new SoftReference<BufferedImage>(null);
-		this.ddx = ddx;
-		this.ddy = ddy;
 	}
 
 	public BufferedImage getBufferedImage() throws IOException
 	{
-		BufferedImage bi = bufferedImage.get();
-		if (bi == null)
+		BufferedImage bi = null;
+		if (bufferedImage == null || bufferedImage.get() == null)
 		{
 			bi = ImageIO.read(file);
 			if (bi == null)
@@ -43,19 +41,20 @@ public class ImageFileContext
 		return bi;
 	}
 
-	public double[] getMeanRgb()
-	throws IOException
-	{
-		if (meanRgb == null)
+	public double[] getMeanRgb(int dd) throws IOException
+	{	
+		if (meanRgb[dd-1] == null)
 		{
 			BufferedImage bi = getBufferedImage();
 			if (bi == null)
 			{
 				return null;
 			}
-			this.meanRgb = ColorUtil.meanColors(bi, ddx, ddy);
+
+			meanRgb[dd-1] = ColorUtil.meanColors(bi, dd, dd);
 		}
-		return this.meanRgb;
+		
+		return meanRgb[dd-1];
 	}
 
 	@Override
@@ -78,5 +77,24 @@ public class ImageFileContext
 		}
 
 		return this.file.equals(((ImageFileContext) that).file);
+	}
+
+	private Object writeReplace() throws ObjectStreamException
+	{
+		try
+		{
+			this.getMeanRgb(1);
+			this.getMeanRgb(2);
+			this.getMeanRgb(3);
+			this.getMeanRgb(4);
+			this.getMeanRgb(5);
+			this.getMeanRgb(6);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace(System.err);
+		}
+		
+		return this;
 	}
 }

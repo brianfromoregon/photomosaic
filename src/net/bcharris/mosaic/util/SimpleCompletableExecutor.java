@@ -20,6 +20,8 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 
 	private final Log log = LogFactory.getLog(SimpleCompletableExecutor.class);
 
+	private volatile long earliestCompletion = System.currentTimeMillis();
+
 	public SimpleCompletableExecutor(int numThreads)
 	{
 		this.service = Executors.newFixedThreadPool(numThreads);
@@ -27,6 +29,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 
 	public void execute(Runnable job)
 	{
+		earliestCompletion = System.currentTimeMillis() + 100;
 		jobs.add(service.submit(new LoggingRunnable(job)));
 	}
 
@@ -34,26 +37,40 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 	{
 		try
 		{
-			while (!jobs.isEmpty())
+			while (!jobs.isEmpty() || System.currentTimeMillis() <= earliestCompletion)
 			{
-				Future job = jobs.remove(0);
-				try
+				if (!jobs.isEmpty())
 				{
-					job.get();
+					Future job = jobs.remove(0);
+					try
+					{
+						job.get();
+					}
+					catch (InterruptedException e)
+					{
+						log.debug("Interrupted while calling get() on a Future, will retry later.", e);
+						jobs.add(job);
+					}
+					catch (ExecutionException e)
+					{
+						// The LoggingRunnable wrapper will produce a better message
+						// log.error(e);
+					}
+					catch (CancellationException e)
+					{
+						log.error(e);
+					}
 				}
-				catch (InterruptedException e)
+				else
 				{
-					log.debug("Interrupted while calling get() on a Future, will retry later.", e);
-					jobs.add(job);
-				}
-				catch (ExecutionException e)
-				{
-					// The LoggingRunnable wrapper will produce a better message
-//					log.error(e);
-				}
-				catch (CancellationException e)
-				{
-					log.error(e);
+					try
+					{
+						Thread.sleep(100);
+					}
+					catch (InterruptedException e)
+					{
+
+					}
 				}
 			}
 		}

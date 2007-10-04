@@ -22,10 +22,13 @@ import edu.wlu.cs.levy.CG.KeySizeException;
 public class ImagePalette
 {
 	// Drill down amount
-	public final int ddx, ddy;
+	public final int dd;
 
 	// Stores palette image color info for quick nearest neighbor searching
 	private final KDTree kdTree;
+
+	// For serializing
+	public Map<ImageFileContext, ImageFileContext> contexts = new HashMap<ImageFileContext, ImageFileContext>();
 
 	// Thread-safe kd-tree size counter
 	private final AtomicInteger kdTreeSize = new AtomicInteger(0);
@@ -34,12 +37,11 @@ public class ImagePalette
 
 	private final Log log = LogFactory.getLog(ImagePalette.class);
 
-	public ImagePalette(int ddx, int ddy, int numThreads)
+	public ImagePalette(int dd, int numThreads)
 	{
-		this.ddx = ddx;
-		this.ddy = ddy;
+		this.dd = dd;
 		this.numThreads = numThreads;
-		kdTree = new KDTree(3 * ddx * ddy);
+		kdTree = new KDTree(3 * dd * dd);
 	}
 
 	// Recursively add all images in the specified file or directory to this palette.
@@ -72,7 +74,8 @@ public class ImagePalette
 		{
 			try
 			{
-				if (/*f.getName().startsWith("__resized") && */insert(new ImageFileContext(f, ddx, ddy)))
+				ImageFileContext context = new ImageFileContext(f);
+				if (insert(context))
 				{
 					kdTreeSize.incrementAndGet();
 				}
@@ -85,7 +88,7 @@ public class ImagePalette
 	}
 
 	// Get a grid of images which can be used to compose the specified target image as a mosaic.
-	private ImageFileContext[][] bestMatches(final BufferedImage target, final int numWide, final int numTall,
+	public ImageFileContext[][] bestMatches(final BufferedImage target, final int numWide, final int numTall,
 			final int maxSameImageUsage)
 	{
 		log.info("Finding best image matches for target image sections");
@@ -116,7 +119,7 @@ public class ImagePalette
 					{
 						BufferedImage image = target.getSubimage(xStart, yStart, w, h);
 
-						double[] sliceMeanColors = ColorUtil.meanColors(image, ddx, ddy);
+						double[] sliceMeanColors = ColorUtil.meanColors(image, dd, dd);
 
 						try
 						{
@@ -139,7 +142,7 @@ public class ImagePalette
 									{
 										try
 										{
-											kdTree.delete(best.getMeanRgb());
+											kdTree.delete(best.getMeanRgb(dd));
 											kdTreeSize.decrementAndGet();
 										}
 										catch (Exception e)
@@ -166,6 +169,7 @@ public class ImagePalette
 		executor.awaitCompletionAndShutdown();
 		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall
 				* numWide + " grid cells.");
+
 		return bestMatches;
 	}
 
@@ -183,11 +187,11 @@ public class ImagePalette
 
 		log.info("Creating mosaic");
 
+		ImageFileContext[][] bestMatches = bestMatches(target, numWide, numTall, maxSameImageUsage);
+
 		BufferedImage mosaic = new BufferedImage(sliceWidth * numWide, sliceHeight * numTall,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = mosaic.createGraphics();
-
-		ImageFileContext[][] bestMatches = bestMatches(target, numWide, numTall, maxSameImageUsage);
 
 		log.info("Drawing mosaic");
 		for (int i = 0; i < bestMatches.length; i++)
@@ -196,7 +200,9 @@ public class ImagePalette
 			{
 				// no point in having this drawing being multithreaded as it gets executed on the event dispatch thread
 				// (right?)
-				g.drawImage(bestMatches[i][j].getBufferedImage(), (mosaic.getWidth() * i) / numWide, (mosaic.getHeight() * j) / numTall, null);
+				g.drawImage(bestMatches[i][j].getBufferedImage(), (mosaic.getWidth() * i) / numWide, (mosaic
+						.getHeight() * j)
+						/ numTall, null);
 				log.debug("Drew cell (" + i + "," + j + ")");
 			}
 		}
@@ -212,7 +218,15 @@ public class ImagePalette
 		{
 			synchronized (kdTree)
 			{
-				double[] meanRgb = ctx.getMeanRgb();
+				if (contexts.containsKey(ctx))
+				{
+					ctx = contexts.get(ctx);
+				}
+				else
+				{
+					contexts.put(ctx, ctx);
+				}
+				double[] meanRgb = ctx.getMeanRgb(dd);
 				if (meanRgb == null)
 				{
 					return false;

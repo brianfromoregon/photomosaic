@@ -6,17 +6,15 @@
 	<bean id="defaultValues" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="properties">
 			<value>
-				ddx=5
-				ddy=5
+				dd=2
 				numThreads=10
 			</value>
 		</property>
 	</bean>
 
 	<bean id="imagePalette" class="net.bcharris.mosaic.ImagePalette">
-		<constructor-arg index="0" value="${ddx}" />
-		<constructor-arg index="1" value="${ddy}" />
-		<constructor-arg index="2" value="${numThreads}" />
+		<constructor-arg index="0" value="${dd}" />
+		<constructor-arg index="1" value="${numThreads}" />
 	</bean>
 	
 	<bean id="mosaic" class="net.bcharris.mosaic.Mosaic">
