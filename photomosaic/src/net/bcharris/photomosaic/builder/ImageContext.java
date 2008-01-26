@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic;
+package net.bcharris.photomosaic.builder;
 
 public class ImageContext
 {

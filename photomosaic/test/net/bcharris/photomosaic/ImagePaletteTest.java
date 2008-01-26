@@ -1,6 +1,8 @@
 
 package net.bcharris.photomosaic;
 
+import net.bcharris.photomosaic.builder.ImageFileContext;
+import net.bcharris.photomosaic.builder.ImagePalette;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;

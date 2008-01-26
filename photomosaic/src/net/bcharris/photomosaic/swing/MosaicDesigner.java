@@ -5,10 +5,13 @@
  */
 package net.bcharris.photomosaic.swing;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
@@ -25,6 +28,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 	/** Creates new form MosaicDesigner */
 	public MosaicDesigner()
 	{
+		super("Mosaic Designer");
 		// Auto-generate GUI init
 		initComponents();
 
@@ -92,7 +96,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		}
 		catch (Throwable t)
 		{
-			log.warn("When commiting input values", t);
+			log.warn("Invalid input values, aborting.");
 			return;
 		}
 
@@ -140,6 +144,34 @@ public class MosaicDesigner extends javax.swing.JFrame
 		}
 		return o.toString().substring(0, index + 2);
 	}
+	
+	private void createMosaic()
+	{
+		if (targetImageGridPanel.getImage() == null)
+		{
+			JOptionPane.showMessageDialog(this, "Choose a target image first.");
+			return;
+		}
+		
+		ImageGridPanel targetImageGridPanelClone = new ImageGridPanel(targetImageGridPanel);
+		SetPrioritiesDialog setPrioritiesDialog = new SetPrioritiesDialog(this, targetImageGridPanelClone);
+		setPrioritiesDialog.setModal(true);
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		setPrioritiesDialog.setSize((int)(d.getWidth() * .9), (int)(d.getHeight() * .85));
+		setPrioritiesDialog.setLocationRelativeTo(null);
+		setPrioritiesDialog.setVisible(true);
+		
+		// And we're back
+		targetImageGridPanel.setPriorities(targetImageGridPanelClone.getPriorities());
+
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				targetImageGridPanel.repaint();
+			}
+		});
+	}
 
 	/** This method is called from within the constructor to
 	 * initialize the form.
@@ -148,7 +180,6 @@ public class MosaicDesigner extends javax.swing.JFrame
 	 */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         jDialog1 = new javax.swing.JDialog();
         jPanel3 = new javax.swing.JPanel();
@@ -249,11 +280,6 @@ public class MosaicDesigner extends javax.swing.JFrame
                 finalMosaicWidthTextFieldFocusLost(evt);
             }
         });
-        finalMosaicWidthTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                finalMosaicWidthTextFieldKeyTyped(evt);
-            }
-        });
         controlPanel.add(finalMosaicWidthTextField);
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -269,11 +295,6 @@ public class MosaicDesigner extends javax.swing.JFrame
                 numSourceImagesTallSliderStateChanged(evt);
             }
         });
-        numSourceImagesTallSlider.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                numSourceImagesTallSliderKeyTyped(evt);
-            }
-        });
         controlPanel.add(numSourceImagesTallSlider);
 
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -286,11 +307,6 @@ public class MosaicDesigner extends javax.swing.JFrame
         sourceImageWidthSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 sourceImageWidthSpinnerStateChanged(evt);
-            }
-        });
-        sourceImageWidthSpinner.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                sourceImageWidthSpinnerKeyTyped(evt);
             }
         });
         controlPanel.add(sourceImageWidthSpinner);
@@ -321,29 +337,8 @@ public class MosaicDesigner extends javax.swing.JFrame
 	}//GEN-LAST:event_sourceImageWidthSpinnerStateChanged
 
 	private void createMosaicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createMosaicButtonActionPerformed
-	// TODO add your handling code here:
+		createMosaic();
 }//GEN-LAST:event_createMosaicButtonActionPerformed
-
-	private void finalMosaicWidthTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_finalMosaicWidthTextFieldKeyTyped
-		if (evt.getKeyCode() == 0)
-		{
-			finalMosaicWidthTextField.transferFocus();
-		}
-	}//GEN-LAST:event_finalMosaicWidthTextFieldKeyTyped
-
-	private void numSourceImagesTallSliderKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numSourceImagesTallSliderKeyTyped
-		if (evt.getKeyCode() == 0)
-		{
-			numSourceImagesTallSlider.transferFocus();
-		}
-	}//GEN-LAST:event_numSourceImagesTallSliderKeyTyped
-
-	private void sourceImageWidthSpinnerKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sourceImageWidthSpinnerKeyTyped
-		if (evt.getKeyCode() == 0)
-		{
-			sourceImageWidthSpinner.transferFocus();
-		}
-	}//GEN-LAST:event_sourceImageWidthSpinnerKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;

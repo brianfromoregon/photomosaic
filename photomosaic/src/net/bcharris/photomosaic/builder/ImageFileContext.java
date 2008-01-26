@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic;
+package net.bcharris.photomosaic.builder;
 
 import net.bcharris.photomosaic.util.*;
 import java.awt.image.BufferedImage;
