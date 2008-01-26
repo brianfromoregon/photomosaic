@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,11 +28,11 @@ public class MosaicDesigner extends javax.swing.JFrame
 		// Auto-generate GUI init
 		initComponents();
 
+		// Grow to a decent size
+		setSize(650, 600);
+
 		// Center on the screen.
 		setLocationRelativeTo(null);
-
-		// Grow to a decent size
-		setSize(450, 400);
 	}
 
 	public static void main(String args[])
@@ -51,7 +52,6 @@ public class MosaicDesigner extends javax.swing.JFrame
 		final JFileChooser fc = new JFileChooser();
 		fc.setMultiSelectionEnabled(false);
 
-		//In response to a button click:
 		int returnVal = fc.showOpenDialog(this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION)
@@ -67,22 +67,78 @@ public class MosaicDesigner extends javax.swing.JFrame
 					throw new IllegalStateException(String.format("User-selected image file is a non-image '%s'", f.getAbsolutePath()));
 				}
 
-				imageGridPanel.setImage(newTargetImg);
+				targetImageGridPanel.setImage(newTargetImg);
 			}
 			catch (Throwable t)
 			{
 				log.warn("When loading user-selected image", t);
 				return;
 			}
-
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				public void run()
-				{
-					repaint();
-				}
-			});
 		}
+	}
+
+	private void recalcAndUpdateUI()
+	{
+		if (targetImageGridPanel.getImage() == null)
+		{
+			return;
+		}
+
+		try
+		{
+			finalMosaicWidthTextField.commitEdit();
+			numSourceImagesTallSlider.commitEdit();
+			sourceImageWidthSpinner.commitEdit();
+		}
+		catch (Throwable t)
+		{
+			log.warn("When commiting input values", t);
+			return;
+		}
+
+		// Start with what we know
+		int desiredFinalMosaicWidth = Integer.parseInt(finalMosaicWidthTextField.getValue().toString());
+		int numSourceImagesTall = Integer.parseInt(numSourceImagesTallSlider.getValue().toString());
+		int desiredSourceImageWidth = Integer.parseInt(sourceImageWidthSpinner.getValue().toString());
+
+		// Calculate the rest
+		double desiredFinalMosaicHeight = (desiredFinalMosaicWidth * (1 / targetImageGridPanel.getImageRatio()));
+		int sourceImageHeight = (int) Math.round(desiredFinalMosaicHeight / numSourceImagesTall);
+		int finalMosaicHeight = sourceImageHeight * numSourceImagesTall;
+		int numSourceImagesWide = Math.round(desiredFinalMosaicWidth / (float) desiredSourceImageWidth);
+		int sourceImageWidth = Math.round(desiredFinalMosaicWidth / (float) numSourceImagesWide);
+		int finalMosaicWidth = sourceImageWidth * numSourceImagesWide;
+		int requiredSourceImages = numSourceImagesTall * numSourceImagesWide;
+		double sourceImageRatio = (finalMosaicWidth / (double) numSourceImagesWide) / (finalMosaicHeight / (double) numSourceImagesTall);
+
+		requiredSourceImagesLabel.setText(stripValue(requiredSourceImagesLabel.getText()) + requiredSourceImages);
+		finalMosaicSizeLabel.setText(stripValue(finalMosaicSizeLabel.getText()) + finalMosaicWidth + "x" + finalMosaicHeight);
+		sourceImageRatioLabel.setText(stripValue(sourceImageRatioLabel.getText()) + sourceImageRatio);
+		sourceImageSizeLabel.setText(stripValue(sourceImageSizeLabel.getText()) + sourceImageWidth + "x" + sourceImageHeight);
+
+		// Update input constraints
+		((SpinnerNumberModel) sourceImageWidthSpinner.getModel()).setMaximum(finalMosaicWidth);
+
+		// Redraw target image grid.
+		targetImageGridPanel.setGridSize(numSourceImagesWide, numSourceImagesTall);
+
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				targetImageGridPanel.repaint();
+			}
+		});
+	}
+
+	private static String stripValue(Object o)
+	{
+		int index = o.toString().indexOf("= ");
+		if (index == -1)
+		{
+			return o.toString();
+		}
+		return o.toString().substring(0, index + 2);
 	}
 
 	/** This method is called from within the constructor to
@@ -92,37 +148,67 @@ public class MosaicDesigner extends javax.swing.JFrame
 	 */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        jDialog1 = new javax.swing.JDialog();
+        jPanel3 = new javax.swing.JPanel();
         reqPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        imageGridPanel = new net.bcharris.photomosaic.swing.ImageGridPanel();
+        requiredSourceImagesLabel = new javax.swing.JLabel();
+        finalMosaicSizeLabel = new javax.swing.JLabel();
+        sourceImageSizeLabel = new javax.swing.JLabel();
+        sourceImageRatioLabel = new javax.swing.JLabel();
+        targetImageGridPanel = new net.bcharris.photomosaic.swing.ImageGridPanel();
         jPanel1 = new javax.swing.JPanel();
         buttonPanel = new javax.swing.JPanel();
         setTargetImageButton = new javax.swing.JButton();
+        createMosaicButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         controlPanel = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        sourceImageRatioTextField = new javax.swing.JFormattedTextField();
         jLabel5 = new javax.swing.JLabel();
         finalMosaicWidthTextField = new javax.swing.JFormattedTextField();
+        jLabel2 = new javax.swing.JLabel();
+        numSourceImagesTallSlider = new javax.swing.JSpinner();
         jLabel6 = new javax.swing.JLabel();
-        sourceImageWidthSlider = new javax.swing.JSlider();
+        sourceImageWidthSpinner = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel3.setFocusable(false);
+
         reqPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Status"));
-        reqPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 20, 10));
+        reqPanel.setFocusable(false);
+        reqPanel.setLayout(new java.awt.GridLayout(0, 2, 15, 10));
 
-        jLabel1.setText("# Required Source Images = ?");
-        reqPanel.add(jLabel1);
+        requiredSourceImagesLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        requiredSourceImagesLabel.setText("Required Source Images = ?");
+        requiredSourceImagesLabel.setFocusable(false);
+        reqPanel.add(requiredSourceImagesLabel);
 
-        jLabel3.setText("Final Mosaic Height = ?");
-        reqPanel.add(jLabel3);
+        finalMosaicSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        finalMosaicSizeLabel.setText("Final Mosaic Size = ?");
+        finalMosaicSizeLabel.setFocusable(false);
+        reqPanel.add(finalMosaicSizeLabel);
 
-        getContentPane().add(reqPanel, java.awt.BorderLayout.NORTH);
-        getContentPane().add(imageGridPanel, java.awt.BorderLayout.CENTER);
+        sourceImageSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sourceImageSizeLabel.setText("Source Image Size = ?");
+        sourceImageSizeLabel.setFocusable(false);
+        reqPanel.add(sourceImageSizeLabel);
+
+        sourceImageRatioLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        sourceImageRatioLabel.setText("Source Image W/H Ratio = ?");
+        sourceImageRatioLabel.setFocusable(false);
+        reqPanel.add(sourceImageRatioLabel);
+
+        jPanel3.add(reqPanel);
+
+        getContentPane().add(jPanel3, java.awt.BorderLayout.NORTH);
+
+        targetImageGridPanel.setFocusable(false);
+        getContentPane().add(targetImageGridPanel, java.awt.BorderLayout.CENTER);
 
         jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.Y_AXIS));
+
+        buttonPanel.setFocusable(false);
 
         setTargetImageButton.setText("Set Target Image");
         setTargetImageButton.addActionListener(new java.awt.event.ActionListener() {
@@ -132,50 +218,86 @@ public class MosaicDesigner extends javax.swing.JFrame
         });
         buttonPanel.add(setTargetImageButton);
 
+        createMosaicButton.setText("Create This Mosaic!");
+        createMosaicButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createMosaicButtonActionPerformed(evt);
+            }
+        });
+        buttonPanel.add(createMosaicButton);
+
         jPanel1.add(buttonPanel);
 
+        jPanel2.setFocusable(false);
+
+        controlPanel.setFocusable(false);
         controlPanel.setLayout(new java.awt.GridLayout(0, 2, 10, 0));
 
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel2.setText("Source image dimension ratio:");
-        jLabel2.setToolTipText("Width to height ratio used to crop source images.");
-        jLabel2.setAlignmentX(0.5F);
-        controlPanel.add(jLabel2);
-
-        sourceImageRatioTextField.setColumns(4);
-        sourceImageRatioTextField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.#########"))));
-        sourceImageRatioTextField.setText("1.3333333");
-        sourceImageRatioTextField.setToolTipText("Width to height ratio used to crop source images.");
-        controlPanel.add(sourceImageRatioTextField);
-
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel5.setText("Final Mosaic Width (px):");
+        jLabel5.setText("Approx. Final Mosaic Width (px):");
         jLabel5.setAlignmentX(0.5F);
+        jLabel5.setFocusable(false);
         controlPanel.add(jLabel5);
         jLabel5.getAccessibleContext().setAccessibleName("Image Size");
 
         finalMosaicWidthTextField.setColumns(4);
         finalMosaicWidthTextField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        finalMosaicWidthTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         finalMosaicWidthTextField.setText("1600");
         finalMosaicWidthTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 finalMosaicWidthTextFieldFocusLost(evt);
             }
         });
+        finalMosaicWidthTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                finalMosaicWidthTextFieldKeyTyped(evt);
+            }
+        });
         controlPanel.add(finalMosaicWidthTextField);
 
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("Number of Source Images Tall:");
+        jLabel2.setToolTipText("Width to height ratio used to crop source images.");
+        jLabel2.setAlignmentX(0.5F);
+        jLabel2.setFocusable(false);
+        controlPanel.add(jLabel2);
+
+        numSourceImagesTallSlider.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(16), Integer.valueOf(1), null, Integer.valueOf(1)));
+        numSourceImagesTallSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                numSourceImagesTallSliderStateChanged(evt);
+            }
+        });
+        numSourceImagesTallSlider.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                numSourceImagesTallSliderKeyTyped(evt);
+            }
+        });
+        controlPanel.add(numSourceImagesTallSlider);
+
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel6.setText("Source Image Width (px):");
+        jLabel6.setText("Approx. Source Image Width (px):");
         jLabel6.setAlignmentX(0.5F);
+        jLabel6.setFocusable(false);
         controlPanel.add(jLabel6);
 
-        sourceImageWidthSlider.setFont(new java.awt.Font("Tahoma", 0, 12));
-        sourceImageWidthSlider.setMajorTickSpacing(400);
-        sourceImageWidthSlider.setMaximum(1600);
-        sourceImageWidthSlider.setPaintLabels(true);
-        controlPanel.add(sourceImageWidthSlider);
+        sourceImageWidthSpinner.setModel(new javax.swing.SpinnerNumberModel(100, 1, 1600, 1));
+        sourceImageWidthSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sourceImageWidthSpinnerStateChanged(evt);
+            }
+        });
+        sourceImageWidthSpinner.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                sourceImageWidthSpinnerKeyTyped(evt);
+            }
+        });
+        controlPanel.add(sourceImageWidthSpinner);
 
-        jPanel1.add(controlPanel);
+        jPanel2.add(controlPanel);
+
+        jPanel1.add(jPanel2);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.SOUTH);
 
@@ -183,26 +305,66 @@ public class MosaicDesigner extends javax.swing.JFrame
     }// </editor-fold>//GEN-END:initComponents
 	private void setTargetImageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setTargetImageButtonActionPerformed
 		resetTargetImage();
+		recalcAndUpdateUI();
 }//GEN-LAST:event_setTargetImageButtonActionPerformed
 
 	private void finalMosaicWidthTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_finalMosaicWidthTextFieldFocusLost
-		
+		recalcAndUpdateUI();
 	}//GEN-LAST:event_finalMosaicWidthTextFieldFocusLost
+
+	private void numSourceImagesTallSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_numSourceImagesTallSliderStateChanged
+		recalcAndUpdateUI();
+	}//GEN-LAST:event_numSourceImagesTallSliderStateChanged
+
+	private void sourceImageWidthSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sourceImageWidthSpinnerStateChanged
+		recalcAndUpdateUI();
+	}//GEN-LAST:event_sourceImageWidthSpinnerStateChanged
+
+	private void createMosaicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createMosaicButtonActionPerformed
+	// TODO add your handling code here:
+}//GEN-LAST:event_createMosaicButtonActionPerformed
+
+	private void finalMosaicWidthTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_finalMosaicWidthTextFieldKeyTyped
+		if (evt.getKeyCode() == 0)
+		{
+			finalMosaicWidthTextField.transferFocus();
+		}
+	}//GEN-LAST:event_finalMosaicWidthTextFieldKeyTyped
+
+	private void numSourceImagesTallSliderKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numSourceImagesTallSliderKeyTyped
+		if (evt.getKeyCode() == 0)
+		{
+			numSourceImagesTallSlider.transferFocus();
+		}
+	}//GEN-LAST:event_numSourceImagesTallSliderKeyTyped
+
+	private void sourceImageWidthSpinnerKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sourceImageWidthSpinnerKeyTyped
+		if (evt.getKeyCode() == 0)
+		{
+			sourceImageWidthSpinner.transferFocus();
+		}
+	}//GEN-LAST:event_sourceImageWidthSpinnerKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JPanel controlPanel;
+    private javax.swing.JButton createMosaicButton;
+    private javax.swing.JLabel finalMosaicSizeLabel;
     private javax.swing.JFormattedTextField finalMosaicWidthTextField;
-    private net.bcharris.photomosaic.swing.ImageGridPanel imageGridPanel;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JSpinner numSourceImagesTallSlider;
     private javax.swing.JPanel reqPanel;
+    private javax.swing.JLabel requiredSourceImagesLabel;
     private javax.swing.JButton setTargetImageButton;
-    private javax.swing.JFormattedTextField sourceImageRatioTextField;
-    private javax.swing.JSlider sourceImageWidthSlider;
+    private javax.swing.JLabel sourceImageRatioLabel;
+    private javax.swing.JLabel sourceImageSizeLabel;
+    private javax.swing.JSpinner sourceImageWidthSpinner;
+    private net.bcharris.photomosaic.swing.ImageGridPanel targetImageGridPanel;
     // End of variables declaration//GEN-END:variables
 }
