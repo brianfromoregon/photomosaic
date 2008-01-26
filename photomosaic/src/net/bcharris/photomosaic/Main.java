@@ -2,8 +2,7 @@ package net.bcharris.photomosaic;
 
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import net.bcharris.photomosaic.util.ImageMagickUtil;
+import net.bcharris.photomosaic.swing.MosaicDesigner;
 
 /**
  * The point of this class is to read in a number of images, all with identical
@@ -37,18 +36,20 @@ public class Main
 	private static void createMosaicScript(File sourceImageDir, File targetImage, int numImagesTall, int numImagesWide, String scriptOutputDir, int step)
 			throws IOException
 	{
-		// The utility to help create the mosaic.
-		ImagePalette imagePalette = new ImagePalette(5, 8);
+//		 The utility to help create the mosaic.
+//		ImagePalette imagePalette = new ImagePalette(5, 8);
+//		
+//		// Add source images to palette.
+//		imagePalette.addImages(sourceImageDir);
+//
+//		// A grid of images that, when compacted into 1 large image w.r.t. their
+//		// ordering in the grid, will compose the desired mosaic.
+//		File[][] imageGrid = toFiles(imagePalette.bestMatches(ImageIO.read(targetImage), numImagesWide, numImagesTall, 1));
+//
+//		// Spit out the script
+//		System.out.println(ImageMagickUtil.generateCommandsToCreateMosaic(montageCmd, imageGrid, step, scriptOutputDir));
 		
-		// Add source images to palette.
-		imagePalette.addImages(sourceImageDir);
-
-		// A grid of images that, when compacted into 1 large image w.r.t. their
-		// ordering in the grid, will compose the desired mosaic.
-		File[][] imageGrid = toFiles(imagePalette.bestMatches(ImageIO.read(targetImage), numImagesWide, numImagesTall, 1));
-
-		// Spit out the script
-		System.out.println(ImageMagickUtil.generateCommandsToCreateMosaic(montageCmd, imageGrid, step, scriptOutputDir));
+		new MosaicDesigner().setVisible(true);
 	}
 	
 	private static int gcd(int n, int d)

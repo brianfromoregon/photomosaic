@@ -47,7 +47,7 @@ public class ImageMagickUtilTest {
 		int numTall = 10;
 		int numWide = 10;
 		int denom = 5;
-		String result = ImageMagickUtil.generateCommandsToCreateMosaic(montageCmd, imageGrid, numTall, numWide, denom, "output");
+		String result = ImageMagickUtil.generateCommandsToCreateMosaic(montageCmd, imageGrid, denom, "output");
 		System.out.println(result);
 	}
 	
