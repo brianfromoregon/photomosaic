@@ -99,7 +99,7 @@ public class ImageGridPanel extends JPanel
 			if (!priorities.isEmpty())
 			{
 				int fontSize = 80;
-				Font font = new Font("Lucida Console", Font.BOLD, fontSize);
+				Font font = null;
 				while (fontSize > 1)
 				{
 					font = new Font("Lucida Console", Font.BOLD, fontSize);

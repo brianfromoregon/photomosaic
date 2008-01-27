@@ -11,6 +11,7 @@ import edu.wlu.cs.levy.CG.KDTree;
 import edu.wlu.cs.levy.CG.KeyDuplicateException;
 import edu.wlu.cs.levy.CG.KeySizeException;
 import java.awt.Point;
+import java.util.LinkedList;
 import java.util.List;
 import net.bcharris.mosaic.util.CompletableExecutor;
 import net.bcharris.photomosaic.util.ColorUtil;
@@ -61,7 +62,8 @@ public class ImagePalette
 			File[] files = f.listFiles();
 			for (final File f2 : files)
 			{
-				executor.execute(new Runnable() {
+				executor.execute(new Runnable()
+				{
 					public void run()
 					{
 						addImages(f2, executor);
@@ -95,81 +97,95 @@ public class ImagePalette
 
 		final CompletableExecutor executor = new SimpleCompletableExecutor(numThreads);
 
-		final int targetWidth = target.getWidth();
-		final int targetHeight = target.getHeight();
-
 		final Map<ImageFileContext, Integer> usages = new HashMap<ImageFileContext, Integer>();
+		
+		if (priorities == null)
+		{
+			priorities = new LinkedList<Point>();
+		}
 
+		for (Point p : priorities)
+		{
+			bestMatch(bestMatches, usages, target, p.x, p.y, numWide, numTall, executor, maxSameImageUsage);
+		}
+
+		// Make sure we do all of them.
 		for (int i = 0; i < numWide; i++)
 		{
-			final int xStart = (targetWidth * i) / numWide;
-			final int xEnd = (targetWidth * (i + 1)) / numWide;
-			final int w = xEnd - xStart;
-
 			for (int j = 0; j < numTall; j++)
 			{
-				final int yStart = (targetHeight * j) / numTall;
-				final int yEnd = (targetHeight * (j + 1)) / numTall;
-				final int h = yEnd - yStart;
-
-				final int ii = i, jj = j;
-				executor.execute(new Runnable() {
-					public void run()
-					{
-						BufferedImage image = target.getSubimage(xStart, yStart, w, h);
-
-						double[] sliceMeanColors = ColorUtil.meanColors(image, dd, dd);
-
-						try
-						{
-							synchronized (kdTree)
-							{
-								synchronized (usages)
-								{
-									ImageFileContext best = (ImageFileContext) kdTree.nearest(sliceMeanColors);
-									Integer uses = usages.get(best);
-
-									if (uses == null)
-									{
-										uses = 0;
-									}
-
-									uses++;
-									usages.put(best, uses);
-
-									if (uses >= maxSameImageUsage)
-									{
-										try
-										{
-											kdTree.delete(best.getMeanRgb(dd));
-											kdTreeSize.decrementAndGet();
-										}
-										catch (Exception e)
-										{
-											log.error("Programmer error", e);
-										}
-									}
-
-									bestMatches[ii][jj] = best;
-									log.debug("Found best match for cell (" + ii + "," + jj + ")");
-								}
-							}
-						}
-						catch (KeySizeException e)
-						{
-							log.error("Programmer error!", e);
-							return;
-						}
-					}
-				});
+				if (!priorities.contains(new Point(i, j)))
+				{
+					bestMatch(bestMatches, usages, target, i, j, numWide, numTall, executor, maxSameImageUsage);
+				}
 			}
 		}
 
 		executor.awaitCompletionAndShutdown();
-		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall
-				* numWide + " grid cells.");
+		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall * numWide + " grid cells.");
 
 		return bestMatches;
+	}
+
+	private void bestMatch(final ImageFileContext[][] bestMatches, final Map<ImageFileContext, Integer> usages, final BufferedImage target, final int x, final int y, int numWide, int numTall, CompletableExecutor executor, final int maxSameImageUsage)
+	{
+		final int xStart = (target.getWidth() * x) / numWide;
+		final int xEnd = (target.getWidth() * (x + 1)) / numWide;
+		final int w = xEnd - xStart;
+		final int yStart = (target.getHeight() * y) / numTall;
+		final int yEnd = (target.getHeight() * (y + 1)) / numTall;
+		final int h = yEnd - yStart;
+
+		executor.execute(new Runnable()
+		{
+			public void run()
+			{
+				BufferedImage image = target.getSubimage(xStart, yStart, w, h);
+
+				double[] sliceMeanColors = ColorUtil.meanColors(image, dd, dd);
+
+				try
+				{
+					synchronized (kdTree)
+					{
+						synchronized (usages)
+						{
+							ImageFileContext best = (ImageFileContext) kdTree.nearest(sliceMeanColors);
+							Integer uses = usages.get(best);
+
+							if (uses == null)
+							{
+								uses = 0;
+							}
+
+							uses++;
+							usages.put(best, uses);
+
+							if (uses >= maxSameImageUsage)
+							{
+								try
+								{
+									kdTree.delete(best.getMeanRgb(dd));
+									kdTreeSize.decrementAndGet();
+								}
+								catch (Exception e)
+								{
+									log.error("Programmer error", e);
+								}
+							}
+
+							bestMatches[x][y] = best;
+							log.debug("Found best match for cell (" + x + "," + y + ")");
+						}
+					}
+				}
+				catch (KeySizeException e)
+				{
+					log.error("Programmer error!", e);
+					return;
+				}
+			}
+		});
 	}
 
 //	// Creates a photomosaic of the specified target image using the current palette.
@@ -210,7 +226,6 @@ public class ImagePalette
 //		log.info("Done drawing mosaic");
 //		return mosaic;
 //	}
-
 	public boolean insert(ImageFileContext ctx) throws IOException
 	{
 		try
@@ -246,7 +261,7 @@ public class ImagePalette
 			return false;
 		}
 	}
-	
+
 	public int size()
 	{
 		return kdTreeSize.get();

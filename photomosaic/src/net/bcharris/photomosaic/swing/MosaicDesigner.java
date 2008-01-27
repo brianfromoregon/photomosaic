@@ -168,8 +168,14 @@ public class MosaicDesigner extends javax.swing.JFrame
 		setPrioritiesDialog.setVisible(true);
 
 		// And we're back
-		targetImageGridPanel.setPriorities(targetImageGridPanelClone.getPriorities());
 
+		if (setPrioritiesDialog.cancelled)
+		{
+			return;
+		}
+		
+		targetImageGridPanel.setPriorities(targetImageGridPanelClone.getPriorities());
+		
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			public void run()
@@ -177,81 +183,44 @@ public class MosaicDesigner extends javax.swing.JFrame
 				targetImageGridPanel.repaint();
 			}
 		});
-
-		JOptionPane.showMessageDialog(this, "Tell me which directory your source images live in.");
-		final JFileChooser fc = new JFileChooser();
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		int returnVal = fc.showOpenDialog(this);
-
-		if (returnVal != JFileChooser.APPROVE_OPTION)
+		
+		SpecsDialog specs = new SpecsDialog(numSourceImagesWide, numSourceImagesTall);
+		specs.setModal(true);
+		specs.setLocationRelativeTo(null);
+		specs.setVisible(true);
+		
+		// And we're back again
+		
+		if (specs.cancelled)
 		{
 			return;
 		}
-
-		File srcDir = fc.getSelectedFile();
-
-		JOptionPane.showMessageDialog(this, "Tell me in which directory you want the converted images to go.");
-
-		returnVal = fc.showOpenDialog(this);
-
-		if (returnVal != JFileChooser.APPROVE_OPTION)
-		{
-			return;
-		}
-
-		File preProcOutDir = fc.getSelectedFile();
-
+		
+		File srcDir = specs.sourceImgDir;
+		File outDir = specs.outputDir;
+		int howManyTimes = specs.maxSameImageUsage;
+		
 		JOptionPane.showMessageDialog(this, new Object[]{
-			"Run these commands to generate your palette.",
-			"Then, click OK to continue.",
-			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, preProcOutDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))});
+			"Run these commands to generate your palette, then click OK to let me process the results (which can take a while).",
+			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, outDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))
+		});
 
-		String input = JOptionPane.showInputDialog(this, "How many times can the same source image be used in the mosaic?");
-		int howManyTimes;
-		try
-		{
-			howManyTimes = Integer.parseInt(input);
-		}
-		catch (NumberFormatException e)
-		{
-			return;
-		}
-		
-		int result = JOptionPane.showConfirmDialog(this, String.format("Ready to let me start processing the images in '%s' now?", preProcOutDir.getAbsolutePath()), "Ready?", JOptionPane.YES_NO_OPTION);
-		
-		if (result != JOptionPane.YES_OPTION)
-		{
-			return;
-		}
-		
-		ImagePalette imagePalette = new ImagePalette(5, 8);
-		imagePalette.addImages(preProcOutDir);
+		ImagePalette imagePalette = new ImagePalette(specs.drillDown, 8);
+		imagePalette.addImages(outDir);
 		
 		if (numSourceImagesWide * numSourceImagesTall > imagePalette.size() * howManyTimes)
 		{
-			JOptionPane.showMessageDialog(this, "Not enough source images to create mosaic.");
+			JOptionPane.showMessageDialog(this, "Not enough source images to create mosaic.  Add more, or increase the max number of times a source image can be used.");
 			return;
 		}
+		
+		JOptionPane.showMessageDialog(this, "This next step may take a while.  Another dialog will popup when it's finished.");
 
 		// A grid of images that, when compacted into 1 large image w.r.t. their
 		// ordering in the grid, will compose the desired mosaic.
 		File[][] imageGrid = toFiles(imagePalette.bestMatches(targetImageGridPanel.getImage(), numSourceImagesWide, numSourceImagesTall, howManyTimes, targetImageGridPanel.getPriorities()));
 		
-		JOptionPane.showMessageDialog(this, "And finally, tell me where you want the final mosaic to go.");
-		
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		returnVal = fc.showOpenDialog(this);
-
-		if (returnVal != JFileChooser.APPROVE_OPTION)
-		{
-			return;
-		}
-
-		File finalOutDir = fc.getSelectedFile();
-		
-		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, numSourceImagesWide, numSourceImagesTall, finalOutDir.getAbsolutePath());
+		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, specs.xDenom, specs.yDenom, outDir.getAbsolutePath());
 		
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"This is it, run these and you're done.",

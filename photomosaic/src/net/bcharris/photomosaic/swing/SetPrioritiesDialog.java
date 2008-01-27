@@ -22,6 +22,8 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 	private final ImageGridPanel imageGridPanel;
 	private final MouseAdapter mouseHandler;
 	
+	public boolean cancelled = true;
+	
 	/** Creates new form SetPrioritiesDialog */
 	public SetPrioritiesDialog(Frame owner, ImageGridPanel imageGridPanel)
 	{
@@ -132,7 +134,7 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 
         jLabel1.setFont(new java.awt.Font("Lucida Sans", 0, 18));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Choose the priorities of the mosaic sections.");
+        jLabel1.setText("Choose the priorities of the mosaic sections (blank is ok too.)");
         jLabel1.setAlignmentX(0.5F);
         jPanel3.add(jLabel1);
 
@@ -196,6 +198,7 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 	}//GEN-LAST:event_startOverButtonActionPerformed
 
 	private void doneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneButtonActionPerformed
+		cancelled = false;
 		setVisible(false);
 	}//GEN-LAST:event_doneButtonActionPerformed
 
