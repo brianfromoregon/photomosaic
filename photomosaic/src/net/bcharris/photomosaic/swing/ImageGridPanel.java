@@ -257,6 +257,6 @@ public class ImageGridPanel extends JPanel
 			return false;
 		}
 		
-		return p.x < gridX && p.y < gridY;
+		return p.x > 0 && p.x < gridX && p.y > 0 && p.y < gridY;
 	}
 }

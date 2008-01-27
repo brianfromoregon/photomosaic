@@ -10,7 +10,6 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 /**
@@ -73,30 +72,46 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 			return;
 		}
 		
-		imageGridPanel.removePriority(cell);
-		if (addToFrontButton.isSelected())
+		int radius = mouseInfluenceRadiusSlider.getValue();
+		
+		if (leftToRightOption.isSelected())
 		{
-			imageGridPanel.addPriority(0, cell);
-		}
-		else if (addToEndButton.isSelected())
-		{
-			imageGridPanel.addPriority(cell);
-		}
-		else if (addCustomButton.isSelected())
-		{
-			String input = JOptionPane.showInputDialog(this, "What priority? (>= 1)");
-			try
+			for (int i = cell.x - radius; i <= cell.x + radius; i++)
 			{
-				int pos = Integer.parseInt(input) - 1;
-				if (pos >= 0)
+				for (int j = cell.y - radius; j <= cell.y + radius; j++)
 				{
-					imageGridPanel.addPriority(pos, cell);
+					setPriority(new Point(i, j));
 				}
 			}
-			catch (NumberFormatException e)
+		}
+		else if (rightToLeftOption.isSelected())
+		{
+			for (int i = cell.x + radius; i >= cell.x - radius; i--)
 			{
-				// Bah
-				return;
+				for (int j = cell.y - radius; j <= cell.y + radius; j++)
+				{
+					setPriority(new Point(i, j));
+				}
+			}
+		}
+		else if (topToBottomOption.isSelected())
+		{
+			for (int j = cell.y - radius; j <= cell.y + radius; j++)
+			{
+				for (int i = cell.x - radius; i <= cell.x + radius; i++)
+				{
+					setPriority(new Point(i, j));
+				}
+			}
+		}
+		else if (bottomToTopOption.isSelected())
+		{
+			for (int j = cell.y + radius; j >= cell.y - radius; j--)
+			{
+				for (int i = cell.x - radius; i <= cell.x + radius; i++)
+				{
+					setPriority(new Point(i, j));
+				}
 			}
 		}
 		
@@ -108,6 +123,19 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 			}
 		});
 	}
+	
+	private void setPriority(Point cell)
+	{
+		imageGridPanel.removePriority(cell);
+		if (addToFrontButton.isSelected())
+		{
+			imageGridPanel.addPriority(0, cell);
+		}
+		else if (addToEndButton.isSelected())
+		{
+			imageGridPanel.addPriority(cell);
+		}
+	}
 
 	/** This method is called from within the constructor to
 	 * initialize the form.
@@ -118,6 +146,7 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -125,10 +154,17 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
         jPanel4 = new javax.swing.JPanel();
         doneButton = new javax.swing.JButton();
         startOverButton = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        mouseInfluenceRadiusSlider = new javax.swing.JSlider();
         jPanel2 = new javax.swing.JPanel();
         addToFrontButton = new javax.swing.JRadioButton();
         addToEndButton = new javax.swing.JRadioButton();
-        addCustomButton = new javax.swing.JRadioButton();
+        jPanel7 = new javax.swing.JPanel();
+        leftToRightOption = new javax.swing.JRadioButton();
+        rightToLeftOption = new javax.swing.JRadioButton();
+        topToBottomOption = new javax.swing.JRadioButton();
+        bottomToTopOption = new javax.swing.JRadioButton();
 
         jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
 
@@ -167,20 +203,59 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 
         jPanel1.add(jPanel4);
 
+        jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.X_AXIS));
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Mouse Influence Radius (# cells)"));
+        jPanel5.setLayout(new javax.swing.BoxLayout(jPanel5, javax.swing.BoxLayout.Y_AXIS));
+
+        mouseInfluenceRadiusSlider.setMajorTickSpacing(5);
+        mouseInfluenceRadiusSlider.setMaximum(20);
+        mouseInfluenceRadiusSlider.setMinorTickSpacing(1);
+        mouseInfluenceRadiusSlider.setPaintLabels(true);
+        mouseInfluenceRadiusSlider.setPaintTicks(true);
+        mouseInfluenceRadiusSlider.setSnapToTicks(true);
+        mouseInfluenceRadiusSlider.setValue(0);
+        jPanel5.add(mouseInfluenceRadiusSlider);
+
+        jPanel6.add(jPanel5);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Order"));
+        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+
         buttonGroup1.add(addToFrontButton);
-        addToFrontButton.setText("Add to front");
+        addToFrontButton.setText("Add to Front");
         jPanel2.add(addToFrontButton);
 
         buttonGroup1.add(addToEndButton);
         addToEndButton.setSelected(true);
-        addToEndButton.setText("Add to end");
+        addToEndButton.setText("Add to End");
         jPanel2.add(addToEndButton);
 
-        buttonGroup1.add(addCustomButton);
-        addCustomButton.setText("Add custom");
-        jPanel2.add(addCustomButton);
+        jPanel6.add(jPanel2);
 
-        jPanel1.add(jPanel2);
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Filling"));
+        jPanel7.setLayout(new java.awt.GridLayout(2, 2));
+
+        buttonGroup2.add(leftToRightOption);
+        leftToRightOption.setSelected(true);
+        leftToRightOption.setText("Left to Right");
+        jPanel7.add(leftToRightOption);
+
+        buttonGroup2.add(rightToLeftOption);
+        rightToLeftOption.setText("Right to Left");
+        jPanel7.add(rightToLeftOption);
+
+        buttonGroup2.add(topToBottomOption);
+        topToBottomOption.setText("Top to Bottom");
+        jPanel7.add(topToBottomOption);
+
+        buttonGroup2.add(bottomToTopOption);
+        bottomToTopOption.setText("Bottom to Top");
+        jPanel7.add(bottomToTopOption);
+
+        jPanel6.add(jPanel7);
+
+        jPanel1.add(jPanel6);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
@@ -203,10 +278,11 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 	}//GEN-LAST:event_doneButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton addCustomButton;
     private javax.swing.JRadioButton addToEndButton;
     private javax.swing.JRadioButton addToFrontButton;
+    private javax.swing.JRadioButton bottomToTopOption;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton doneButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -214,6 +290,13 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JRadioButton leftToRightOption;
+    private javax.swing.JSlider mouseInfluenceRadiusSlider;
+    private javax.swing.JRadioButton rightToLeftOption;
     private javax.swing.JButton startOverButton;
+    private javax.swing.JRadioButton topToBottomOption;
     // End of variables declaration//GEN-END:variables
 }
