@@ -6,6 +6,7 @@
 package net.bcharris.photomosaic.swing;
 
 import java.awt.Dimension;
+import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,6 +15,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import net.bcharris.photomosaic.builder.ImageFileContext;
+import net.bcharris.photomosaic.builder.ImagePalette;
+import net.bcharris.photomosaic.util.ImageMagickUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,6 +28,9 @@ import org.apache.commons.logging.LogFactory;
 public class MosaicDesigner extends javax.swing.JFrame
 {
 	private static final transient Log log = LogFactory.getLog(MosaicDesigner.class);
+	
+	private int numSourceImagesTall, numSourceImagesWide;
+	private int sourceImageWidth, sourceImageHeight;
 
 	/** Creates new form MosaicDesigner */
 	public MosaicDesigner()
@@ -52,7 +59,6 @@ public class MosaicDesigner extends javax.swing.JFrame
 
 	private void resetTargetImage()
 	{
-		//Create a file chooser
 		final JFileChooser fc = new JFileChooser();
 		fc.setMultiSelectionEnabled(false);
 
@@ -102,15 +108,15 @@ public class MosaicDesigner extends javax.swing.JFrame
 
 		// Start with what we know
 		int desiredFinalMosaicWidth = Integer.parseInt(finalMosaicWidthTextField.getValue().toString());
-		int numSourceImagesTall = Integer.parseInt(numSourceImagesTallSlider.getValue().toString());
+		numSourceImagesTall = Integer.parseInt(numSourceImagesTallSlider.getValue().toString());
 		int desiredSourceImageWidth = Integer.parseInt(sourceImageWidthSpinner.getValue().toString());
 
 		// Calculate the rest
 		double desiredFinalMosaicHeight = (desiredFinalMosaicWidth * (1 / targetImageGridPanel.getImageRatio()));
-		int sourceImageHeight = (int) Math.round(desiredFinalMosaicHeight / numSourceImagesTall);
+		sourceImageHeight = (int) Math.round(desiredFinalMosaicHeight / numSourceImagesTall);
 		int finalMosaicHeight = sourceImageHeight * numSourceImagesTall;
-		int numSourceImagesWide = Math.round(desiredFinalMosaicWidth / (float) desiredSourceImageWidth);
-		int sourceImageWidth = Math.round(desiredFinalMosaicWidth / (float) numSourceImagesWide);
+		numSourceImagesWide = Math.round(desiredFinalMosaicWidth / (float) desiredSourceImageWidth);
+		sourceImageWidth = Math.round(desiredFinalMosaicWidth / (float) numSourceImagesWide);
 		int finalMosaicWidth = sourceImageWidth * numSourceImagesWide;
 		int requiredSourceImages = numSourceImagesTall * numSourceImagesWide;
 		double sourceImageRatio = (finalMosaicWidth / (double) numSourceImagesWide) / (finalMosaicHeight / (double) numSourceImagesTall);
@@ -144,7 +150,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		}
 		return o.toString().substring(0, index + 2);
 	}
-	
+
 	private void createMosaic()
 	{
 		if (targetImageGridPanel.getImage() == null)
@@ -152,15 +158,15 @@ public class MosaicDesigner extends javax.swing.JFrame
 			JOptionPane.showMessageDialog(this, "Choose a target image first.");
 			return;
 		}
-		
+
 		ImageGridPanel targetImageGridPanelClone = new ImageGridPanel(targetImageGridPanel);
 		SetPrioritiesDialog setPrioritiesDialog = new SetPrioritiesDialog(this, targetImageGridPanelClone);
 		setPrioritiesDialog.setModal(true);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		setPrioritiesDialog.setSize((int)(d.getWidth() * .9), (int)(d.getHeight() * .85));
+		setPrioritiesDialog.setSize((int) (d.getWidth() * .9), (int) (d.getHeight() * .85));
 		setPrioritiesDialog.setLocationRelativeTo(null);
 		setPrioritiesDialog.setVisible(true);
-		
+
 		// And we're back
 		targetImageGridPanel.setPriorities(targetImageGridPanelClone.getPriorities());
 
@@ -171,6 +177,85 @@ public class MosaicDesigner extends javax.swing.JFrame
 				targetImageGridPanel.repaint();
 			}
 		});
+
+		JOptionPane.showMessageDialog(this, "Tell me which directory your source images live in.");
+		final JFileChooser fc = new JFileChooser();
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		int returnVal = fc.showOpenDialog(this);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION)
+		{
+			return;
+		}
+
+		File srcDir = fc.getSelectedFile();
+
+		JOptionPane.showMessageDialog(this, "Tell me in which directory you want the converted images to go.");
+
+		returnVal = fc.showOpenDialog(this);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION)
+		{
+			return;
+		}
+
+		File preProcOutDir = fc.getSelectedFile();
+
+		JOptionPane.showMessageDialog(this, new Object[]{
+			"Run these commands to generate your palette.",
+			"Then, click OK to continue.",
+			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, preProcOutDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))});
+
+		String input = JOptionPane.showInputDialog(this, "How many times can the same source image be used in the mosaic?");
+		int howManyTimes;
+		try
+		{
+			howManyTimes = Integer.parseInt(input);
+		}
+		catch (NumberFormatException e)
+		{
+			return;
+		}
+		
+		int result = JOptionPane.showConfirmDialog(this, String.format("Ready to let me start processing the images in '%s' now?", preProcOutDir.getAbsolutePath()), "Ready?", JOptionPane.YES_NO_OPTION);
+		
+		if (result != JOptionPane.YES_OPTION)
+		{
+			return;
+		}
+		
+		ImagePalette imagePalette = new ImagePalette(5, 8);
+		imagePalette.addImages(preProcOutDir);
+		
+		if (numSourceImagesWide * numSourceImagesTall > imagePalette.size() * howManyTimes)
+		{
+			JOptionPane.showMessageDialog(this, "Not enough source images to create mosaic.");
+			return;
+		}
+
+		// A grid of images that, when compacted into 1 large image w.r.t. their
+		// ordering in the grid, will compose the desired mosaic.
+		File[][] imageGrid = toFiles(imagePalette.bestMatches(targetImageGridPanel.getImage(), numSourceImagesWide, numSourceImagesTall, howManyTimes, targetImageGridPanel.getPriorities()));
+		
+		JOptionPane.showMessageDialog(this, "And finally, tell me where you want the final mosaic to go.");
+		
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		returnVal = fc.showOpenDialog(this);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION)
+		{
+			return;
+		}
+
+		File finalOutDir = fc.getSelectedFile();
+		
+		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, numSourceImagesWide, numSourceImagesTall, finalOutDir.getAbsolutePath());
+		
+		JOptionPane.showMessageDialog(this, new Object[]{
+			"This is it, run these and you're done.",
+			new TextArea(createScript)});
 	}
 
 	/** This method is called from within the constructor to
@@ -362,4 +447,20 @@ public class MosaicDesigner extends javax.swing.JFrame
     private javax.swing.JSpinner sourceImageWidthSpinner;
     private net.bcharris.photomosaic.swing.ImageGridPanel targetImageGridPanel;
     // End of variables declaration//GEN-END:variables
+	
+	private static File[][] toFiles(ImageFileContext[][] contexts)
+	{
+		File[][] files = new File[contexts.length][];
+		
+		for (int i = 0; i < contexts.length; i++)
+		{
+			files[i] = new File[contexts[i].length];
+			for (int j = 0; j < contexts[i].length; j++)
+			{
+				files[i][j] = contexts[i][j].file;
+			}
+		}
+		
+		return files;
+	}
 }

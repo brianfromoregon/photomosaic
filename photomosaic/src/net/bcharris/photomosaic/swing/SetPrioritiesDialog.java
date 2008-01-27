@@ -121,8 +121,8 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
         jLabel2 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
-        startOverButton = new javax.swing.JButton();
         doneButton = new javax.swing.JButton();
+        startOverButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         addToFrontButton = new javax.swing.JRadioButton();
         addToEndButton = new javax.swing.JRadioButton();
@@ -146,6 +146,14 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
 
         jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.Y_AXIS));
 
+        doneButton.setText("Done");
+        doneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doneButtonActionPerformed(evt);
+            }
+        });
+        jPanel4.add(doneButton);
+
         startOverButton.setText("Start Over");
         startOverButton.setAlignmentX(0.5F);
         startOverButton.addActionListener(new java.awt.event.ActionListener() {
@@ -154,14 +162,6 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
             }
         });
         jPanel4.add(startOverButton);
-
-        doneButton.setText("Done");
-        doneButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                doneButtonActionPerformed(evt);
-            }
-        });
-        jPanel4.add(doneButton);
 
         jPanel1.add(jPanel4);
 

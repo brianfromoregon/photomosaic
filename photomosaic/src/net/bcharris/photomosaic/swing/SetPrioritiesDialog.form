@@ -70,6 +70,14 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
           <SubComponents>
+            <Component class="javax.swing.JButton" name="doneButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Done"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doneButtonActionPerformed"/>
+              </Events>
+            </Component>
             <Component class="javax.swing.JButton" name="startOverButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Start Over"/>
@@ -77,14 +85,6 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startOverButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="doneButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Done"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doneButtonActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

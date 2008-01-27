@@ -37,7 +37,7 @@ public class ImageMagickUtilTest {
     }
 
 	/**
-	 * Test of generateCommandsToCreateMosaic method, of class ImageMagickUtil.
+	 * Test of generateScriptToCreateMosaic method, of class ImageMagickUtil.
 	 */
 	@Test
 	public void generateCommandToCreateMosaic()
@@ -47,7 +47,7 @@ public class ImageMagickUtilTest {
 		int numTall = 10;
 		int numWide = 10;
 		int denom = 5;
-		String result = ImageMagickUtil.generateCommandsToCreateMosaic(montageCmd, imageGrid, denom, "output");
+		String result = ImageMagickUtil.generateScriptToCreateMosaic(montageCmd, imageGrid, denom, "output");
 		System.out.println(result);
 	}
 	

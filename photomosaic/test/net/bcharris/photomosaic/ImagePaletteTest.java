@@ -59,9 +59,9 @@ public class ImagePaletteTest {
 
 		// A grid of images that, when compacted into 1 large image w.r.t. their
 		// ordering in the grid, will compose the desired mosaic.
-		File[][] imageGrid = toFiles(imagePalette.bestMatches(targetImage, numImagesWide, numImagesTall, 1));
+		File[][] imageGrid = toFiles(imagePalette.bestMatches(targetImage, numImagesWide, numImagesTall, 1, null));
 		
-		System.out.println(ImageMagickUtil.generateCommandsToCreateMosaic("montage", imageGrid, 4, "output"));
+		System.out.println(ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, 4, 6, "output"));
 	}
 	
 	private static File[][] toFiles(ImageFileContext[][] contexts)
