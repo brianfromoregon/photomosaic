@@ -46,8 +46,7 @@ public class ImageMagickUtilTest {
 		File[][] imageGrid = sample0to99Images();
 		int numTall = 10;
 		int numWide = 10;
-		int denom = 5;
-		String result = ImageMagickUtil.generateScriptToCreateMosaic(montageCmd, imageGrid, denom, "output");
+		String result = ImageMagickUtil.generateScriptToCreateMosaic(montageCmd, imageGrid, 2, 5, "output");
 		System.out.println(result);
 	}
 	

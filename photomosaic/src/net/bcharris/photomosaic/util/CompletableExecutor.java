@@ -1,4 +1,4 @@
-package net.bcharris.mosaic.util;
+package net.bcharris.photomosaic.util;
 
 import java.util.concurrent.Executor;
 
