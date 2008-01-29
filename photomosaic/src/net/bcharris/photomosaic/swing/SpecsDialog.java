@@ -17,7 +17,7 @@ public class SpecsDialog extends javax.swing.JDialog
 {
 	public File sourceImgDir,  outputDir;
 
-	public int maxSameImageUsage,  drillDown,  xDenom,  yDenom;
+	public int preferredMaxSameImageUsage,  drillDown,  xDenom,  yDenom;
 	
 	public boolean cancelled = true;
 
@@ -81,7 +81,6 @@ public class SpecsDialog extends javax.swing.JDialog
         cancelButton = new javax.swing.JButton();
 
         setFocusable(false);
-        setLayout(new java.awt.BorderLayout());
 
         jPanel5.setFocusable(false);
         jPanel5.setLayout(new java.awt.GridLayout(0, 1, 0, 10));
@@ -100,7 +99,7 @@ public class SpecsDialog extends javax.swing.JDialog
         jLabel2.setFocusable(false);
         jPanel5.add(jLabel2);
 
-        add(jPanel5, java.awt.BorderLayout.NORTH);
+        getContentPane().add(jPanel5, java.awt.BorderLayout.NORTH);
 
         jPanel4.setFocusable(false);
         jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.Y_AXIS));
@@ -133,13 +132,13 @@ public class SpecsDialog extends javax.swing.JDialog
 
         jPanel6.setFocusable(false);
 
-        jLabel4.setText("Max Usage of Same Source Image");
-        jLabel4.setToolTipText("How many times the same source image can be used in the final mosaic.");
+        jLabel4.setText("Preferred Max # Usages of Same Source Image");
+        jLabel4.setToolTipText("The preferred max number of times the same source image can be used in the final mosaic.");
         jLabel4.setFocusable(false);
         jPanel6.add(jLabel4);
 
         maxSameImageUsageSlider.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(0), null, Integer.valueOf(1)));
-        maxSameImageUsageSlider.setToolTipText("How many times the same source image can be used in the final mosaic.");
+        maxSameImageUsageSlider.setToolTipText("The preferred max number of times the same source image can be used in the final mosaic.");
         maxSameImageUsageSlider.setPreferredSize(new java.awt.Dimension(50, 22));
         jPanel6.add(maxSameImageUsageSlider);
 
@@ -181,7 +180,7 @@ public class SpecsDialog extends javax.swing.JDialog
 
         jPanel4.add(jPanel8);
 
-        add(jPanel4, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jPanel4, java.awt.BorderLayout.CENTER);
 
         jPanel3.setFocusable(false);
 
@@ -201,7 +200,7 @@ public class SpecsDialog extends javax.swing.JDialog
         });
         jPanel3.add(cancelButton);
 
-        add(jPanel3, java.awt.BorderLayout.SOUTH);
+        getContentPane().add(jPanel3, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 	private void setSourceImageDirButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setSourceImageDirButtonActionPerformed
 		final JFileChooser fc = new JFileChooser();
@@ -242,7 +241,7 @@ public class SpecsDialog extends javax.swing.JDialog
 			return;
 		}
 		
-		this.maxSameImageUsage = (Integer)maxSameImageUsageSlider.getValue();
+		this.preferredMaxSameImageUsage = (Integer)maxSameImageUsageSlider.getValue();
 		this.drillDown = (Integer)drillDownSlider.getValue();
 		this.xDenom = numWide / (Integer)xSplitsCombo.getSelectedItem();
 		this.yDenom = numTall / (Integer)ySplitsCombo.getSelectedItem();

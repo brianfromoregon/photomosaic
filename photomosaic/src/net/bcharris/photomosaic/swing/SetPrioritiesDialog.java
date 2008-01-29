@@ -208,8 +208,8 @@ public class SetPrioritiesDialog extends javax.swing.JDialog
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Mouse Influence Radius (# cells)"));
         jPanel5.setLayout(new javax.swing.BoxLayout(jPanel5, javax.swing.BoxLayout.Y_AXIS));
 
-        mouseInfluenceRadiusSlider.setMajorTickSpacing(5);
-        mouseInfluenceRadiusSlider.setMaximum(20);
+        mouseInfluenceRadiusSlider.setMajorTickSpacing(2);
+        mouseInfluenceRadiusSlider.setMaximum(10);
         mouseInfluenceRadiusSlider.setMinorTickSpacing(1);
         mouseInfluenceRadiusSlider.setPaintLabels(true);
         mouseInfluenceRadiusSlider.setPaintTicks(true);

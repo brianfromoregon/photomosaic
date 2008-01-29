@@ -11,6 +11,8 @@ import edu.wlu.cs.levy.CG.KDTree;
 import edu.wlu.cs.levy.CG.KeyDuplicateException;
 import edu.wlu.cs.levy.CG.KeySizeException;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import net.bcharris.photomosaic.util.ColorUtil;
@@ -106,13 +108,28 @@ public class ImagePalette
 
 		for (Point p : priorities)
 		{
-			bestMatch(bestMatches, usages, target, p.x, p.y, numWide, numTall, executor, maxSameImageUsage);
+			// Run these in same thread, in serial.
+			bestMatch(bestMatches, usages, target, p.x, p.y, numWide, numTall, null, maxSameImageUsage);
 		}
 
-		// Make sure we do all of them.
+		// Do all non-prioritized cells in random order.
+		List<Integer> is = new ArrayList<Integer>(numWide);
 		for (int i = 0; i < numWide; i++)
 		{
-			for (int j = 0; j < numTall; j++)
+			is.add(i);
+		}
+		Collections.shuffle(is);
+		List<Integer> js = new ArrayList<Integer>(numTall);
+		for (int j = 0; j < numTall; j++)
+		{
+			js.add(j);
+		}
+		Collections.shuffle(js);
+		
+		// Make sure we do all of them.
+		for (int i : is)
+		{
+			for (int j : js)
 			{
 				if (!priorities.contains(new Point(i, j)))
 				{
@@ -136,7 +153,7 @@ public class ImagePalette
 		final int yEnd = (target.getHeight() * (y + 1)) / numTall;
 		final int h = yEnd - yStart;
 
-		executor.execute(new Runnable()
+		Runnable runnable = new Runnable()
 		{
 			public void run()
 			{
@@ -185,7 +202,16 @@ public class ImagePalette
 					return;
 				}
 			}
-		});
+		};
+		
+		if (executor == null)
+		{
+			runnable.run();
+		}
+		else
+		{
+			executor.execute(runnable);
+		}
 	}
 
 //	// Creates a photomosaic of the specified target image using the current palette.

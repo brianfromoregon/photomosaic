@@ -28,9 +28,10 @@ import org.apache.commons.logging.LogFactory;
 public class MosaicDesigner extends javax.swing.JFrame
 {
 	private static final transient Log log = LogFactory.getLog(MosaicDesigner.class);
-	
-	private int numSourceImagesTall, numSourceImagesWide;
-	private int sourceImageWidth, sourceImageHeight;
+
+	private int numSourceImagesTall,  numSourceImagesWide;
+
+	private int sourceImageWidth,  sourceImageHeight;
 
 	/** Creates new form MosaicDesigner */
 	public MosaicDesigner()
@@ -173,9 +174,9 @@ public class MosaicDesigner extends javax.swing.JFrame
 		{
 			return;
 		}
-		
+
 		targetImageGridPanel.setPriorities(targetImageGridPanelClone.getPriorities());
-		
+
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			public void run()
@@ -183,48 +184,67 @@ public class MosaicDesigner extends javax.swing.JFrame
 				targetImageGridPanel.repaint();
 			}
 		});
-		
+
 		SpecsDialog specs = new SpecsDialog(numSourceImagesWide, numSourceImagesTall);
 		specs.setModal(true);
 		specs.setLocationRelativeTo(null);
 		specs.setVisible(true);
-		
+
 		// And we're back again
-		
+
 		if (specs.cancelled)
 		{
 			return;
 		}
-		
+
 		File srcDir = specs.sourceImgDir;
 		File outDir = specs.outputDir;
-		int howManyTimes = specs.maxSameImageUsage;
-		
+		int preferredMaxSameImageUsage = specs.preferredMaxSameImageUsage;
+
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"Run these commands to generate your palette, then click OK to let me process the results (which can take a while).",
 			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, outDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))
 		});
 
-		ImagePalette imagePalette = new ImagePalette(specs.drillDown, 8);
-		imagePalette.addImages(outDir);
-		
-		if (numSourceImagesWide * numSourceImagesTall > imagePalette.size() * howManyTimes)
+		ImagePalette imagePalette;
+		setEnabled(false);
+		try
 		{
-			JOptionPane.showMessageDialog(this, "Not enough source images to create mosaic.  Add more, or increase the max number of times a source image can be used.");
-			return;
+			imagePalette = new ImagePalette(specs.drillDown, 8);
+			imagePalette.addImages(outDir);
 		}
-		
+		finally
+		{
+			setEnabled(true);
+		}
+		int needed = numSourceImagesWide * numSourceImagesTall;
+		int maxSameImageUsage = preferredMaxSameImageUsage;
+		if (needed > imagePalette.size() * preferredMaxSameImageUsage)
+		{
+			maxSameImageUsage = (int) Math.ceil(needed / (double) imagePalette.size());
+			JOptionPane.showMessageDialog(this, "Not enough source images to create requested mosaic; increasing the max number of times a source image can be used to " + maxSameImageUsage);
+		}
+
 		JOptionPane.showMessageDialog(this, "This next step may take a while.  Another dialog will popup when it's finished.");
 
-		// A grid of images that, when compacted into 1 large image w.r.t. their
-		// ordering in the grid, will compose the desired mosaic.
-		File[][] imageGrid = toFiles(imagePalette.bestMatches(targetImageGridPanel.getImage(), numSourceImagesWide, numSourceImagesTall, howManyTimes, targetImageGridPanel.getPriorities()));
-		
+		File[][] imageGrid;
+		setEnabled(false);
+		try
+		{
+			// A grid of images that, when compacted into 1 large image w.r.t. their
+			// ordering in the grid, will compose the desired mosaic.
+			imageGrid = toFiles(imagePalette.bestMatches(targetImageGridPanel.getImage(), numSourceImagesWide, numSourceImagesTall, maxSameImageUsage, targetImageGridPanel.getPriorities()));
+		}
+		finally
+		{
+			setEnabled(true);
+		}
 		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, specs.xDenom, specs.yDenom, outDir.getAbsolutePath());
-		
+
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"This is it, run these and you're done.",
-			new TextArea(createScript)});
+			new TextArea(createScript)
+		});
 	}
 
 	/** This method is called from within the constructor to
@@ -265,7 +285,7 @@ public class MosaicDesigner extends javax.swing.JFrame
         reqPanel.setLayout(new java.awt.GridLayout(0, 2, 15, 10));
 
         requiredSourceImagesLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        requiredSourceImagesLabel.setText("Required Source Images = ?");
+        requiredSourceImagesLabel.setText("Number of Cells = ?");
         requiredSourceImagesLabel.setFocusable(false);
         reqPanel.add(requiredSourceImagesLabel);
 
@@ -416,11 +436,10 @@ public class MosaicDesigner extends javax.swing.JFrame
     private javax.swing.JSpinner sourceImageWidthSpinner;
     private net.bcharris.photomosaic.swing.ImageGridPanel targetImageGridPanel;
     // End of variables declaration//GEN-END:variables
-	
 	private static File[][] toFiles(ImageFileContext[][] contexts)
 	{
 		File[][] files = new File[contexts.length][];
-		
+
 		for (int i = 0; i < contexts.length; i++)
 		{
 			files[i] = new File[contexts[i].length];
@@ -429,7 +448,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 				files[i][j] = contexts[i][j].file;
 			}
 		}
-		
+
 		return files;
 	}
 }

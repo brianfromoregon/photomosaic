@@ -59,7 +59,7 @@
             <Component class="javax.swing.JLabel" name="requiredSourceImagesLabel">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
-                <Property name="text" type="java.lang.String" value="Required Source Images = ?"/>
+                <Property name="text" type="java.lang.String" value="Number of Cells = ?"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>
             </Component>
