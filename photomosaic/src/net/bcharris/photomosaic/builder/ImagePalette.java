@@ -113,30 +113,20 @@ public class ImagePalette
 		}
 
 		// Do all non-prioritized cells in random order.
-		List<Integer> is = new ArrayList<Integer>(numWide);
-		for (int i = 0; i < numWide; i++)
-		{
-			is.add(i);
-		}
-		Collections.shuffle(is);
-		List<Integer> js = new ArrayList<Integer>(numTall);
-		for (int j = 0; j < numTall; j++)
-		{
-			js.add(j);
-		}
-		Collections.shuffle(js);
-		
-		// Make sure we do all of them.
-		for (int i : is)
-		{
-			for (int j : js)
-			{
-				if (!priorities.contains(new Point(i, j)))
-				{
-					bestMatch(bestMatches, usages, target, i, j, numWide, numTall, executor, maxSameImageUsage);
-				}
-			}
-		}
+		List<Point> shuffled = new ArrayList<Point>(numWide * numTall);
+                for (int i = 0; i < numWide; i++) {
+                    for (int j = 0; j < numTall; j++) {
+                        Point p = new Point(i, j);
+                        if (!priorities.contains(p)) {
+                            shuffled.add(p);
+                        }
+                    }
+                }
+                Collections.shuffle(shuffled);
+
+                for (Point p : shuffled) {
+                    bestMatch(bestMatches, usages, target, p.x, p.y, numWide, numTall, executor, maxSameImageUsage);
+                }
 
 		executor.awaitCompletionAndShutdown();
 		log.info("Done finding best image matches, " + usages.size() + " unique images used to fill " + numTall * numWide + " grid cells.");
