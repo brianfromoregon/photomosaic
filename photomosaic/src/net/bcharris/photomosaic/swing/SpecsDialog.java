@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
  */
 public class SpecsDialog extends javax.swing.JDialog
 {
-	public File sourceImgDir,  outputDir;
+	public File sourceImgDir, processingDir, thumbDir;
 
 	public int preferredMaxSameImageUsage,  drillDown;//,  xDenom,  yDenom;
 	
@@ -65,6 +65,8 @@ public class SpecsDialog extends javax.swing.JDialog
         setSourceImageDirButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         setOutputDirButton = new javax.swing.JButton();
+        jPanel8 = new javax.swing.JPanel();
+        setThumbDirectoryButton = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         maxSameImageUsageSlider = new javax.swing.JSpinner();
@@ -124,6 +126,19 @@ public class SpecsDialog extends javax.swing.JDialog
         jPanel2.add(setOutputDirButton);
 
         jPanel4.add(jPanel2);
+
+        jPanel8.setFocusable(false);
+
+        setThumbDirectoryButton.setText("Set Thumbnail Directory");
+        setThumbDirectoryButton.setToolTipText("A processing directory for storing intermediate images.  It will be \"rm -rf\"'d so be careful.");
+        setThumbDirectoryButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setThumbDirectoryButtonActionPerformed(evt);
+            }
+        });
+        jPanel8.add(setThumbDirectoryButton);
+
+        jPanel4.add(jPanel8);
 
         jPanel6.setFocusable(false);
 
@@ -203,14 +218,14 @@ public class SpecsDialog extends javax.swing.JDialog
 			return;
 		}
 
-		this.outputDir = fc.getSelectedFile();
-		setOutputDirButton.setText(outputDir.getAbsolutePath());
+		this.processingDir = fc.getSelectedFile();
+		setOutputDirButton.setText(processingDir.getAbsolutePath());
 }//GEN-LAST:event_setOutputDirButtonActionPerformed
 
 	private void doneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneButtonActionPerformed
-		if (sourceImgDir == null || outputDir == null)
+		if (sourceImgDir == null || processingDir == null || thumbDir == null)
 		{
-			JOptionPane.showMessageDialog(this, "Set both the source image and output directories.");
+			JOptionPane.showMessageDialog(this, "Set all directories.");
 			return;
 		}
 		
@@ -227,6 +242,22 @@ public class SpecsDialog extends javax.swing.JDialog
 		setVisible(false);
 }//GEN-LAST:event_cancelButtonActionPerformed
 
+        private void setThumbDirectoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setThumbDirectoryButtonActionPerformed
+		final JFileChooser fc = new JFileChooser();
+		fc.setMultiSelectionEnabled(false);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		int returnVal = fc.showOpenDialog(this);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION)
+		{
+			return;
+		}
+
+		this.thumbDir = fc.getSelectedFile();
+		setThumbDirectoryButton.setText(thumbDir.getAbsolutePath());
+}//GEN-LAST:event_setThumbDirectoryButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton doneButton;
@@ -242,8 +273,10 @@ public class SpecsDialog extends javax.swing.JDialog
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JSpinner maxSameImageUsageSlider;
     private javax.swing.JButton setOutputDirButton;
     private javax.swing.JButton setSourceImageDirButton;
+    private javax.swing.JButton setThumbDirectoryButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -198,12 +198,13 @@ public class MosaicDesigner extends javax.swing.JFrame
 		}
 
 		File srcDir = specs.sourceImgDir;
-		File outDir = specs.outputDir;
+		File procDir = specs.processingDir;
+                File thumbDir = specs.thumbDir;
 		int preferredMaxSameImageUsage = specs.preferredMaxSameImageUsage;
 
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"Run these commands to generate your palette, then click OK to let me process the results (which can take a while).",
-			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, outDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))
+			new TextArea(ImageMagickUtil.generateScriptToPrepSourceImages(srcDir, thumbDir.getAbsolutePath(), sourceImageWidth, sourceImageHeight))
 		});
 
 		ImagePalette imagePalette;
@@ -211,7 +212,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		try
 		{
 			imagePalette = new ImagePalette(specs.drillDown, 8);
-			imagePalette.addImages(outDir);
+			imagePalette.addImages(thumbDir);
 		}
 		finally
 		{
@@ -240,7 +241,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		{
 			setEnabled(true);
 		}
-		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, 1, numSourceImagesTall, outDir.getAbsolutePath());
+		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, 1, numSourceImagesTall, procDir.getAbsolutePath());
 
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"This is it, run these and you're done.",
