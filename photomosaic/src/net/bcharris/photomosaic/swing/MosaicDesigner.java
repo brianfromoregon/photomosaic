@@ -225,7 +225,8 @@ public class MosaicDesigner extends javax.swing.JFrame
 			JOptionPane.showMessageDialog(this, "Not enough source images to create requested mosaic; increasing the max number of times a source image can be used to " + maxSameImageUsage);
 		}
 
-		JOptionPane.showMessageDialog(this, "This next step may take a while.  Another dialog will popup when it's finished.");
+                // Useless dialog
+//		JOptionPane.showMessageDialog(this, "This next step may take a while.  Another dialog will popup when it's finished.");
 
 		File[][] imageGrid;
 		setEnabled(false);
