@@ -240,7 +240,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		{
 			setEnabled(true);
 		}
-		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, specs.xDenom, specs.yDenom, outDir.getAbsolutePath());
+		String createScript = ImageMagickUtil.generateScriptToCreateMosaic("montage", imageGrid, 1, numSourceImagesTall, outDir.getAbsolutePath());
 
 		JOptionPane.showMessageDialog(this, new Object[]{
 			"This is it, run these and you're done.",

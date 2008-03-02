@@ -17,7 +17,7 @@ public class SpecsDialog extends javax.swing.JDialog
 {
 	public File sourceImgDir,  outputDir;
 
-	public int preferredMaxSameImageUsage,  drillDown,  xDenom,  yDenom;
+	public int preferredMaxSameImageUsage,  drillDown;//,  xDenom,  yDenom;
 	
 	public boolean cancelled = true;
 
@@ -32,21 +32,21 @@ public class SpecsDialog extends javax.swing.JDialog
 		this.numWide = numWide;
 		this.numTall = numTall;
 		
-		for (int i = numWide; i >= 1; i--)
-		{
-			if (numWide % i == 0)
-			{
-				xSplitsCombo.addItem(numWide / i);
-			}
-		}
-		
-		for (int i = numTall; i >= 1; i--)
-		{
-			if (numTall % i == 0)
-			{
-				ySplitsCombo.addItem(numTall / i);
-			}
-		}
+//		for (int i = numWide; i >= 1; i--)
+//		{
+//			if (numWide % i == 0)
+//			{
+//				xSplitsCombo.addItem(numWide / i);
+//			}
+//		}
+//		
+//		for (int i = numTall; i >= 1; i--)
+//		{
+//			if (numTall % i == 0)
+//			{
+//				ySplitsCombo.addItem(numTall / i);
+//			}
+//		}
 	}
 
 	/** This method is called from within the constructor to
@@ -71,11 +71,6 @@ public class SpecsDialog extends javax.swing.JDialog
         jPanel7 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         drillDownSlider = new javax.swing.JSpinner();
-        jPanel8 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        xSplitsCombo = new javax.swing.JComboBox();
-        jLabel7 = new javax.swing.JLabel();
-        ySplitsCombo = new javax.swing.JComboBox();
         jPanel3 = new javax.swing.JPanel();
         doneButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
@@ -158,28 +153,6 @@ public class SpecsDialog extends javax.swing.JDialog
 
         jPanel4.add(jPanel7);
 
-        jPanel8.setFocusable(false);
-
-        jLabel6.setText("X Splits");
-        jLabel6.setToolTipText("How many intermediate sections to split the final mosiac into, in each direction, to overcome long shell script argument lists.  1 means no splits, 2 means split in half, etc.");
-        jLabel6.setFocusable(false);
-        jPanel8.add(jLabel6);
-
-        xSplitsCombo.setToolTipText("How many intermediate sections to split the final mosiac into, in each direction, to overcome long shell script argument lists.  1 means no splits, 2 means split in half, etc.");
-        xSplitsCombo.setPreferredSize(new java.awt.Dimension(45, 22));
-        jPanel8.add(xSplitsCombo);
-
-        jLabel7.setText("Y Splits");
-        jLabel7.setToolTipText("How many intermediate sections to split the final mosiac into, in each direction, to overcome long shell script argument lists.  1 means no splits, 2 means split in half, etc.");
-        jLabel7.setFocusable(false);
-        jPanel8.add(jLabel7);
-
-        ySplitsCombo.setToolTipText("How many intermediate sections to split the final mosiac into, in each direction, to overcome long shell script argument lists.  1 means no splits, 2 means split in half, etc.");
-        ySplitsCombo.setPreferredSize(new java.awt.Dimension(45, 22));
-        jPanel8.add(ySplitsCombo);
-
-        jPanel4.add(jPanel8);
-
         getContentPane().add(jPanel4, java.awt.BorderLayout.CENTER);
 
         jPanel3.setFocusable(false);
@@ -243,8 +216,8 @@ public class SpecsDialog extends javax.swing.JDialog
 		
 		this.preferredMaxSameImageUsage = (Integer)maxSameImageUsageSlider.getValue();
 		this.drillDown = (Integer)drillDownSlider.getValue();
-		this.xDenom = numWide / (Integer)xSplitsCombo.getSelectedItem();
-		this.yDenom = numTall / (Integer)ySplitsCombo.getSelectedItem();
+//		this.xDenom = numWide / (Integer)xSplitsCombo.getSelectedItem();
+//		this.yDenom = numTall / (Integer)ySplitsCombo.getSelectedItem();
 		cancelled = false;
 		setVisible(false);
 }//GEN-LAST:event_doneButtonActionPerformed
@@ -262,8 +235,6 @@ public class SpecsDialog extends javax.swing.JDialog
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -271,11 +242,8 @@ public class SpecsDialog extends javax.swing.JDialog
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JSpinner maxSameImageUsageSlider;
     private javax.swing.JButton setOutputDirButton;
     private javax.swing.JButton setSourceImageDirButton;
-    private javax.swing.JComboBox xSplitsCombo;
-    private javax.swing.JComboBox ySplitsCombo;
     // End of variables declaration//GEN-END:variables
 }
