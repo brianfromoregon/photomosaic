@@ -93,6 +93,8 @@ public class ImageGridPanel extends JPanel
 			g.drawLine(x1, yPos, x1 + w, yPos);
 		}
 
+                g.setColor(Color.RED);
+                
 		// Draw priorities
 		synchronized (priorities)
 		{
