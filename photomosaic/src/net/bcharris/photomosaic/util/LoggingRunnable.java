@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 public class LoggingRunnable implements Runnable
 { 
     private final Runnable job;
-    private final Logger log = Logger.getLogger(LoggingRunnable.class.toString());
+    private final Logger log = Logger.getLogger(LoggingRunnable.class.getName());
  
     public LoggingRunnable(Runnable job)
     {

@@ -17,7 +17,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 
 	private final List<Future> jobs = Collections.synchronizedList(new LinkedList<Future>());
 
-	private final Logger log = Logger.getLogger(SimpleCompletableExecutor.class.toString());
+	private final Logger log = Logger.getLogger(SimpleCompletableExecutor.class.getName());
 
 	private volatile long earliestCompletion = System.currentTimeMillis();
 

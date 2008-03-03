@@ -37,7 +37,7 @@ public class ImagePalette
 
 	private final int numThreads;
 
-	private final Logger log = Logger.getLogger(ImagePalette.class.toString());
+	private final Logger log = Logger.getLogger(ImagePalette.class.getName());
 
 	public ImagePalette(int dd, int numThreads)
 	{

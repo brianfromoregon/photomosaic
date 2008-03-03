@@ -27,7 +27,7 @@ import net.bcharris.photomosaic.util.ImageMagickUtil;
  */
 public class MosaicDesigner extends javax.swing.JFrame
 {
-	private static final transient Logger log = Logger.getLogger(MosaicDesigner.class.toString());
+	private static final transient Logger log = Logger.getLogger(MosaicDesigner.class.getName());
 
 	private int numSourceImagesTall,  numSourceImagesWide;
 
