@@ -1,12 +1,12 @@
 package net.bcharris.photomosaic.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LoggingRunnable implements Runnable
 { 
     private final Runnable job;
-    private final Log log = LogFactory.getLog(LoggingRunnable.class);
+    private final Logger log = Logger.getLogger(LoggingRunnable.class.toString());
  
     public LoggingRunnable(Runnable job)
     {
@@ -21,7 +21,7 @@ public class LoggingRunnable implements Runnable
         }
         catch (Throwable t)
         {
-            log.error("While running wrapped job.", t);
+            log.log(Level.SEVERE, "While running wrapped job.", t);
         }
     }
 }

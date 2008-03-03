@@ -10,6 +10,8 @@ import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -18,8 +20,6 @@ import javax.swing.SwingUtilities;
 import net.bcharris.photomosaic.builder.ImageFileContext;
 import net.bcharris.photomosaic.builder.ImagePalette;
 import net.bcharris.photomosaic.util.ImageMagickUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MosaicDesigner extends javax.swing.JFrame
 {
-	private static final transient Log log = LogFactory.getLog(MosaicDesigner.class);
+	private static final transient Logger log = Logger.getLogger(MosaicDesigner.class.toString());
 
 	private int numSourceImagesTall,  numSourceImagesWide;
 
@@ -82,7 +82,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 			}
 			catch (Throwable t)
 			{
-				log.warn("When loading user-selected image", t);
+				log.log(Level.WARNING, "When loading user-selected image", t);
 				return;
 			}
 		}
@@ -103,7 +103,7 @@ public class MosaicDesigner extends javax.swing.JFrame
 		}
 		catch (Throwable t)
 		{
-			log.warn("Invalid input values, aborting.");
+			log.warning("Invalid input values, aborting.");
 			return;
 		}
 

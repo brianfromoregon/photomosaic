@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.bcharris.photomosaic.util.ColorUtil;
 import net.bcharris.photomosaic.util.CompletableExecutor;
 import net.bcharris.photomosaic.util.SimpleCompletableExecutor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class ImagePalette
 {
@@ -37,7 +37,7 @@ public class ImagePalette
 
 	private final int numThreads;
 
-	private final Log log = LogFactory.getLog(ImagePalette.class);
+	private final Logger log = Logger.getLogger(ImagePalette.class.toString());
 
 	public ImagePalette(int dd, int numThreads)
 	{
@@ -85,7 +85,7 @@ public class ImagePalette
 			}
 			catch (IOException e)
 			{
-				log.info("error while trying to insert image file into palette", e);
+				log.log(Level.WARNING, "error while trying to insert image file into palette", e);
 			}
 		}
 	}
@@ -177,18 +177,18 @@ public class ImagePalette
 								}
 								catch (Exception e)
 								{
-									log.error("Programmer error", e);
+									log.log(Level.SEVERE, "Programmer error", e);
 								}
 							}
 
 							bestMatches[x][y] = best;
-							log.debug("Found best match for cell (" + x + "," + y + ")");
+							log.log(Level.FINE, "Found best match for cell (" + x + "," + y + ")");
 						}
 					}
 				}
 				catch (KeySizeException e)
 				{
-					log.error("Programmer error!", e);
+					log.log(Level.SEVERE, "Programmer error!", e);
 					return;
 				}
 			}
@@ -262,18 +262,18 @@ public class ImagePalette
 					return false;
 				}
 				kdTree.insert(meanRgb, ctx);
-				log.debug("Added image to palette: " + ctx.file.getAbsolutePath());
+				log.fine("Added image to palette: " + ctx.file.getAbsolutePath());
 				return true;
 			}
 		}
 		catch (KeyDuplicateException e)
 		{
-			log.debug("Duplicate key in kdtree, ignoring: " + ctx.file.getAbsolutePath());
+			log.fine("Duplicate key in kdtree, ignoring: " + ctx.file.getAbsolutePath());
 			return false;
 		}
 		catch (KeySizeException e)
 		{
-			log.error("Programmer error!", e);
+			log.log(Level.SEVERE, "Programmer error!", e);
 			return false;
 		}
 	}

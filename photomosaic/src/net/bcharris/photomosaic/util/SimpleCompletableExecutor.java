@@ -8,9 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SimpleCompletableExecutor implements CompletableExecutor
 {
@@ -18,7 +17,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 
 	private final List<Future> jobs = Collections.synchronizedList(new LinkedList<Future>());
 
-	private final Log log = LogFactory.getLog(SimpleCompletableExecutor.class);
+	private final Logger log = Logger.getLogger(SimpleCompletableExecutor.class.toString());
 
 	private volatile long earliestCompletion = System.currentTimeMillis();
 
@@ -48,7 +47,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 					}
 					catch (InterruptedException e)
 					{
-						log.debug("Interrupted while calling get() on a Future, will retry later.", e);
+						log.log(Level.FINE, "Interrupted while calling get() on a Future, will retry later.", e);
 						jobs.add(job);
 					}
 					catch (ExecutionException e)
@@ -58,7 +57,7 @@ public class SimpleCompletableExecutor implements CompletableExecutor
 					}
 					catch (CancellationException e)
 					{
-						log.error(e);
+						log.log(Level.SEVERE, "?", e);
 					}
 				}
 				else

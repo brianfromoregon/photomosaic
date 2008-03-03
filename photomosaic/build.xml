@@ -14,11 +14,8 @@
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
             <fileset dir="${build.classes.dir}"/>
-			<zipfileset src="${file.reference.commons-logging-1.1.jar}"/>
-			<zipfileset src="${file.reference.log4j-1.2.14.jar}"/>
 			<zipfileset src="${file.reference.kdtree.jar}"/>
 			<rule pattern="edu.wlu.cs.levy.CG.**" result="net.bcharris.kdtree.@1"/>
-			<rule pattern="org.apache.**" result="net.bcharris.apache.@1"/>
         </jarjar>
 	</target>
 	
