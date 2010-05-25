@@ -1,14 +1,14 @@
 package net.bcharris.photomosaic.index;
 
-import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * An immutable representation of a collection of source images with which mosaics can be created.
  */
 public final class Index implements Serializable {
 
-    public final ImmutableList<byte[]> jpegs;
+    public final ArrayList<byte[]> jpegs;
     public final int width;
     public final int height;
 
@@ -18,7 +18,8 @@ public final class Index implements Serializable {
      * @param width The width of each image.
      * @param height The height of each image.
      */
-    public Index(ImmutableList<byte[]> jpegs, int width, int height) {
+    public Index(ArrayList<byte[]> jpegs, int width, int height) {
+        jpegs.trimToSize();
         this.jpegs = jpegs;
         this.width = width;
         this.height = height;

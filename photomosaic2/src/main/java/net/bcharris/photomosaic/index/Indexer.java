@@ -1,13 +1,11 @@
 package net.bcharris.photomosaic.index;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,7 +43,7 @@ public class Indexer {
         };
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        final List<byte[]> jpegs = Collections.synchronizedList(new ArrayList<byte[]>());
+        final ArrayList<byte[]> jpegs = new ArrayList<byte[]>();
         for (final File sourceImage : sourceImages) {
             executorService.submit(new Runnable() {
 
@@ -75,7 +73,9 @@ public class Indexer {
                         return;
                     }
                     try {
-                        jpegs.add(Files.toByteArray(tmpFile));
+                        synchronized (jpegs) {
+                            jpegs.add(Files.toByteArray(tmpFile));
+                        }
                     } catch (IOException ex) {
                         throw new RuntimeException("Fatal error, could not read from temporary file: " + tmpFile.getAbsolutePath(), ex);
                     }
@@ -91,7 +91,7 @@ public class Indexer {
         File indexFile = Util.createTempFile("photomosaic", "index");
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFile));
-            out.writeObject(new Index(ImmutableList.copyOf(jpegs), width, height));
+            out.writeObject(new Index(jpegs, width, height));
             out.close();
         } catch (IOException ex) {
             throw new RuntimeException("Fatal error, could not write index to specified file: " + indexFile.getAbsolutePath(), ex);
