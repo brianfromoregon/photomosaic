@@ -69,7 +69,7 @@ public class Indexer {
                     executor.setStreamHandler(handler);
                     try {
                         executor.execute(commandLine);
-                    } catch (Exception ex) {
+                    } catch (Throwable ex) {
                         System.out.println(String.format("Problem shrinking image '%s'\n", sourceImage.getAbsolutePath()));
                         ex.printStackTrace(System.out);
                         return;
