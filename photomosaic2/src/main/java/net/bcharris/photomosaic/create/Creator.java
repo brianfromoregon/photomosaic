@@ -52,8 +52,8 @@ public class Creator {
         double scaledTargetH = targetH * scalar;
         int numTall = (int) (scaledTargetH / index.height);
 
-        if (!reuseAllowed && numWide * numTall > index.jpegs.size()) {
-            System.err.println("Fatal error: cannot create a mosaic having " + numWide * numTall + " cells with an index of size " + index.jpegs.size());
+        if (!reuseAllowed && numWide * numTall > index.images.size()) {
+            System.err.println("Fatal error: cannot create a mosaic having " + numWide * numTall + " cells with an index of size " + index.images.size());
             return;
         }
 

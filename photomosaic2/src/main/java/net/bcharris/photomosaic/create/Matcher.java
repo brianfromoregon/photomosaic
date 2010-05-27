@@ -27,8 +27,8 @@ public class Matcher {
         this.dd = dd;
         this.reuseAllowed = reuseAllowed;
         tree = new KDTree<JpegInfo>(3);
-        for (byte[] bs : index.jpegs) {
-            JpegInfo jpegInfo = new JpegInfo(bs, dd, colorSpace);
+        for (Index.Image image : index.images) {
+            JpegInfo jpegInfo = new JpegInfo(image.jpeg, dd, colorSpace);
             try {
                 tree.insert(jpegInfo.mean, jpegInfo);
             } catch (KeySizeException ex) {

@@ -7,7 +7,9 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -15,7 +17,8 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 class SourceImageFinder extends DirectoryWalker {
 
     public SourceImageFinder() {
-        super(new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE), -1);
+        // visible directories and image files
+        super(new AndFileFilter(HiddenFileFilter.VISIBLE, new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE)), -1);
     }
 
     public List<File> findSourceImages(File directory) {

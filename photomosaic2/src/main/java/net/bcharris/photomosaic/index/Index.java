@@ -8,21 +8,33 @@ import java.util.ArrayList;
  */
 public final class Index implements Serializable {
 
-    public final ArrayList<byte[]> jpegs;
+    public final ArrayList<Image> images;
     public final int width;
     public final int height;
 
     /**
      * Create a new index.
-     * @param jpegs The list of JPEGs, each with the given width and height.
+     * @param images A list of images, each with the given width and height.
      * @param width The width of each image.
      * @param height The height of each image.
      */
-    public Index(ArrayList<byte[]> jpegs, int width, int height) {
-        jpegs.trimToSize();
-        this.jpegs = jpegs;
+    public Index(ArrayList<Image> images, int width, int height) {
+        images.trimToSize();
+        this.images = images;
         this.width = width;
         this.height = height;
+    }
+
+    public static class Image implements Serializable {
+
+        public final byte[] jpeg;
+        public final String absolutePath;
+
+        public Image(byte[] jpeg, String absolutePath) {
+            this.jpeg = jpeg;
+            this.absolutePath = absolutePath;
+        }
+        private static final long serialVersionUID = 0;
     }
     private static final long serialVersionUID = 0;
 }

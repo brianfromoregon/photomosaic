@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,11 +24,10 @@ import org.apache.commons.exec.PumpStreamHandler;
 public class Indexer {
 
     public static void main(String[] args) {
-        final File convertApp = new File("E:\\Program Files\\ImageMagick-6.5.6-Q16\\convert.exe");
-//        File sourceImageDirectory = new File("E:\\Documents and Settings\\brian\\Desktop");
-        File sourceImageDirectory = new File("E:\\dev\\photomosaic\\image-gen\\colors_16x11");
-        final int width = 100;
-        final int height = 75;
+        File sourceImageDirectory = new File("C:\\Documents and Settings\\harris\\My Documents\\My Pictures");
+        final File convertApp = new File("C:\\Program Files\\ImageMagick-6.6.1-Q8\\convert.exe");
+        final int width = 200;
+        final int height = 150;
 
 
         long before = System.currentTimeMillis();
@@ -36,14 +38,21 @@ public class Indexer {
 
             @Override
             protected File initialValue() {
-                File f = Util.createTempFile("photomosaic", "jpg");
+                File f = Util.createTempFile("photomosaic", ".jpg");
                 f.deleteOnExit();
                 return f;
             }
         };
+        final ThreadLocal<DateFormat> dateFormat = new ThreadLocal<DateFormat>() {
+
+            @Override
+            protected DateFormat initialValue() {
+                return new SimpleDateFormat("yyyyMMddHHmmss");
+            }
+        };
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        final ArrayList<byte[]> jpegs = new ArrayList<byte[]>();
+        final ArrayList<Index.Image> images = new ArrayList<Index.Image>();
         for (final File sourceImage : sourceImages) {
             executorService.submit(new Runnable() {
 
@@ -57,11 +66,11 @@ public class Indexer {
                     commandLine.addArgument("-resize");
                     commandLine.addArgument(width + "x" + height + "^");
                     commandLine.addArgument("-gravity");
-                    commandLine.addArgument("center");
+                    commandLine.addArgument("north");
                     commandLine.addArgument("-extent");
                     commandLine.addArgument(width + "x" + height);
                     commandLine.addArgument("JPEG:" + tmpFile.getAbsolutePath());
-                    System.out.println(commandLine.toString());
+                    System.out.println(dateFormat.get().format(new Date()) + ":" + (images.size() + 1) + ":" + commandLine.toString());
                     DefaultExecutor executor = new DefaultExecutor();
                     PumpStreamHandler handler = new PumpStreamHandler(System.out, System.out);
                     executor.setStreamHandler(handler);
@@ -73,8 +82,8 @@ public class Indexer {
                         return;
                     }
                     try {
-                        synchronized (jpegs) {
-                            jpegs.add(Files.toByteArray(tmpFile));
+                        synchronized (images) {
+                            images.add(new Index.Image(Files.toByteArray(tmpFile), sourceImage.getAbsolutePath()));
                         }
                     } catch (IOException ex) {
                         throw new RuntimeException("Fatal error, could not read from temporary file: " + tmpFile.getAbsolutePath(), ex);
@@ -91,7 +100,7 @@ public class Indexer {
         File indexFile = Util.createTempFile("photomosaic", "index");
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFile));
-            out.writeObject(new Index(jpegs, width, height));
+            out.writeObject(new Index(images, width, height));
             out.close();
         } catch (IOException ex) {
             throw new RuntimeException("Fatal error, could not write index to specified file: " + indexFile.getAbsolutePath(), ex);
