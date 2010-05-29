@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.index;
+package net.bcharris.photomosaic;
 
 import java.io.Serializable;
 import java.util.ArrayList;

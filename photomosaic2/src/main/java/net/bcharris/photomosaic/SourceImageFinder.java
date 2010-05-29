@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.index;
+package net.bcharris.photomosaic;
 
 import com.google.common.collect.Lists;
 import java.io.File;

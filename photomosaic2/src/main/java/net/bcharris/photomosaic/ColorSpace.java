@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 public enum ColorSpace {
 

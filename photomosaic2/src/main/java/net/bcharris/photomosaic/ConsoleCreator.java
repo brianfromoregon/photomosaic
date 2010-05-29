@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import javax.imageio.ImageIO;
-import net.bcharris.photomosaic.index.Index;
+import net.bcharris.photomosaic.Index;
 
 public class ConsoleCreator {
 

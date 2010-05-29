@@ -1,5 +1,6 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
+import net.bcharris.photomosaic.Util;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

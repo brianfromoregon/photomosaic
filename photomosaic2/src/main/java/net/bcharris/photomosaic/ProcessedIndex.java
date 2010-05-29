@@ -1,9 +1,9 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 import com.google.common.collect.Lists;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import net.bcharris.photomosaic.index.Index;
+import net.bcharris.photomosaic.Index;
 
 /**
  * An index which has already been processed (processing takes a long time).

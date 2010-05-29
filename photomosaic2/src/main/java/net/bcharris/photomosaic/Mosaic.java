@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 public class Mosaic {
     public final byte[][][] jpegLayout;

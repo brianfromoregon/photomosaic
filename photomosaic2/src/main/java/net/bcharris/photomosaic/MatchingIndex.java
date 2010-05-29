@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 import com.google.common.collect.Lists;
 import edu.wlu.cs.levy.CG.Checker;
@@ -7,7 +7,7 @@ import edu.wlu.cs.levy.CG.KeyDuplicateException;
 import edu.wlu.cs.levy.CG.KeySizeException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import net.bcharris.photomosaic.create.ProcessedIndex.ProcessedJpeg;
+import net.bcharris.photomosaic.ProcessedIndex.ProcessedJpeg;
 
 /**
  * An index used for matching.

@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 import com.google.common.base.Throwables;
 import java.awt.image.BufferedImage;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.imageio.ImageIO;
-import net.bcharris.photomosaic.create.MatchingIndex.Accuracy;
+import net.bcharris.photomosaic.MatchingIndex.Accuracy;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;

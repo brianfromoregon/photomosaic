@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.index;
+package net.bcharris.photomosaic;
 
 import com.google.common.io.Files;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import net.bcharris.photomosaic.create.Util;
+import net.bcharris.photomosaic.Util;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;

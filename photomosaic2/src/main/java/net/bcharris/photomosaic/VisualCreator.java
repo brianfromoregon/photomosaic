@@ -1,4 +1,4 @@
-package net.bcharris.photomosaic.create;
+package net.bcharris.photomosaic;
 
 import java.awt.BorderLayout;
 import java.awt.event.ComponentAdapter;
@@ -11,7 +11,7 @@ import java.io.ObjectInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import net.bcharris.photomosaic.index.Index;
+import net.bcharris.photomosaic.Index;
 
 public class VisualCreator extends javax.swing.JFrame {
 
