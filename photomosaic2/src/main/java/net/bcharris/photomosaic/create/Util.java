@@ -30,7 +30,7 @@ public class Util {
         return rgbArray;
     }
 
-    public static double[] meanRgbs(int[] rgb, int width, int height, int ddx, int ddy) {
+    public static double[] mean(int[] packedRgb, int width, int height, int ddx, int ddy, ColorSpace colorSpace) {
         double[] sliceMeanColors = new double[ddx * ddy * 3];
 
         for (int i = 0; i < ddx; i++) {
@@ -44,7 +44,7 @@ public class Util {
                 int total = 0;
                 for (int x = xStart; x < xEnd; x++) {
                     for (int y = yStart; y < yEnd; y++) {
-                        int pixel = rgb[(y - yStart) * width + (x - xStart)];
+                        int pixel = packedRgb[(y - yStart) * width + (x - xStart)];
                         sumR += pixel >> 16 & 0xff;
                         sumG += pixel >> 8 & 0xff;
                         sumB += pixel & 0xff;
@@ -57,16 +57,38 @@ public class Util {
                 sliceMeanColors[index + 2] = sumB / total;
             }
         }
-        return sliceMeanColors;
+        return meanRgbs2ColorSpace(sliceMeanColors, colorSpace);
     }
 
-    public static void meanRgbs2MeanLabs(double[] meanRgbs) {
-        double[] tmp = new double[3];
-        for (int i = 0; i < meanRgbs.length; i += 3) {
-            rgbToCIELAB(meanRgbs[i], meanRgbs[i + 1], meanRgbs[i + 2], tmp);
-            meanRgbs[i] = tmp[0];
-            meanRgbs[i + 1] = tmp[1];
-            meanRgbs[i + 2] = tmp[2];
+    public static double[] mean(double[] ddMean) {
+        double[] mean = new double[3];
+        double sum1 = 0;
+        double sum2 = 0;
+        double sum3 = 0;
+        for (int i = 0; i < ddMean.length; i += 3) {
+            sum1 += ddMean[i];
+            sum2 += ddMean[i + 1];
+            sum3 += ddMean[i + 2];
+        }
+        mean[0] = sum1 / (ddMean.length / 3);
+        mean[1] = sum2 / (ddMean.length / 3);
+        mean[2] = sum3 / (ddMean.length / 3);
+        return mean;
+    }
+
+    public static double[] meanRgbs2ColorSpace(double[] meanRgbs, ColorSpace colorSpace) {
+        if (colorSpace == ColorSpace.CIELAB) {
+            double[] tmp = new double[3];
+            double[] labs = new double[meanRgbs.length];
+            for (int i = 0; i < meanRgbs.length; i += 3) {
+                rgbToCIELAB(meanRgbs[i], meanRgbs[i + 1], meanRgbs[i + 2], tmp);
+                labs[i] = tmp[0];
+                labs[i + 1] = tmp[1];
+                labs[i + 2] = tmp[2];
+            }
+            return labs;
+        } else {
+            return meanRgbs;
         }
     }
 
@@ -136,5 +158,13 @@ public class Util {
         lab[0] = CIEL;
         lab[1] = CIEa;
         lab[2] = CIEb;
+    }
+
+    public static double euclidianDistance(double[] d1, double[] d2) {
+        double distance = 0;
+        for (int i = 0; i < d1.length; i++) {
+            distance += Math.abs(d1[i] - d2[i]);
+        }
+        return distance;
     }
 }
