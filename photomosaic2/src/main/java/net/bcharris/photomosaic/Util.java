@@ -1,9 +1,16 @@
 package net.bcharris.photomosaic;
 
+import com.google.common.io.Closeables;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import javax.imageio.ImageIO;
 
 public class Util {
@@ -44,7 +51,7 @@ public class Util {
                 int total = 0;
                 for (int x = xStart; x < xEnd; x++) {
                     for (int y = yStart; y < yEnd; y++) {
-                        int pixel = packedRgb[(y - yStart) * width + (x - xStart)];
+                        int pixel = packedRgb[y * width + x];
                         sumR += pixel >> 16 & 0xff;
                         sumG += pixel >> 8 & 0xff;
                         sumB += pixel & 0xff;
@@ -166,5 +173,37 @@ public class Util {
             distance += Math.abs(d1[i] - d2[i]);
         }
         return distance;
+    }
+
+    public static Index readIndex(File indexFile) {
+        ObjectInputStream in = null;
+        try {
+            in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
+            return (Index) in.readObject();
+        } catch (Exception ex) {
+            throw new RuntimeException("Fatal error, could not read index from specified file: " + indexFile.getAbsolutePath(), ex);
+        } finally {
+            Closeables.closeQuietly(in);
+        }
+    }
+
+    public static void writeIndex(Index index, File outputFile) {
+        ObjectOutputStream out = null;
+        try {
+            out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
+            out.writeObject(index);
+        } catch (Exception ex) {
+            throw new RuntimeException("Fatal error, could not write index to specified file: " + outputFile.getAbsolutePath(), ex);
+        } finally {
+            Closeables.closeQuietly(out);
+        }
+    }
+
+    public static BufferedImage readImage(File imageFile) {
+        try {
+            return ImageIO.read(imageFile);
+        } catch (IOException ex) {
+            throw new RuntimeException("Fatal error, could not read target image: " + imageFile.getAbsolutePath(), ex);
+        }
     }
 }

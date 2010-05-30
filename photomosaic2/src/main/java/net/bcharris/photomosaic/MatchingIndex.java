@@ -5,7 +5,9 @@ import edu.wlu.cs.levy.CG.Checker;
 import edu.wlu.cs.levy.CG.KDTree;
 import edu.wlu.cs.levy.CG.KeyDuplicateException;
 import edu.wlu.cs.levy.CG.KeySizeException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.bcharris.photomosaic.ProcessedIndex.ProcessedJpeg;
 
@@ -32,6 +34,7 @@ public class MatchingIndex {
     private final KDTree<UsableJpeg> kdTree;
     private final int drillDown;
     private final Accuracy accuracy;
+    private static final Random RANDOM = new Random();
 
     private MatchingIndex(ColorSpace colorSpace, List<UsableJpeg> list, KDTree<UsableJpeg> kdTree, int drillDown, Accuracy accuracy, int jpegWidth, int jpegHeight) {
         this.colorSpace = colorSpace;
@@ -57,16 +60,44 @@ public class MatchingIndex {
         if (accuracy == Accuracy.APPROXIMATE || accuracy == Accuracy.FASTEST) {
             kdTree = new KDTree<UsableJpeg>(3);
             for (UsableJpeg usableJpeg : list) {
+                double[] mean = Util.meanRgbs2ColorSpace(usableJpeg.processedJpeg.meanRgb, colorSpace);
                 try {
-                    kdTree.insert(Util.meanRgbs2ColorSpace(usableJpeg.processedJpeg.meanRgb, colorSpace), usableJpeg);
+                    kdTree.insert(mean, usableJpeg);
                 } catch (KeySizeException ex) {
                     throw new IllegalStateException("Programmer error", ex);
                 } catch (KeyDuplicateException ex) {
-                    // Not a problem.
+                    UsableJpeg existing;
+                    try {
+                        existing = kdTree.search(mean);
+                    } catch (KeySizeException ex1) {
+                        throw new IllegalStateException("Programmer error", ex1);
+                    }
+                    // If the jpegs really are different, force an insert
+                    if (!Arrays.equals(usableJpeg.processedJpeg.bytes, existing.processedJpeg.bytes)) {
+                        forceInsert(mean, usableJpeg, kdTree);
+                    }
                 }
             }
         }
         return new MatchingIndex(colorSpace, list, kdTree, index.drillDown, accuracy, index.width, index.height);
+    }
+
+    private static void forceInsert(double[] mean, UsableJpeg usableJpeg, KDTree<UsableJpeg> kdTree) {
+        double[] copy = Arrays.copyOf(mean, mean.length);
+        while (true) {
+            try {
+                double d = RANDOM.nextInt(1000) + 1;
+                d *= 1e-10;
+                for (int i = 0; i < copy.length; i++) {
+                    copy[i] += d;
+                }
+                kdTree.insert(copy, usableJpeg);
+                return;
+            } catch (KeySizeException ex) {
+                throw new IllegalStateException("Programmer error", ex);
+            } catch (KeyDuplicateException ex) {
+            }
+        }
     }
 
     public byte[] match(int[] targetRgb, int w, int h, boolean allowReuse) {

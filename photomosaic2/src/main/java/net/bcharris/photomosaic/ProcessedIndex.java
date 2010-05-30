@@ -3,7 +3,6 @@ package net.bcharris.photomosaic;
 import com.google.common.collect.Lists;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import net.bcharris.photomosaic.Index;
 
 /**
  * An index which has already been processed (processing takes a long time).
@@ -44,15 +43,5 @@ public class ProcessedIndex {
             this.ddMeanRgb = meanRgbs;
             meanRgb = Util.mean(ddMeanRgb);
         }
-
-        public double distanceTo(double[] other) {
-            double distance = 0;
-            for (int i = 0; i < other.length; i++) {
-                distance += Math.abs(other[i] - ddMeanRgb[i]);
-            }
-            return distance;
-        }
-
-
     }
 }

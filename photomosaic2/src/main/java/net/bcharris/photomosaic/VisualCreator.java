@@ -5,13 +5,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import javax.imageio.ImageIO;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import net.bcharris.photomosaic.Index;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 public class VisualCreator extends javax.swing.JFrame {
 
@@ -21,12 +19,13 @@ public class VisualCreator extends javax.swing.JFrame {
     private MatchingIndex matchingIndex;
 
     public VisualCreator(ProcessedIndex processedIndex, BufferedImage targetImage) {
+        super("Mosaic Preview");
         this.processedIndex = processedIndex;
         this.targetImage = targetImage;
         initComponents();
         this.mosaicPreviewPanel = new MosaicPreviewPanel();
         getContentPane().add(mosaicPreviewPanel, BorderLayout.CENTER);
-        this.matchingIndex = createMatchingIndex();
+        this.matchingIndex = createPreviewMatchingIndex();
         this.addComponentListener(new ComponentAdapter() {
 
             @Override
@@ -36,7 +35,7 @@ public class VisualCreator extends javax.swing.JFrame {
         });
     }
 
-    private MatchingIndex createMatchingIndex() {
+    private MatchingIndex createPreviewMatchingIndex() {
         return MatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem(), MatchingIndex.Accuracy.FASTEST);
     }
 
@@ -47,15 +46,14 @@ public class VisualCreator extends javax.swing.JFrame {
     }
 
     private void edt_create() {
-        matchingIndex.resetUsage();
         MatchingIndex matchingIndex = MatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem(), Creator.DEFAULT_ACCURACY);
         Creator creator = new Creator();
         Mosaic mosaic = creator.designMosaic(matchingIndex, targetImage, allowReuseCheckbox.isSelected(), (Integer) densitySpinner.getValue());
-        creator.writeToFile(mosaic);
+        File file = creator.writeToFile(mosaic);
+        JOptionPane.showMessageDialog(this, new JTextArea(file.getAbsolutePath()));
     }
 
-    private ComboBoxModel colorSpaceComboBoxModel()
-    {
+    private ComboBoxModel colorSpaceComboBoxModel() {
         return new DefaultComboBoxModel(new Object[]{ColorSpace.CIELAB, ColorSpace.SRGB});
     }
 
@@ -150,7 +148,7 @@ public class VisualCreator extends javax.swing.JFrame {
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        createButton.setText("Create");
+        createButton.setText("Write To File");
         createButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 createButtonActionPerformed(evt);
@@ -184,7 +182,7 @@ public class VisualCreator extends javax.swing.JFrame {
     }//GEN-LAST:event_allowReuseCheckboxActionPerformed
 
     private void colorSpaceComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorSpaceComboBoxActionPerformed
-        matchingIndex = createMatchingIndex();
+        matchingIndex = createPreviewMatchingIndex();
         edt_preview();
     }//GEN-LAST:event_colorSpaceComboBoxActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -201,24 +199,20 @@ public class VisualCreator extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public static void main(String[] args) {
-//        File indexFile = new File("E:\\mosaic\\20100526-bcharris-200-150.index");
-        File indexFile = new File("E:\\mosaic\\imagegen-25.index");
-        File targetImageFile = new File("E:\\mosaic\\parents.jpg");
-        final BufferedImage targetImage;
-        try {
-            System.out.println("Reading target image: " + targetImageFile.getAbsolutePath());
-            targetImage = ImageIO.read(targetImageFile);
-        } catch (IOException ex) {
-            throw new RuntimeException("Fatal error, could not read target image: " + targetImageFile.getAbsolutePath(), ex);
+        JFileChooser fc = new JFileChooser();
+        File indexFile = promptFile(fc, "Select an index file.");
+        if (indexFile == null) {
+            System.exit(1);
         }
-        Index index;
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFile));
-            index = (Index) in.readObject();
-        } catch (Exception ex) {
-            throw new RuntimeException("Fatal error, could not read index from specified file: " + indexFile.getAbsolutePath(), ex);
+        File targetImageFile = promptFile(fc, "Select a target image file.");
+        if (targetImageFile == null) {
+            System.exit(1);
         }
-        final ProcessedIndex processedIndex = ProcessedIndex.process(index, Creator.DRILL_DOWN);
+        final BufferedImage targetImage = Util.readImage(targetImageFile);
+        Log.log("Loading index: %s", indexFile.getAbsolutePath());
+        Index index = Util.readIndex(indexFile);
+        Log.log("Processing index of size %d", index.images.size());
+        final ProcessedIndex processedIndex = ProcessedIndex.process(index, Creator.DEFAULT_DRILL_DOWN);
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             @Override
@@ -226,5 +220,15 @@ public class VisualCreator extends javax.swing.JFrame {
                 new VisualCreator(processedIndex, targetImage).setVisible(true);
             }
         });
+    }
+
+    private static File promptFile(JFileChooser fc, String message) {
+        JOptionPane.showMessageDialog(null, message);
+        int returnVal = fc.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile();
+        } else {
+            return null;
+        }
     }
 }
