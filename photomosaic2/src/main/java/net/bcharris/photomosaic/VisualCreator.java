@@ -42,6 +42,7 @@ public class VisualCreator extends javax.swing.JFrame {
     private void edt_preview() {
         matchingIndex.resetUsage();
         Mosaic mosaic = new Creator().designMosaic(matchingIndex, targetImage, allowReuseCheckbox.isSelected(), (Integer) densitySpinner.getValue());
+        Log.log("Rendering.");
         mosaicPreviewPanel.update(mosaic);
     }
 
