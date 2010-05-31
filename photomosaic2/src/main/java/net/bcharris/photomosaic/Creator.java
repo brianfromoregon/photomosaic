@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.imageio.ImageIO;
+import net.bcharris.photomosaic.Index.Image;
 import net.bcharris.photomosaic.MatchingIndex.Accuracy;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -38,7 +39,7 @@ public class Creator {
         int targetChunkH = targetH / numTall;
 
         Log.log("Designing mosaic.");
-        byte[][][] mosaicJpegLayout = new byte[numTall][numWide][];
+        Image[][] mosaicLayout = new Image[numTall][numWide];
         Integer[] cellOrder = new Integer[numWide * numTall];
         for (int i = 0; i < cellOrder.length; i++) {
             cellOrder[i] = i;
@@ -53,27 +54,27 @@ public class Creator {
             int row = cell / numWide;
             int column = cell % numWide;
             int[] targetSectionRgb = Util.bufferedImageToRgb(targetImage.getSubimage(column * targetChunkW, row * targetChunkH + verticalOffset, targetChunkW, targetChunkH));
-            mosaicJpegLayout[row][column] = index.match(targetSectionRgb, targetChunkW, targetChunkH, reuseAllowed);
+            mosaicLayout[row][column] = index.match(targetSectionRgb, targetChunkW, targetChunkH, reuseAllowed);
         }
 
-        return new Mosaic(mosaicJpegLayout, index.jpegWidth, index.jpegHeight);
+        return new Mosaic(mosaicLayout, index.jpegWidth, index.jpegHeight);
     }
 
     public File writeToFile(Mosaic mosaic) {
         File montageApp = new File("E:\\Program Files\\ImageMagick-6.5.6-Q16\\montage.exe");
         Log.log("Creating mosaic rows.");
-        File[] rowImages = new File[mosaic.numTall()];
-        for (int row = 0; row < mosaic.jpegLayout.length; row++) {
+        File[] rowImageFiles = new File[mosaic.numTall()];
+        for (int row = 0; row < mosaic.layout.length; row++) {
             BufferedImage rowImage = new BufferedImage(mosaic.cellWidth * mosaic.numWide(), mosaic.cellHeight, BufferedImage.TYPE_INT_RGB);
-            byte[][] rowJpegs = mosaic.jpegLayout[row];
-            for (int column = 0; column < rowJpegs.length; column++) {
-                byte[] jpeg = rowJpegs[column];
-                int[] rgb = Util.bufferedImageToRgb(Util.jpegToBufferedImage(jpeg));
+            Image[] rowImages = mosaic.layout[row];
+            for (int column = 0; column < rowImages.length; column++) {
+                Image image = rowImages[column];
+                int[] rgb = Util.bufferedImageToRgb(Util.jpegToBufferedImage(image.jpeg));
                 rowImage.setRGB(column * mosaic.cellWidth, 0, mosaic.cellWidth, mosaic.cellHeight, rgb, 0, mosaic.cellWidth);
             }
             File rowImageFile = Util.createTempFile("row" + row + "_", ".png");
             rowImageFile.deleteOnExit();
-            rowImages[row] = rowImageFile;
+            rowImageFiles[row] = rowImageFile;
             try {
                 ImageIO.write(rowImage, "png", rowImageFile);
                 Log.log("Wrote row image to " + rowImageFile.getAbsolutePath());
@@ -85,8 +86,8 @@ public class Creator {
         Log.log("Creating final mosaic.");
         File mosaicFile = Util.createTempFile("finalmosaic", ".png");
         CommandLine commandLine = new CommandLine(montageApp.getAbsolutePath());
-        for (int i = 0; i < rowImages.length; i++) {
-            File row = rowImages[i];
+        for (int i = 0; i < rowImageFiles.length; i++) {
+            File row = rowImageFiles[i];
             commandLine.addArgument(row.getAbsolutePath());
         }
         commandLine.addArgument("-tile");
@@ -103,7 +104,7 @@ public class Creator {
         } catch (Exception ex) {
             Throwables.propagate(ex);
         }
-        for (File file : rowImages) {
+        for (File file : rowImageFiles) {
             file.delete();
         }
         return mosaicFile;

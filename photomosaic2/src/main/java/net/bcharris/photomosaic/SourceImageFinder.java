@@ -12,13 +12,14 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 class SourceImageFinder extends DirectoryWalker {
 
     public SourceImageFinder() {
         // visible directories and image files
-        super(new AndFileFilter(HiddenFileFilter.VISIBLE, new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE)), -1);
+        super(new AndFileFilter(notHiddenFileFilter(), new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE)), -1);
     }
 
     public List<File> findSourceImages(File directory) {
@@ -34,6 +35,11 @@ class SourceImageFinder extends DirectoryWalker {
     @Override
     protected void handleFile(File file, int depth, Collection results) throws IOException {
         results.add(file);
+    }
+
+    private static IOFileFilter notHiddenFileFilter() {
+        // HiddenFileFilter.HIDDEN doesn't exclude files starting with '.' on Windows but I want to.
+        return new OrFileFilter(HiddenFileFilter.HIDDEN, new PrefixFileFilter("."));
     }
 
     private static IOFileFilter imageFileFilter() {

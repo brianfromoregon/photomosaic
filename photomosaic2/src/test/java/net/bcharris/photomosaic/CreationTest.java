@@ -27,9 +27,9 @@ public class CreationTest {
         expected[0][1] = images.get(1).jpeg;
         expected[1][0] = images.get(2).jpeg;
         expected[1][1] = images.get(3).jpeg;
-        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 2), ColorSpace.SRGB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).jpegLayout);
-        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 3), ColorSpace.CIELAB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).jpegLayout);
-        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 6), ColorSpace.SRGB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).jpegLayout);
+        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 2), ColorSpace.SRGB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).layout);
+        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 3), ColorSpace.CIELAB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).layout);
+        assertArrayEquals(expected, creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, 6), ColorSpace.SRGB, MatchingIndex.Accuracy.APPROXIMATE), target, true, 2).layout);
     }
 
     private Image image(String resourceName) {

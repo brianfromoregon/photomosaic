@@ -1,6 +1,9 @@
 package net.bcharris.photomosaic;
 
 import com.google.common.io.Closeables;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -12,6 +15,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 
 public class Util {
 
@@ -205,5 +214,19 @@ public class Util {
         } catch (IOException ex) {
             throw new RuntimeException("Fatal error, could not read target image: " + imageFile.getAbsolutePath(), ex);
         }
+    }
+
+    public static void installEscapeCloseOperation(final JDialog dialog) {
+        Action dispatchClosing = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
+            }
+        };
+        JRootPane root = dialog.getRootPane();
+        String dispatchWindowClosingActionMapKey = "net.bcharris.photomosaic:WINDOW_CLOSING";
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), dispatchWindowClosingActionMapKey);
+        root.getActionMap().put(dispatchWindowClosingActionMapKey, dispatchClosing);
     }
 }

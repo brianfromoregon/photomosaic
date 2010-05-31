@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import net.bcharris.photomosaic.Index.Image;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -27,7 +28,7 @@ public class Indexer {
                 return f;
             }
         };
-        final ArrayList<Index.Image> images = new ArrayList<Index.Image>();
+        final ArrayList<Image> images = new ArrayList<Image>();
         ThreadedIteratorProcessor<File> threadedIteratorProcessor = new ThreadedIteratorProcessor<File>();
         threadedIteratorProcessor.processIterator(sourceImages.iterator(), new ThreadedIteratorProcessor.ElementProcessor<File>() {
 
@@ -58,7 +59,7 @@ public class Indexer {
                 }
                 try {
                     synchronized (images) {
-                        images.add(new Index.Image(Files.toByteArray(tmpFile), sourceImage.getAbsolutePath()));
+                        images.add(new Image(Files.toByteArray(tmpFile), sourceImage.getAbsolutePath()));
                     }
                 } catch (IOException ex) {
                     throw new RuntimeException("Fatal error, could not read from temporary file: " + tmpFile.getAbsolutePath(), ex);

@@ -1,23 +1,25 @@
 package net.bcharris.photomosaic;
 
+import net.bcharris.photomosaic.Index.Image;
+
 public class Mosaic {
-    public final byte[][][] jpegLayout;
+    public final Image[][] layout;
     public final int cellWidth;
     public final int cellHeight;
 
-    public Mosaic(byte[][][] jpegLayout, int cellWidth, int cellHeight) {
-        this.jpegLayout = jpegLayout;
+    public Mosaic(Image[][] layout, int cellWidth, int cellHeight) {
+        this.layout = layout;
         this.cellWidth = cellWidth;
         this.cellHeight = cellHeight;
     }
 
     public int numTall()
     {
-        return jpegLayout.length;
+        return layout.length;
     }
 
     public int numWide()
     {
-        return jpegLayout[0].length;
+        return layout[0].length;
     }
 }
