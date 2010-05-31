@@ -21,12 +21,19 @@ public class ProcessedIndex {
         this.jpegs = jpegs;
     }
 
-    public static ProcessedIndex process(Index index, int drillDown) {
-        List<ProcessedJpeg> jpegs = Lists.newArrayList();
-        for (Index.Image image : index.images) {
-            ProcessedJpeg jpegInfo = new ProcessedJpeg(image.jpeg, drillDown);
-            jpegs.add(jpegInfo);
-        }
+    public static ProcessedIndex process(Index index, final int drillDown) {
+        final List<ProcessedJpeg> jpegs = Lists.newArrayList();
+        ThreadedIteratorProcessor<Index.Image> threadedIteratorProcessor = new ThreadedIteratorProcessor<Index.Image>();
+        threadedIteratorProcessor.processIterator(index.images.iterator(), new ThreadedIteratorProcessor.ElementProcessor<Index.Image>() {
+
+            @Override
+            public void processElement(Index.Image image) {
+                ProcessedJpeg jpegInfo = new ProcessedJpeg(image.jpeg, drillDown);
+                synchronized (jpegs) {
+                    jpegs.add(jpegInfo);
+                }
+            }
+        });
         return new ProcessedIndex(drillDown, index.width, index.height, jpegs);
     }
 
