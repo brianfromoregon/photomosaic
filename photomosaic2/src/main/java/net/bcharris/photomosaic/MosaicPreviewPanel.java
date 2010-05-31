@@ -25,8 +25,8 @@ public class MosaicPreviewPanel extends JPanel {
         int mosaicWidth = mosaic.cellWidth * mosaic.numWide();
         int mosaicHeight = mosaic.cellHeight * mosaic.numTall();
         double scalar = getScalar(mosaicWidth, mosaicHeight, getWidth(), getHeight());
-        int myCellHeight = (int) (mosaicHeight * scalar / mosaic.numTall());
-        int myCellWidth = (int) (mosaicWidth * scalar / mosaic.numWide());
+        int myCellHeight = (int) (mosaic.cellHeight * scalar);
+        int myCellWidth = (int) (mosaic.cellWidth * scalar);
         int width = myCellWidth * mosaic.numWide();
         int height = myCellHeight * mosaic.numTall();
         BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

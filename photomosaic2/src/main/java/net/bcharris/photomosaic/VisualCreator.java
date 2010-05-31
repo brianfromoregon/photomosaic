@@ -75,7 +75,7 @@ public class VisualCreator extends javax.swing.JFrame {
         createButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(278, 300));
+        setMinimumSize(new java.awt.Dimension(550, 200));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Knobs"));
         jPanel1.setLayout(new java.awt.GridBagLayout());
