@@ -21,6 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+import static java.lang.Math.*;
 
 public class Util {
 
@@ -121,17 +122,17 @@ public class Util {
         double var_B = (B / 255d);
 
         if (var_R > 0.04045) {
-            var_R = Math.pow((var_R + 0.055) / 1.055, 2.4);
+            var_R = pow((var_R + 0.055) / 1.055, 2.4);
         } else {
             var_R = var_R / 12.92;
         }
         if (var_G > 0.04045) {
-            var_G = Math.pow((var_G + 0.055) / 1.055, 2.4);
+            var_G = pow((var_G + 0.055) / 1.055, 2.4);
         } else {
             var_G = var_G / 12.92;
         }
         if (var_B > 0.04045) {
-            var_B = Math.pow((var_B + 0.055) / 1.055, 2.4);
+            var_B = pow((var_B + 0.055) / 1.055, 2.4);
         } else {
             var_B = var_B / 12.92;
         }
@@ -153,17 +154,17 @@ public class Util {
         double var_Z = Z / ref_Z;
 
         if (var_X > 0.008856) {
-            var_X = Math.pow(var_X, 1d / 3);
+            var_X = pow(var_X, 1d / 3);
         } else {
             var_X = (7.787 * var_X) + (16d / 116);
         }
         if (var_Y > 0.008856) {
-            var_Y = Math.pow(var_Y, 1d / 3);
+            var_Y = pow(var_Y, 1d / 3);
         } else {
             var_Y = (7.787 * var_Y) + (16d / 116);
         }
         if (var_Z > 0.008856) {
-            var_Z = Math.pow(var_Z, 1d / 3);
+            var_Z = pow(var_Z, 1d / 3);
         } else {
             var_Z = (7.787 * var_Z) + (16d / 116);
         }
@@ -179,9 +180,10 @@ public class Util {
     public static double euclidianDistance(double[] d1, double[] d2) {
         double distance = 0;
         for (int i = 0; i < d1.length; i++) {
-            distance += Math.abs(d1[i] - d2[i]);
+            double diff = d1[i] - d2[i];
+            distance += diff * diff;
         }
-        return distance;
+        return sqrt(distance);
     }
 
     public static Index readIndex(File indexFile) {
