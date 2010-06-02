@@ -1,9 +1,44 @@
 package net.bcharris.photomosaic;
 
+import java.awt.image.BufferedImage;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class UtilTest {
+
+    @Test
+    public void meanColors() {
+        BufferedImage dd2Img = TestUtil.bufferedImage("/drilldown/dd2.bmp");
+        int[] dd2Rgb = Util.bufferedImageToRgb(dd2Img);
+        {
+            double[] expected = new double[]{255d * 3 / 4, 255d * 3 / 4, 255d * 3 / 4};
+            double[] actual = Util.mean(dd2Rgb, 4, 4, 1, 1, ColorSpace.SRGB);
+            for (int i = 0; i < actual.length; i++) {
+                assertEquals(expected[i], actual[i], 0d);
+            }
+        }
+        {
+            double[] expected = new double[]{0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0};
+            double[] actual = Util.mean(dd2Rgb, 4, 4, 4, 4, ColorSpace.SRGB);
+            for (int i = 0; i < actual.length; i++) {
+                assertEquals(expected[i], actual[i], 0d);
+            }
+        }
+        {
+            double[] expected = new double[]{255d / 2, 255d / 2, 255d / 2, 255, 255, 255, 255, 255, 255, 255d / 2, 255d / 2, 255d / 2};
+            double[] actual = Util.mean(dd2Rgb, 4, 4, 1, 4, ColorSpace.SRGB);
+            for (int i = 0; i < actual.length; i++) {
+                assertEquals(expected[i], actual[i], 0d);
+            }
+        }
+        {
+            double[] expected = new double[]{255d * 3 / 4, 255d * 3 / 4, 255d * 3 / 4, 255d * 3 / 4, 255d * 3 / 4, 255d * 3 / 4};
+            double[] actual = Util.mean(dd2Rgb, 4, 4, 2, 1, ColorSpace.SRGB);
+            for (int i = 0; i < actual.length; i++) {
+                assertEquals(expected[i], actual[i], 0d);
+            }
+        }
+    }
 
     @Test
     public void rgbToCIELAB() {
