@@ -183,7 +183,9 @@ public class Util {
             double diff = d1[i] - d2[i];
             distance += diff * diff;
         }
-        return sqrt(distance);
+        // Don't need to take square root because we're not interested in actual values, just their respective order.
+//        return sqrt(distance);
+        return distance;
     }
 
     public static Index readIndex(File indexFile) {

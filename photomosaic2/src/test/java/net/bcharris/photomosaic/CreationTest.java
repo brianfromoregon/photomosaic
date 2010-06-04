@@ -28,11 +28,11 @@ public class CreationTest {
         Creator creator = new Creator();
         BufferedImage target = TestUtil.bufferedImage("/drilldown/dd" + dd + ".bmp");
         {
-            Mosaic mosaic = creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, dd), ColorSpace.SRGB, MatchingIndex.Accuracy.APPROXIMATE), target, false, dd);
+            Mosaic mosaic = creator.designMosaic(OptimalMatchingIndex.create(ProcessedIndex.process(index, dd), ColorSpace.SRGB, dd), target, false, dd);
             assertArrayEquals(expected, layoutToJpegs(mosaic.layout));
         }
         {
-            Mosaic mosaic = creator.designMosaic(MatchingIndex.create(ProcessedIndex.process(index, dd), ColorSpace.CIELAB, MatchingIndex.Accuracy.EXACT), target, true, dd);
+            Mosaic mosaic = creator.designMosaic(OptimalMatchingIndex.create(ProcessedIndex.process(index, dd), ColorSpace.CIELAB, dd), target, true, dd);
             assertArrayEquals(expected, layoutToJpegs(mosaic.layout));
         }
     }

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import javax.imageio.ImageIO;
 import net.bcharris.photomosaic.Index.Image;
-import net.bcharris.photomosaic.MatchingIndex.Accuracy;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -19,20 +18,19 @@ import org.apache.commons.exec.PumpStreamHandler;
 public class Creator {
 
     public static final int DEFAULT_DRILL_DOWN = 6;
-    public static final Accuracy DEFAULT_ACCURACY = Accuracy.APPROXIMATE;
     public static final ColorSpace DEFAULT_COLOR_SPACE = ColorSpace.CIELAB;
 
     public Mosaic designMosaic(MatchingIndex index, BufferedImage targetImage, boolean reuseAllowed, int numWide) {
         int targetW = targetImage.getWidth();
         int targetH = targetImage.getHeight();
 
-        int mosaicW = index.jpegWidth * numWide;
+        int mosaicW = index.imageWidth * numWide;
         double scalar = mosaicW / (double) targetW;
         double scaledTargetH = targetH * scalar;
-        int numTall = (int) (scaledTargetH / index.jpegHeight);
+        int numTall = (int) (scaledTargetH / index.imageHeight);
 
-        if (!reuseAllowed && numWide * numTall > index.size) {
-            throw new IllegalArgumentException("Cannot create a mosaic having " + numWide * numTall + " cells with an index of size " + index.size);
+        if (!reuseAllowed && numWide * numTall > index.all().size()) {
+            throw new IllegalArgumentException("Cannot create a mosaic having " + numWide * numTall + " cells with an index of size " + index.all().size());
         }
 
         int targetChunkW = targetW / numWide;
@@ -57,7 +55,7 @@ public class Creator {
             mosaicLayout[row][column] = index.match(targetSectionRgb, targetChunkW, targetChunkH, reuseAllowed);
         }
 
-        return new Mosaic(mosaicLayout, index.jpegWidth, index.jpegHeight);
+        return new Mosaic(mosaicLayout, index.imageWidth, index.imageHeight);
     }
 
     public File writeToFile(Mosaic mosaic) {

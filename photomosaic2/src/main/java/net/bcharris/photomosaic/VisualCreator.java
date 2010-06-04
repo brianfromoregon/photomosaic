@@ -36,7 +36,7 @@ public class VisualCreator extends javax.swing.JFrame {
     }
 
     private MatchingIndex createPreviewMatchingIndex() {
-        return MatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem(), MatchingIndex.Accuracy.FASTEST);
+        return FastFuzzyMatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem());
     }
 
     private void edt_preview() {
@@ -47,9 +47,9 @@ public class VisualCreator extends javax.swing.JFrame {
     }
 
     private void edt_create() {
-        MatchingIndex matchingIndex = MatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem(), Creator.DEFAULT_ACCURACY);
+        MatchingIndex optimalMatchingIndex = OptimalMatchingIndex.create(processedIndex, (ColorSpace) colorSpaceComboBox.getSelectedItem(), 6);
         Creator creator = new Creator();
-        Mosaic mosaic = creator.designMosaic(matchingIndex, targetImage, allowReuseCheckbox.isSelected(), (Integer) densitySpinner.getValue());
+        Mosaic mosaic = creator.designMosaic(optimalMatchingIndex, targetImage, allowReuseCheckbox.isSelected(), (Integer) densitySpinner.getValue());
         File file = creator.writeToFile(mosaic);
         JOptionPane.showMessageDialog(this, new JTextArea(file.getAbsolutePath()));
     }
