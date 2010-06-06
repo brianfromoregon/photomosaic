@@ -28,6 +28,8 @@ public class Indexer {
                 return f;
             }
         };
+
+        final ProgressCalc progressCalc = new ProgressCalc(sourceImages.size());
         final ArrayList<Image> images = new ArrayList<Image>();
         ThreadedIteratorProcessor<File> threadedIteratorProcessor = new ThreadedIteratorProcessor<File>();
         threadedIteratorProcessor.processIterator(sourceImages.iterator(), new ThreadedIteratorProcessor.ElementProcessor<File>() {
@@ -46,7 +48,8 @@ public class Indexer {
                 commandLine.addArgument("-extent");
                 commandLine.addArgument(width + "x" + height);
                 commandLine.addArgument("JPEG:" + tmpFile.getAbsolutePath());
-                Log.log((images.size() + 1) + ":" + commandLine.toString());
+                int imageNum = images.size() + 1;
+                Log.log(imageNum + ":" + commandLine.toString());
                 DefaultExecutor executor = new DefaultExecutor();
                 PumpStreamHandler handler = new PumpStreamHandler(System.out, System.out);
                 executor.setStreamHandler(handler);
@@ -63,6 +66,9 @@ public class Indexer {
                     }
                 } catch (IOException ex) {
                     throw new RuntimeException("Fatal error, could not read from temporary file: " + tmpFile.getAbsolutePath(), ex);
+                }
+                if (imageNum % 20 == 0) {
+                    Log.log("%d%% complete, ETA=%s", progressCalc.percentInt(imageNum), progressCalc.eta(imageNum));
                 }
             }
         });
