@@ -6,6 +6,11 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import net.bcharris.photomosaic.ProcessedIndex.ProcessedImage;
 
+/**
+ * This index matches in (3*dd*dd) space using a brute force approach (comparing
+ * to every image).  It is guaranteed to return the optimal image but it takes
+ * a while.
+ */
 public class OptimalMatchingIndex extends MatchingIndex {
 
     private static final Predicate<UsableImage> UNUSED = new Predicate<UsableImage>() {

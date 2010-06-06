@@ -12,6 +12,8 @@ import java.util.concurrent.Future;
 
 /**
  * A utility class to process each element in an iterator in an efficient manner.
+ * Taken from my own stackoverflow answer to my own question here:
+ * http://stackoverflow.com/questions/1932201/parallel-computation-for-an-iterator-of-elements-in-java/1949889#1949889
  */
 public class ThreadedIteratorProcessor<T> {
 

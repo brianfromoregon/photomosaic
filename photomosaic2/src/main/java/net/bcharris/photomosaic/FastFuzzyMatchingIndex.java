@@ -12,6 +12,10 @@ import java.util.Random;
 import net.bcharris.photomosaic.MatchingIndex.UsableImage;
 import net.bcharris.photomosaic.ProcessedIndex.ProcessedImage;
 
+/**
+ * This index matches in 3 space, no drilling down.  This constraint allows for
+ * the usage of a kd-tree (k=3) which makes it extremely fast.
+ */
 public class FastFuzzyMatchingIndex extends MatchingIndex {
 
     private static final Random RANDOM = new Random();
