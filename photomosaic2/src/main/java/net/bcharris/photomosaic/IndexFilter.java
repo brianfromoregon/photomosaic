@@ -9,6 +9,7 @@ import net.bcharris.photomosaic.Index.Image;
 
 public class IndexFilter {
 
+    // This should be replaced with a UI: http://code.google.com/p/photomosaic/issues/detail?id=26
     public static void main(String[] args) throws IOException {
         File indexFile = new File("E:\\mosaic\\20100526-bcharris-200-150.index");
         Index index = Util.readIndex(indexFile);

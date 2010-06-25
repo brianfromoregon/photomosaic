@@ -4,6 +4,7 @@ import java.io.File;
 
 public class ConsoleIndexer {
 
+    // This should use args4j: http://code.google.com/p/photomosaic/issues/detail?id=28
     public static void main(String[] args) {
         File sourceImageDirectory = new File("E:\\dev\\photomosaic\\image-gen\\colors_16x11");
         final File convertApp = new File("E:\\Program Files\\ImageMagick-6.5.6-Q16\\convert.exe");
