@@ -19,6 +19,16 @@ public class Creator {
 
     public static final int DEFAULT_DRILL_DOWN = 6;
     public static final ColorSpace DEFAULT_COLOR_SPACE = ColorSpace.CIELAB;
+    private static final String MONTAGE_EXE = "C:\\ImageMagick-6.5.1-Q16\\montage.exe";
+    private final File montageApp;
+
+    public Creator() {
+        this(new File(MONTAGE_EXE));
+    }
+
+    public Creator(File montageExe) {
+        montageApp = montageExe;
+    }
 
     public Mosaic designMosaic(MatchingIndex index, BufferedImage targetImage, boolean reuseAllowed, int numWide) {
         int targetW = targetImage.getWidth();
@@ -36,7 +46,7 @@ public class Creator {
         int targetChunkW = targetW / numWide;
         int targetChunkH = targetH / numTall;
 
-        Log.log("Designing mosaic.");
+        Log.log("Designing mosaic that is " + numWide + " tiles by " + numTall + " tiles.");
         Image[][] mosaicLayout = new Image[numTall][numWide];
         Integer[] cellOrder = new Integer[numWide * numTall];
         for (int i = 0; i < cellOrder.length; i++) {
@@ -59,7 +69,6 @@ public class Creator {
     }
 
     public File writeToFile(Mosaic mosaic) {
-        File montageApp = new File("E:\\Program Files\\ImageMagick-6.5.6-Q16\\montage.exe");
         Log.log("Creating mosaic rows.");
         File[] rowImageFiles = new File[mosaic.numTall()];
         for (int row = 0; row < mosaic.layout.length; row++) {
