@@ -9,8 +9,6 @@ public class ConsoleIndexer {
 
     @Option(name = "-dir", usage = "Source image directory to index (default: working directory)", metaVar = "DIR")
     private File directoryToIndex = new File(".");
-    @Option(name = "-convertExe", usage = "Path to ImageMagick convert app", required = true)
-    private File imageMagickConvert = new File("convert");
     @Option(name = "-w", usage = "Width of indexed images in pixels (default: 16)")
     private int width = 16;
     @Option(name = "-h", usage = "Height of indexed images in pixels (default: 11)")
@@ -28,9 +26,6 @@ public class ConsoleIndexer {
             if (!directoryToIndex.isDirectory()) {
                 throw new CmdLineException("The specified directory to index is not a directory: " + directoryToIndex.getAbsolutePath());
             }
-            if (!imageMagickConvert.isFile() || !imageMagickConvert.exists()) {
-                throw new CmdLineException("The specified ImageMagick convert app is invalid: " + imageMagickConvert.getAbsolutePath());
-            }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
@@ -42,7 +37,7 @@ public class ConsoleIndexer {
         long before = System.currentTimeMillis();
         Indexer indexer = new Indexer();
         File indexFile = Util.createTempFile("photomosaic", ".index");
-        Util.writeIndex(indexer.index(directoryToIndex, imageMagickConvert, width, height), indexFile);
+        Util.writeIndex(indexer.index(directoryToIndex, width, height), indexFile);
         double secs = (System.currentTimeMillis() - before) / 1000d;
         Log.log("Finished in " + (int) secs + " seconds");
         Log.log("Wrote index file to " + indexFile.getAbsolutePath());

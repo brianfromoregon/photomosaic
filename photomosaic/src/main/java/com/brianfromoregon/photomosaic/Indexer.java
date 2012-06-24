@@ -15,7 +15,7 @@ import org.apache.commons.exec.PumpStreamHandler;
  */
 public class Indexer {
 
-    public Index index(File sourceImageDirectory, final File convertApp, final int width, final int height) {
+    public Index index(File sourceImageDirectory, final int width, final int height) {
         SourceImageFinder sourceImageFinder = new SourceImageFinder();
         List<File> sourceImages = sourceImageFinder.findSourceImages(sourceImageDirectory);
 
@@ -37,7 +37,7 @@ public class Indexer {
             @Override
             public void processElement(File sourceImage) {
                 File tmpFile = tmpFiles.get();
-                CommandLine commandLine = new CommandLine(convertApp.getAbsolutePath());
+                CommandLine commandLine = new CommandLine(Env.convertExe().getAbsolutePath());
                 commandLine.addArgument(sourceImage.getAbsolutePath());
                 commandLine.addArgument("-auto-orient");
                 commandLine.addArgument("-strip");

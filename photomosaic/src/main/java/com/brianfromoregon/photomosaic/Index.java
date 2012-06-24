@@ -8,6 +8,7 @@ import java.util.ArrayList;
  */
 public final class Index implements Serializable {
 
+    public long created;
     public final ArrayList<Image> images;
     public final int width;
     public final int height;

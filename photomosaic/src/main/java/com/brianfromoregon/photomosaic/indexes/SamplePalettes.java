@@ -1,12 +1,66 @@
 package com.brianfromoregon.photomosaic.indexes;
 
+import com.brianfromoregon.photomosaic.Env;
+import com.brianfromoregon.photomosaic.Index;
+import com.brianfromoregon.photomosaic.Indexer;
+import com.brianfromoregon.photomosaic.Util;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class SamplePalettes extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JRadioButton solidColorsRadioButton;
+    private JRadioButton grayscaleRadioButton;
+
+    public Sample chosen = null;
+
+    enum Sample {
+        SOLID_COLORS {
+            @Override
+            Index generate(File outputDir) throws IOException {
+                for (int r = 0; r < 256; r += 50) {
+                    for (int g = 0; g < 256; g += 50) {
+                        for (int b = 0; b < 256; b += 50) {
+                            BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+
+                            Graphics2D g2d = image.createGraphics();
+                            g2d.setColor(new Color(r, g, b));
+                            g2d.fillRect(0, 0, 1, 1);
+
+                            ImageIO.write(image, "JPG", new File(outputDir, String.valueOf(r) + "_" + String.valueOf(g) + "_" + String.valueOf(b) + ".jpg"));
+                        }
+                    }
+                }
+
+                return new Indexer().index(outputDir,  1, 1);
+            }
+        }, GRAYSCALE {
+            @Override
+            Index generate(File outputDir) throws IOException {
+                for (int i = 0; i < 256; i += 10) {
+                    BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+
+                    Graphics2D g2d = image.createGraphics();
+                    g2d.setColor(new Color(i, i, i));
+                    g2d.fillRect(0, 0, 1, 1);
+
+                    ImageIO.write(image, "JPG", new File(outputDir, String.valueOf(i) + ".jpg"));
+                }
+
+                return new Indexer().index(outputDir, 1, 1);
+            }
+        };
+
+        abstract Index generate(File outputDir) throws IOException;
+    }
 
     public SamplePalettes() {
         setContentPane(contentPane);
@@ -42,19 +96,14 @@ public class SamplePalettes extends JDialog {
     }
 
     private void onOK() {
-// add your code here
+        if (solidColorsRadioButton.isSelected())
+            chosen = Sample.SOLID_COLORS;
+        else if (grayscaleRadioButton.isSelected())
+            chosen = Sample.GRAYSCALE;
         dispose();
     }
 
     private void onCancel() {
-// add your code here if necessary
         dispose();
-    }
-
-    public static void main(String[] args) {
-        SamplePalettes dialog = new SamplePalettes();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
     }
 }
