@@ -26,6 +26,6 @@ import javax.ws.rs.Produces;
     @Path("")
     public View all()
     {
-        return new View("palette2.ftl", ImmutableMap.of("count", index.images.size(), "width", index.width, "height", index.height));
+        return new View("palette.ftl", ImmutableMap.of("count", index.images.size(), "width", index.width, "height", index.height));
     }
 }
