@@ -2,10 +2,11 @@ package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Log;
-import com.brianfromoregon.tiles.indexes.Palette;
+import com.brianfromoregon.tiles.Util;
 import com.brianfromoregon.tiles.indexes.SamplePalettes;
-import com.brianfromoregon.tiles.web.view.Design;
-import com.brianfromoregon.tiles.web.view.DesignActions;
+import com.brianfromoregon.tiles.web.control.DesignControl;
+import com.brianfromoregon.tiles.web.control.Palette;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.googlecode.htmleasy.HtmleasyProviders;
 import com.googlecode.htmleasy.HtmleasyServletDispatcher;
@@ -19,7 +20,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.channels.NetworkChannel;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class WebMain {
 
             // Add my own JAX-RS annotated classes
             myServices.add(Palette.class);
-            myServices.add(DesignActions.class);
+            myServices.add(DesignControl.class);
 
             // Add Htmleasy Providers
             myServices.addAll(HtmleasyProviders.getClasses());
@@ -49,7 +49,8 @@ public class WebMain {
 
         Server server = new Server(0);
 
-        Palette.index = index;
+        SessionState.palette = index;
+        SessionState.target = Util.bytesToBufferedImage(ByteStreams.toByteArray(WebMain.class.getResourceAsStream("brian.jpg")));
         ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
         ServletHolder htmlEasy = new ServletHolder(new HtmleasyServletDispatcher());
         htmlEasy.setInitParameter(Application.class.getName(), JaxRsApplication.class.getName());

@@ -6,8 +6,9 @@ import java.io.File;
  *
  */
 public class Env {
+    static String imDir = "C:\\ImageMagick-6.7.8-Q16";
     public static File convertExe() {
-        File f = new File("D:\\ImageMagick-6.7.7-Q16\\convert.exe");
+        File f = new File(imDir + "\\convert.exe");
 
         if (!f.isFile() || !f.exists()) {
             throw new RuntimeException("The specified ImageMagick convert app is invalid: " + f.getAbsolutePath());

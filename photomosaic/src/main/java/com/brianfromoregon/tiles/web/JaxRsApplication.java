@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 
-import com.brianfromoregon.tiles.indexes.Palette;
+import com.brianfromoregon.tiles.web.control.Palette;
 import com.googlecode.htmleasy.HtmleasyProviders;
 
 public class JaxRsApplication extends Application {

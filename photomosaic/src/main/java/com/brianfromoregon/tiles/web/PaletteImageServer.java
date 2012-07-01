@@ -1,8 +1,7 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
-import com.brianfromoregon.tiles.indexes.Palette;
-import com.brianfromoregon.tiles.web.JaxRsApplication;
+import com.brianfromoregon.tiles.web.control.Palette;
 import com.googlecode.htmleasy.HtmleasyServletDispatcher;
 import freemarker.ext.servlet.FreemarkerServlet;
 import org.eclipse.jetty.server.Server;
@@ -19,7 +18,7 @@ public class PaletteImageServer {
 
     public PaletteImageServer(int port, final Index index) {
         server = new Server(port);
-        Palette.index=index;
+        SessionState.palette=index;
         ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
         ServletHolder htmlEasy = new ServletHolder(new HtmleasyServletDispatcher());
         htmlEasy.setInitParameter(Application.class.getName(), JaxRsApplication.class.getName());
