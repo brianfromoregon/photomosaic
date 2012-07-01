@@ -76,7 +76,7 @@ public class Creator {
             Image[] rowImages = mosaic.layout[row];
             for (int column = 0; column < rowImages.length; column++) {
                 Image image = rowImages[column];
-                int[] rgb = Util.bufferedImageToRgb(Util.jpegToBufferedImage(image.jpeg));
+                int[] rgb = Util.bufferedImageToRgb(Util.bytesToBufferedImage(image.jpeg));
                 rowImage.setRGB(column * mosaic.cellWidth, 0, mosaic.cellWidth, mosaic.cellHeight, rgb, 0, mosaic.cellWidth);
             }
             File rowImageFile = Util.createTempFile("row" + row + "_", ".png");

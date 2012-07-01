@@ -46,7 +46,7 @@ public class ProcessedIndex {
 
         public ProcessedImage(Image image, int dd) {
             this.image = image;
-            BufferedImage bufferedImage = Util.jpegToBufferedImage(image.jpeg);
+            BufferedImage bufferedImage = Util.bytesToBufferedImage(image.jpeg);
             double[] meanRgbs = Util.mean(Util.bufferedImageToRgb(bufferedImage), bufferedImage.getWidth(), bufferedImage.getHeight(), dd, dd, ColorSpace.SRGB);
             this.ddMeanRgb = meanRgbs;
             meanRgb = Util.mean(ddMeanRgb);

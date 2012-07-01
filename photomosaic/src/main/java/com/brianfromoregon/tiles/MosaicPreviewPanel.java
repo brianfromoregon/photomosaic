@@ -50,7 +50,7 @@ public class MosaicPreviewPanel extends JPanel {
         for (int row = 0; row < mosaic.layout.length; row++) {
             Image[] rowImages = mosaic.layout[row];
             for (int column = 0; column < rowImages.length; column++) {
-                g.drawImage(Util.jpegToBufferedImage(rowImages[column].jpeg), column * myCellWidth, row * myCellHeight, myCellWidth, myCellHeight, this);
+                g.drawImage(Util.bytesToBufferedImage(rowImages[column].jpeg), column * myCellWidth, row * myCellHeight, myCellWidth, myCellHeight, this);
             }
         }
         this.bufferedImage = newImage;
@@ -90,7 +90,7 @@ public class MosaicPreviewPanel extends JPanel {
             Image image = imageForEvent(e);
             if (image != null) {
                 JDialog popup = new JDialog((java.awt.Frame) null, image.url, true);
-                popup.add(new ImagePanel(Util.jpegToBufferedImage(image.jpeg)), BorderLayout.CENTER);
+                popup.add(new ImagePanel(Util.bytesToBufferedImage(image.jpeg)), BorderLayout.CENTER);
                 popup.pack();
                 Util.installEscapeCloseOperation(popup);
                 popup.setVisible(true);

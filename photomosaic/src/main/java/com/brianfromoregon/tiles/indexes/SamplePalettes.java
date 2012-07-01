@@ -21,10 +21,10 @@ public class SamplePalettes extends JDialog {
 
     public Sample chosen = null;
 
-    enum Sample {
+    public enum Sample {
         SOLID_COLORS {
             @Override
-            Index generate(File outputDir) throws IOException {
+            public Index generate(File outputDir) throws IOException {
                 for (int r = 0; r < 256; r += 50) {
                     for (int g = 0; g < 256; g += 50) {
                         for (int b = 0; b < 256; b += 50) {
@@ -43,7 +43,7 @@ public class SamplePalettes extends JDialog {
             }
         }, GRAYSCALE {
             @Override
-            Index generate(File outputDir) throws IOException {
+            public Index generate(File outputDir) throws IOException {
                 for (int i = 0; i < 256; i += 10) {
                     BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
 
@@ -58,7 +58,7 @@ public class SamplePalettes extends JDialog {
             }
         };
 
-        abstract Index generate(File outputDir) throws IOException;
+        public abstract Index generate(File outputDir) throws IOException;
     }
 
     public SamplePalettes() {

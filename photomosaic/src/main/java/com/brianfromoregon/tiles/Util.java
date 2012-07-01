@@ -1,5 +1,6 @@
 package com.brianfromoregon.tiles;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -33,9 +34,9 @@ public class Util {
         }
     }
 
-    public static BufferedImage jpegToBufferedImage(byte[] jpegBytes) {
+    public static BufferedImage bytesToBufferedImage(byte[] bytes) {
         try {
-            return ImageIO.read(new ByteArrayInputStream(jpegBytes));
+            return ImageIO.read(ByteStreams.newInputStreamSupplier(bytes).getInput());
         } catch (IOException ex) {
             throw new IllegalStateException("Programmer error", ex);
         }

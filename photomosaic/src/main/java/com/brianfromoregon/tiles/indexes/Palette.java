@@ -1,6 +1,7 @@
 package com.brianfromoregon.tiles.indexes;
 
 import com.brianfromoregon.tiles.Index;
+import com.brianfromoregon.tiles.web.view.Design;
 import com.google.common.collect.ImmutableMap;
 import com.googlecode.htmleasy.View;
 

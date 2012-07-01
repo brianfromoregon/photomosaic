@@ -20,7 +20,7 @@ public class TestUtil {
 
     static BufferedImage bufferedImage(String resourceName) {
         try {
-            return Util.jpegToBufferedImage(ByteStreams.toByteArray(TestUtil.class.getResourceAsStream(resourceName)));
+            return Util.bytesToBufferedImage(ByteStreams.toByteArray(TestUtil.class.getResourceAsStream(resourceName)));
         } catch (IOException ex) {
             throw Throwables.propagate(ex);
         }
