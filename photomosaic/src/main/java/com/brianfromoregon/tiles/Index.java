@@ -1,15 +1,17 @@
 package com.brianfromoregon.tiles;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
+
+import java.net.URI;
 
 /**
  * An immutable representation of a collection of source images with which mosaics can be created.
  */
-public final class Index implements Serializable {
+public final class Index {
 
-    public long created;
-    public final ArrayList<Image> images;
+    public final ImmutableList<Image> images;
     public final int width;
     public final int height;
 
@@ -19,28 +21,24 @@ public final class Index implements Serializable {
      * @param width The width of each image.
      * @param height The height of each image.
      */
-    public Index(ArrayList<Image> images, int width, int height) {
-        images.trimToSize();
+    public Index(ImmutableList<Image> images, int width, int height) {
         this.images = images;
         this.width = width;
         this.height = height;
     }
 
-    public static class Image implements Serializable {
+    public static class Image {
 
         public final byte[] jpeg;
-        public final String url;
+        public final Supplier<URI> uri;
 
-        /**
-         *
-         * @param jpeg
-         * @param url
-         */
-        public Image(byte[] jpeg, String url) {
-            this.jpeg = jpeg;
-            this.url = url;
+        public Image(byte[] jpeg, URI uri) {
+            this(jpeg, Suppliers.ofInstance(uri));
         }
-        private static final long serialVersionUID = 0;
+
+        public Image(byte[] jpeg, Supplier<URI> uri) {
+            this.jpeg = jpeg;
+            this.uri = uri;
+        }
     }
-    private static final long serialVersionUID = 0;
 }

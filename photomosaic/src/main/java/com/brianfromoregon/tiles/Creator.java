@@ -19,16 +19,6 @@ public class Creator {
 
     public static final int DEFAULT_DRILL_DOWN = 6;
     public static final ColorSpace DEFAULT_COLOR_SPACE = ColorSpace.CIELAB;
-    private static final String MONTAGE_EXE = "C:\\ImageMagick-6.5.1-Q16\\montage.exe";
-    private final File montageApp;
-
-    public Creator() {
-        this(new File(MONTAGE_EXE));
-    }
-
-    public Creator(File montageExe) {
-        montageApp = montageExe;
-    }
 
     public Mosaic designMosaic(MatchingIndex index, BufferedImage targetImage, boolean reuseAllowed, int numWide) {
         int targetW = targetImage.getWidth();
@@ -92,7 +82,7 @@ public class Creator {
 
         Log.log("Creating final mosaic.");
         File mosaicFile = Util.createTempFile("finalmosaic", ".png");
-        CommandLine commandLine = new CommandLine(montageApp.getAbsolutePath());
+        CommandLine commandLine = new CommandLine(ServerSettings.montageExe().getAbsolutePath());
         for (int i = 0; i < rowImageFiles.length; i++) {
             File row = rowImageFiles[i];
             commandLine.addArgument(row.getAbsolutePath());

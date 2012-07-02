@@ -2,13 +2,15 @@ package com.brianfromoregon.tiles.web.view;
 
 import com.brianfromoregon.tiles.ColorSpace;
 import com.brianfromoregon.tiles.web.SessionState;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.ws.rs.FormParam;
-import java.util.Map;
+import java.util.*;
 
 public class Design {
 
@@ -49,11 +51,24 @@ public class Design {
         public boolean isCIELAB() {
             return ColorSpace.CIELAB.name().toLowerCase().equals(getColorSpace().toLowerCase());
         }
+
+        public int distinctTiles() {
+            Set<Integer> set = new HashSet<>();
+            for (int i : positions) set.add(i);
+            return set.size();
+        }
+
+        public int paletteSize() {
+            return SessionState.palette.images.size();
+        }
     }
 
     public Response asResponse() {
         Design.Response response = new Response();
         response.setNumWide(this.numWide);
+        response.setAllowReuse(this.allowReuse);
+        response.setColorSpace(this.colorSpace);
+        response.setDrillDown(this.drillDown);
         return response;
     }
 }

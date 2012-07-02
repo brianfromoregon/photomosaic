@@ -1,11 +1,12 @@
 package com.brianfromoregon.tiles;
 
-import com.google.common.collect.Lists;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import com.brianfromoregon.tiles.Index.Image;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.awt.image.BufferedImage;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class CreationTest {
 
@@ -17,14 +18,14 @@ public class CreationTest {
     }
 
     private void drillDown(int dd) {
-        ArrayList<Image> images = Lists.newArrayList();
+        ImmutableList.Builder<Image> images = ImmutableList.builder();
         byte[][][] expected = new byte[dd][dd][];
         for (int i = dd * dd - 1; i >= 0; i--) {
             Image image = TestUtil.image("/drilldown/dd" + dd + "_" + i + ".bmp");
             images.add(image);
             expected[i / dd][i % dd] = image.jpeg;
         }
-        Index index = new Index(images, dd, dd);
+        Index index = new Index(images.build(), dd, dd);
         Creator creator = new Creator();
         BufferedImage target = TestUtil.bufferedImage("/drilldown/dd" + dd + ".bmp");
         {

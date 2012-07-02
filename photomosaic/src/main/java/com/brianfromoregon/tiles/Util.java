@@ -1,20 +1,14 @@
 package com.brianfromoregon.tiles;
 
+import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,6 +16,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+
 import static java.lang.Math.*;
 
 public class Util {
@@ -39,6 +34,15 @@ public class Util {
             return ImageIO.read(ByteStreams.newInputStreamSupplier(bytes).getInput());
         } catch (IOException ex) {
             throw new IllegalStateException("Programmer error", ex);
+        }
+    }
+
+    public static byte[] bufferedImageToBytes(BufferedImage image, String format) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ImageIO.write(image, format, baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
         }
     }
 
@@ -233,5 +237,9 @@ public class Util {
         String dispatchWindowClosingActionMapKey = "net.bcharris.tiles:WINDOW_CLOSING";
         root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), dispatchWindowClosingActionMapKey);
         root.getActionMap().put(dispatchWindowClosingActionMapKey, dispatchClosing);
+    }
+
+    public static int maxNumWide(Index index, int targetW, int targetH) {
+        return (int) (index.images.size() / Math.floor(index.images.size() / Math.sqrt((double) (targetW * index.height * index.images.size()) / (targetH * index.width))));
     }
 }

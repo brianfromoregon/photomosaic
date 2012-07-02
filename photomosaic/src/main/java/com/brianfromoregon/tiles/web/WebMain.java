@@ -2,8 +2,8 @@ package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Log;
+import com.brianfromoregon.tiles.SamplePalette;
 import com.brianfromoregon.tiles.Util;
-import com.brianfromoregon.tiles.indexes.SamplePalettes;
 import com.brianfromoregon.tiles.web.control.DesignControl;
 import com.brianfromoregon.tiles.web.control.Palette;
 import com.google.common.io.ByteStreams;
@@ -45,7 +45,7 @@ public class WebMain {
     }
 
     public static void main(String[] args) throws IOException {
-        Index index = SamplePalettes.Sample.SOLID_COLORS.generate(Files.createTempDir());
+        Index index = SamplePalette.SOLID_COLORS.generate();
 
         Server server = new Server(0);
 

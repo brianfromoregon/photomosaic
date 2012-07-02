@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.ws.rs.*;
+import java.awt.image.BufferedImage;
 import java.util.IdentityHashMap;
 
 @Path("design")
@@ -15,11 +16,11 @@ public class DesignControl {
     @GET
     public Design.Response start() {
         Design.Response design = new Design.Response();
-        design.setNumWide(20);
-        ColorSpace cs = ColorSpace.SRGB;
+        design.setNumWide(18);
+        ColorSpace cs = ColorSpace.CIELAB;
         design.setColorSpace(cs.name());
         design.setDrillDown(1);
-        design.setAllowReuse(false);
+        design.setAllowReuse(true);
         design.setPositions(calcPositions(design.getNumWide(), design.isAllowReuse(), cs, design.getDrillDown()));
         return design;
     }
@@ -28,17 +29,27 @@ public class DesignControl {
     public Design.Response create(@MultipartForm Design.Request request) {
         Design.Response response = request.asResponse();
 
-        if (request.getNumWide() <= 0) {
-            response.getErrors().put("numWide", "Must be greater than 0");
+        if (request.getNumWide() <= 1) {
+            response.getErrors().put("numWide", "Must be greater than 1");
         }
 
-        if (!request.isAllowReuse() && request.getNumWide() <= 0) {
-            response.getErrors().put("numWide", "Must be greater than 0");
+        if (request.getDrillDown() < 1) {
+            response.getErrors().put("drillDown", "Must be greater than 0");
         }
 
-        if (SessionState.target == null && (SessionState.target = Util.bytesToBufferedImage(request.getTarget())) == null) {
-            response.getErrors().put("target", "Need to choose an image file");
-        } else {
+        BufferedImage newTarget = Util.bytesToBufferedImage(request.getTarget());
+        if (newTarget != null) {
+            SessionState.target = newTarget;
+        }
+
+        int maxWide = Util.maxNumWide(SessionState.palette, SessionState.target.getWidth(), SessionState.target.getHeight());
+        if (!request.isAllowReuse() && request.getNumWide() > maxWide) {
+            // Auto correct, I suspect it's better to not notify.
+            request.setNumWide(maxWide);
+            response.setNumWide(maxWide);
+        }
+
+        if (response.getErrors().isEmpty()) {
             response.setPositions(calcPositions(request.getNumWide(), request.isAllowReuse(), ColorSpace.fromString(request.getColorSpace()), request.getDrillDown()));
         }
 
@@ -50,7 +61,7 @@ public class DesignControl {
         Index index = SessionState.palette;
         final ProcessedIndex processedIndex = ProcessedIndex.process(index, drillDown);
         MatchingIndex matchingIndex;
-        if (drillDown <= 1)
+        if (drillDown == 1)
             matchingIndex = FastFuzzyMatchingIndex.create(processedIndex, colorSpace);
         else
             matchingIndex = OptimalMatchingIndex.create(processedIndex, colorSpace, drillDown);

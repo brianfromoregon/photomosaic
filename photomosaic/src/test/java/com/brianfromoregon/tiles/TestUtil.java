@@ -1,9 +1,12 @@
 package com.brianfromoregon.tiles;
 
+import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
+
 import com.brianfromoregon.tiles.Index.Image;
 import org.junit.Ignore;
 
@@ -12,8 +15,8 @@ public class TestUtil {
 
     static Image image(String resourceName) {
         try {
-            return new Image(ByteStreams.toByteArray(TestUtil.class.getResourceAsStream(resourceName)), resourceName);
-        } catch (IOException ex) {
+            return new Image(ByteStreams.toByteArray(TestUtil.class.getResourceAsStream(resourceName)), new URI(resourceName));
+        } catch (Exception ex) {
             throw Throwables.propagate(ex);
         }
     }
