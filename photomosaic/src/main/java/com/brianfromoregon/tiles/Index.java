@@ -1,10 +1,10 @@
 package com.brianfromoregon.tiles;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import java.net.URI;
+import java.util.IdentityHashMap;
 
 /**
  * An immutable representation of a collection of source images with which mosaics can be created.
@@ -27,18 +27,22 @@ public final class Index {
         this.height = height;
     }
 
+    public IdentityHashMap<Image, Integer> indexedImages() {
+        IdentityHashMap<Image, Integer> srcPos = Maps.newIdentityHashMap();
+        for (int i = 0; i < images.size(); i++)
+            srcPos.put(images.get(i), i);
+        return srcPos;
+    }
+
     public static class Image {
 
         public final byte[] jpeg;
-        public final Supplier<URI> uri;
+        public final URI uri;
 
         public Image(byte[] jpeg, URI uri) {
-            this(jpeg, Suppliers.ofInstance(uri));
-        }
-
-        public Image(byte[] jpeg, Supplier<URI> uri) {
             this.jpeg = jpeg;
             this.uri = uri;
         }
+
     }
 }

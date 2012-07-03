@@ -4,10 +4,7 @@ import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Log;
 import com.brianfromoregon.tiles.SamplePalette;
 import com.brianfromoregon.tiles.Util;
-import com.brianfromoregon.tiles.web.control.DesignControl;
-import com.brianfromoregon.tiles.web.control.Palette;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import com.googlecode.htmleasy.HtmleasyProviders;
 import com.googlecode.htmleasy.HtmleasyServletDispatcher;
 import freemarker.ext.servlet.FreemarkerServlet;
@@ -34,8 +31,8 @@ public class WebMain {
             Set<Class<?>> myServices = new HashSet<Class<?>>();
 
             // Add my own JAX-RS annotated classes
-            myServices.add(Palette.class);
-            myServices.add(DesignControl.class);
+            myServices.add(PaletteController.class);
+            myServices.add(DesignController.class);
 
             // Add Htmleasy Providers
             myServices.addAll(HtmleasyProviders.getClasses());

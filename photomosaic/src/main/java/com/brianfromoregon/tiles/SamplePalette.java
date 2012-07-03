@@ -1,5 +1,6 @@
 package com.brianfromoregon.tiles;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -25,7 +26,7 @@ public enum SamplePalette {
                         g2d.setColor(new Color(r, g, b));
                         g2d.fillRect(0, 0, W, H);
 
-                        images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), DUMMY_URI));
+                        images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), URI.create(Joiner.on(',').join(r,g,b))));
                     }
                 }
             }
@@ -43,7 +44,7 @@ public enum SamplePalette {
                 g2d.setColor(new Color(i, i, i));
                 g2d.fillRect(0, 0, W, H);
 
-                images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), DUMMY_URI));
+                images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), URI.create(String.valueOf(i))));
             }
 
             return new Index(images.build(), W, H);
@@ -51,10 +52,5 @@ public enum SamplePalette {
     };
 
     final static int W=32, H=22;
-    static final Supplier<URI> DUMMY_URI = new Supplier<URI>() {
-        @Override public URI get() {
-            throw new IllegalStateException("This dummy palette uses in-memory images");
-        }
-    };
     public abstract Index generate();
 }

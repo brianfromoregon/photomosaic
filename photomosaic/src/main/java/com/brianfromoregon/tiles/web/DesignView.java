@@ -1,10 +1,7 @@
-package com.brianfromoregon.tiles.web.view;
+package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.ColorSpace;
-import com.brianfromoregon.tiles.web.SessionState;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,19 +9,19 @@ import lombok.Setter;
 import javax.ws.rs.FormParam;
 import java.util.*;
 
-public class Design {
+public class DesignView {
 
     @FormParam("numWide") @Getter @Setter private int numWide;
     @FormParam("allowReuse") @Getter @Setter private boolean allowReuse;
     @FormParam("colorSpace") @Getter @Setter private String colorSpace;
     @FormParam("drillDown") @Getter @Setter private int drillDown;
 
-    public static class Request extends Design {
+    public static class Request extends DesignView {
         @FormParam("target") @Getter @Setter private byte[] target;
     }
 
     @ViewWith("design.ftl")
-    public static class Response extends Design {
+    public static class Response extends DesignView {
         @Getter private Map<String, String> errors = Maps.newHashMap();
         @Getter @Setter private int[] positions;
 
@@ -64,7 +61,7 @@ public class Design {
     }
 
     public Response asResponse() {
-        Design.Response response = new Response();
+        DesignView.Response response = new Response();
         response.setNumWide(this.numWide);
         response.setAllowReuse(this.allowReuse);
         response.setColorSpace(this.colorSpace);

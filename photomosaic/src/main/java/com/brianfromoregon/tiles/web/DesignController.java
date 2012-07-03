@@ -1,9 +1,6 @@
-package com.brianfromoregon.tiles.web.control;
+package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.*;
-import com.brianfromoregon.tiles.web.SessionState;
-import com.brianfromoregon.tiles.web.view.Design;
-import com.google.common.collect.Maps;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.ws.rs.*;
@@ -11,11 +8,11 @@ import java.awt.image.BufferedImage;
 import java.util.IdentityHashMap;
 
 @Path("design")
-public class DesignControl {
+public class DesignController {
 
     @GET
-    public Design.Response start() {
-        Design.Response design = new Design.Response();
+    public DesignView.Response start() {
+        DesignView.Response design = new DesignView.Response();
         design.setNumWide(18);
         ColorSpace cs = ColorSpace.CIELAB;
         design.setColorSpace(cs.name());
@@ -26,8 +23,8 @@ public class DesignControl {
     }
 
     @POST
-    public Design.Response create(@MultipartForm Design.Request request) {
-        Design.Response response = request.asResponse();
+    public DesignView.Response create(@MultipartForm DesignView.Request request) {
+        DesignView.Response response = request.asResponse();
 
         if (request.getNumWide() <= 1) {
             response.getErrors().put("numWide", "Must be greater than 1");
@@ -67,11 +64,8 @@ public class DesignControl {
             matchingIndex = OptimalMatchingIndex.create(processedIndex, colorSpace, drillDown);
         Creator creator = new Creator();
         Mosaic mosaic = creator.designMosaic(matchingIndex, SessionState.target, allowReuse, numWide);
-        // eew
-        IdentityHashMap<Index.Image, Integer> srcPos = Maps.newIdentityHashMap();
-        for (int i = 0; i < index.images.size(); i++)
-            srcPos.put(index.images.get(i), i);
 
+        IdentityHashMap<Index.Image, Integer> srcPos = index.indexedImages();
         int[] tgtPos = new int[mosaic.numTall() * mosaic.numWide()];
         for (int row = 0; row < mosaic.numTall(); row++) {
             for (int col = 0; col < mosaic.numWide(); col++) {

@@ -1,14 +1,21 @@
 <html>
 
 <head>
-    <style media="screen" type="text/css">
+    <#include "jquery.ftl"/>
+    <style type="text/css">
         table { border-collapse: collapse; }
         td, tr, img { padding: 0px; margin: 0px; border: none; }
-
+        body { font-size: 16px; }
     </style>
+    <script>
+        $(function() {
+        $( "input[type=submit]" ).button();
+        });
+    </script>
 </head>
+<body>
 
-<#include "header.ftl"/>
+<#include "nav.ftl"/>
 
 <#if model.success()>
     <table>
@@ -23,18 +30,27 @@
     <p>Used ${model.distinctTiles()} distinct images from palette of size ${model.paletteSize()}</p>
 </#if>
 
-<form method="post" action="/design" accept="image/*" enctype="multipart/form-data">
-    Change target image: <input type="file" accept="image/*" name="target" size="50"/> <font color="red">${model.errors.target!}</font>
+<form method="post" action="/design" enctype="multipart/form-data">
+    <label for="target">Change target image:</label> <input type="file" accept="image/*" id="target" name="target"
+                                                            size="50"/> <font color="red">${model.errors.target!}</font>
     <br/>
-    Mosaic width: <input type="text" name="numWide" value="${model.numWide}"/> <font color="red">${model.errors.numWide!}</font>
+    <label for="numWide">Mosaic width:</label> <input type="text" id="numWide" name="numWide" value="${model.numWide}"/>
+    <font color="red">${model.errors.numWide!}</font>
     <br/>
-    Allow reuse: <input type="checkbox" name="allowReuse" value="true" <#if model.allowReuse>checked</#if> />
+    <label for="allowReuse">Allow reuse:</label> <input type="checkbox" id="allowReuse" name="allowReuse" value="true"
+    <#if model.allowReuse>checked</#if>
+    />
     <br/>
-    Color space: <input type="radio" name="colorSpace" value="sRGB" <#if model.isSRGB()>checked</#if> /> <a href="http://en.wikipedia.org/wiki/SRGB">sRGB</a> <input type="radio" name="colorSpace" value="CIELAB" <#if model.isCIELAB()>checked</#if>/> <a href="http://en.wikipedia.org/wiki/Lab_color_space#CIELAB">CIELAB</a>
+    <label for="colorSpace">Color space:</label> <input type="radio" id="colorSpace" name="colorSpace" value="sRGB"
+    <#if model.isSRGB()>checked</#if>
+    /> <a href="http://en.wikipedia.org/wiki/SRGB">sRGB</a> <input type="radio" name="colorSpace" value="CIELAB"
+    <#if model.isCIELAB()>checked</#if>
+    /> <a href="http://en.wikipedia.org/wiki/Lab_color_space#CIELAB">CIELAB</a>
     <br/>
-    Drill down: <input type="text" name="drillDown" value="${model.drillDown}" />  <font color="red">${model.errors.drillDown!}</font>
+    <label for="drillDown">Drill down:</label> <input type="text" id="drillDown" name="drillDown"
+                                                      value="${model.drillDown}"/> <font color="red">${model.errors.drillDown!}</font>
     <br/>
-    <input type="submit" value="Apply"/>
+    <input type="submit" value="Apply Settings"/>
 </form>
-
+</body>
 </html>
