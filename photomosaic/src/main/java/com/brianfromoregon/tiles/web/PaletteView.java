@@ -6,6 +6,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import lombok.Setter;
 import javax.ws.rs.FormParam;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.brianfromoregon.tiles.Tuple.tuple;
 
@@ -21,12 +23,18 @@ public class PaletteView {
     @FormParam("roots") @Getter @Setter private String roots;
     @FormParam("excludes") @Getter @Setter private String excludes;
 
-    public static class Request extends PaletteView {
+    public Iterable<String> rootsList() {
+        return Splitter.onPattern("\r?\n").trimResults().omitEmptyStrings().split(getRoots());
+    }
 
+    public Iterable<String> excludesList() {
+        return Splitter.onPattern("\r?\n").trimResults().omitEmptyStrings().split(getExcludes());
     }
 
     @ViewWith("palette.ftl")
     public static class Response extends PaletteView {
+        @Getter private Map<String, String> errors = Maps.newHashMap();
+
         public List<Tuple> images() {
 
             final IdentityHashMap<Index.Image, Integer> indexes = SessionState.palette.indexedImages();
@@ -50,11 +58,11 @@ public class PaletteView {
         }
 
         public int numRoots() {
-            return Iterables.size(Splitter.onPattern("\r?\n").trimResults().omitEmptyStrings().split(getRoots()));
+            return Iterables.size(rootsList());
         }
 
         public int numExcludes() {
-            return Iterables.size(Splitter.onPattern("\r?\n").trimResults().omitEmptyStrings().split(getExcludes()));
+            return Iterables.size(excludesList());
         }
     }
 

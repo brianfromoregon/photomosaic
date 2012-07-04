@@ -19,9 +19,9 @@ import org.apache.commons.exec.PumpStreamHandler;
  */
 public class Indexer {
 
-    public Index index(File sourceImageDirectory, final int width, final int height) {
+    public Index index(Iterable<File> sourceImageDirectories, final int width, final int height) {
         SourceImageFinder sourceImageFinder = new SourceImageFinder();
-        List<File> sourceImages = sourceImageFinder.findSourceImages(sourceImageDirectory);
+        List<File> sourceImages = sourceImageFinder.findSourceImages(sourceImageDirectories);
 
         final ThreadLocal<File> tmpFiles = new ThreadLocal<File>() {
 

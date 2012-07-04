@@ -12,9 +12,9 @@
 
 
 <form method="post" action="/palette">
-    <label for="roots">Search roots:</label><br/> <textarea id="roots" name="roots" cols="80" rows="${model.numRoots()+1}">${model.roots}</textarea>
+    <label for="roots">Search roots:</label> <font color="red">${model.errors.roots!}</font><br/> <textarea id="roots" name="roots" cols="80" rows="${model.numRoots()+1}">${model.roots}</textarea>
     <br/>
-    <label for="excludes">Excludes:</label><br/> <textarea id="excludes" name="excludes" cols="80" rows="${model.numExcludes()+1}">${model.excludes}</textarea>
+    <label for="excludes">Excludes:</label>  <font color="red">${model.errors.excludes!}</font><br/> <textarea id="excludes" name="excludes" cols="80" rows="${model.numExcludes()+1}">${model.excludes}</textarea>
     <br/>
     <input type="submit" value="Update Palette"/>
 </form>

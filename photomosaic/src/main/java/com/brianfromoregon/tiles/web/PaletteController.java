@@ -1,19 +1,18 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
-import com.brianfromoregon.tiles.Tuple;
-import static com.brianfromoregon.tiles.Tuple.*;
-
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
+import com.brianfromoregon.tiles.Indexer;
+import com.brianfromoregon.tiles.Log;
+import com.brianfromoregon.tiles.SamplePalette;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.googlecode.htmleasy.View;
 import org.jboss.resteasy.annotations.Form;
 
 import javax.ws.rs.*;
-import java.util.IdentityHashMap;
+import java.io.File;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Path("palette")
 public class PaletteController {
@@ -36,6 +35,47 @@ public class PaletteController {
     @POST
     public PaletteView.Response refresh(@Form PaletteView request) {
         PaletteView.Response response = request.asResponse();
+
+        Iterable<String> roots = request.rootsList();
+        List<File> rootFiles = Lists.newArrayList();
+        if (Iterables.isEmpty(roots)) {
+            response.getErrors().put("roots", "Need at least one root");
+        } else {
+            for (String root : roots) {
+                File f = new File(root);
+                if (!f.exists() || !f.isDirectory()) {
+                    response.getErrors().put("roots", "Could not find a directory with this name: " + root);
+                    break;
+                }
+                rootFiles.add(f);
+            }
+        }
+
+        Iterable<String> excludes = request.excludesList();
+        List<Pattern> excludePatterns = Lists.newArrayList();
+        for (String exclude : excludes) {
+            try {
+                excludePatterns.add(Pattern.compile(exclude));
+            } catch (PatternSyntaxException e) {
+                Log.log(e.getMessage());
+                response.getErrors().put("excludes", String.format("Trouble with this exclude <a href=\"http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html\">pattern</a>: '%s'", exclude, e.getMessage()));
+                break;
+            }
+        }
+        JdbcDataSource ds = new JdbcDataSource();
+        ds.setURL("jdbc:h2:˜/test");
+        ds.setUser("sa");
+        ds.setPassword("sa");
+        Connection conn = ds.getConnection();
+        if (response.getErrors().isEmpty()) {
+            Index palette = new Indexer().index(rootFiles, SamplePalette.W, SamplePalette.H);
+            if (palette.images.isEmpty()) {
+                response.getErrors().put("roots", "Didn't find any matching images");
+            } else {
+                SessionState.palette = palette;
+            }
+        }
+
         return response;
     }
 }

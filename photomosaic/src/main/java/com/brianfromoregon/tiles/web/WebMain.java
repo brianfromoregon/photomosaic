@@ -11,6 +11,10 @@ import freemarker.ext.servlet.FreemarkerServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.ws.rs.core.Application;
 import java.awt.*;
@@ -44,6 +48,9 @@ public class WebMain {
     public static void main(String[] args) throws IOException {
         Index index = SamplePalette.SOLID_COLORS.generate();
 
+        AbstractApplicationContext context = new ClassPathXmlApplicationContext("services.xml");
+        JdbcTemplate jdbc = context.getBean("jdbcTemplate", JdbcTemplate.class);
+
         Server server = new Server(0);
 
         SessionState.palette = index;
@@ -76,5 +83,7 @@ public class WebMain {
         } else {
             Log.log("Open %s in a browser.", url);
         }
+
+        context.registerShutdownHook();
     }
 }

@@ -51,6 +51,6 @@ public enum SamplePalette {
         }
     };
 
-    final static int W=32, H=22;
+    public final static int W=32, H=22;
     public abstract Index generate();
 }
