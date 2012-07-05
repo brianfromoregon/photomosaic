@@ -63,7 +63,7 @@ public class ProgressCalc {
             return seconds == 1 ? "one second" : seconds + " seconds";
         }
         if (seconds < 2 * MINUTE) {
-            return "a minute";
+            return "one minute";
         }
         if (seconds < 45 * MINUTE) {
             return seconds / MINUTE + " minutes";

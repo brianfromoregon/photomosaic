@@ -1,16 +1,11 @@
 package com.brianfromoregon.tiles;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 
 public enum SamplePalette {
     SOLID_COLORS {
@@ -26,7 +21,7 @@ public enum SamplePalette {
                         g2d.setColor(new Color(r, g, b));
                         g2d.fillRect(0, 0, W, H);
 
-                        images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), URI.create(Joiner.on(',').join(r,g,b))));
+                        images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), new File(Joiner.on(',').join(r,g,b))));
                     }
                 }
             }
@@ -44,7 +39,7 @@ public enum SamplePalette {
                 g2d.setColor(new Color(i, i, i));
                 g2d.fillRect(0, 0, W, H);
 
-                images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), URI.create(String.valueOf(i))));
+                images.add(new Index.Image(Util.bufferedImageToBytes(image, "gif"), new File(String.valueOf(i))));
             }
 
             return new Index(images.build(), W, H);

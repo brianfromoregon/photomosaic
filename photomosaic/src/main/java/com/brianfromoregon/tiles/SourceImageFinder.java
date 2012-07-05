@@ -1,33 +1,26 @@
 package com.brianfromoregon.tiles;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.DirectoryWalker;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NotFileFilter;
-import org.apache.commons.io.filefilter.OrFileFilter;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
+import java.util.*;
 
 class SourceImageFinder extends DirectoryWalker {
 
-    public SourceImageFinder() {
+    public SourceImageFinder(Set<File> excludes) {
         // visible directories and image files
-        super(new AndFileFilter(notHiddenFileFilter(), new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE)), -1);
+        super(new AndFileFilter(Lists.newArrayList(notHiddenFileFilter(),
+                new OrFileFilter(imageFileFilter(), DirectoryFileFilter.INSTANCE),
+                notExcludedFilter(excludes))), -1);
     }
 
-    public List<File> findSourceImages(Iterable<File> directories) {
-        List<File> results = Lists.newArrayList();
+    public Set<File> findSourceImages(Iterable<File> directories) {
+        Set<File> results = new HashSet<>();
         for (File directory : directories) {
             try {
                 walk(directory, results);
@@ -50,5 +43,23 @@ class SourceImageFinder extends DirectoryWalker {
 
     private static IOFileFilter imageFileFilter() {
         return new SuffixFileFilter(new String[]{"png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff"}, IOCase.INSENSITIVE);
+    }
+
+    private static IOFileFilter notExcludedFilter(final Set<File> excludes) {
+        return new AbstractFileFilter() {
+            @Override public boolean accept(File file) {
+                if (excludes.contains(file))
+                    return false;
+                for (File exclude : excludes) {
+                    try {
+                        if (exclude.isDirectory() && FileUtils.directoryContains(exclude, file))
+                            return false;
+                    } catch (IOException e) {
+                        Log.log("Problem testing exclude: " + e.getMessage());
+                    }
+                }
+                return true;
+            }
+        };
     }
 }

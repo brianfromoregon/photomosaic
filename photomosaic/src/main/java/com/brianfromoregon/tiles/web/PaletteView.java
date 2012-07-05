@@ -2,6 +2,7 @@ package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Tuple;
+import com.brianfromoregon.tiles.persist.Repository;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -37,24 +38,24 @@ public class PaletteView {
 
         public List<Tuple> images() {
 
-            final IdentityHashMap<Index.Image, Integer> indexes = SessionState.palette.indexedImages();
+            final IdentityHashMap<Index.Image, Integer> indexes = Repository.INSTANCE.get().palette.indexedImages();
             return Lists.transform(new Ordering<Index.Image>() {
                 public int compare(Index.Image a, Index.Image b) {
-                    return a.uri.compareTo(b.uri);
+                    return a.file.compareTo(b.file);
                 }
-            }.sortedCopy(SessionState.palette.images), new Function<Index.Image, Tuple>() {
+            }.sortedCopy(Repository.INSTANCE.get().palette.images), new Function<Index.Image, Tuple>() {
                 @Override public Tuple apply(Index.Image input) {
-                    return tuple(indexes.get(input), input.uri);
+                    return tuple(indexes.get(input), input.file);
                 }
             });
         }
 
         public int width() {
-            return SessionState.palette.width;
+            return Repository.INSTANCE.get().palette.width;
         }
 
         public int height() {
-            return SessionState.palette.height;
+            return Repository.INSTANCE.get().palette.height;
         }
 
         public int numRoots() {

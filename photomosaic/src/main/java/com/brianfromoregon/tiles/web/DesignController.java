@@ -1,6 +1,7 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.*;
+import com.brianfromoregon.tiles.persist.Repository;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.ws.rs.*;
@@ -39,7 +40,7 @@ public class DesignController {
             SessionState.target = newTarget;
         }
 
-        int maxWide = Util.maxNumWide(SessionState.palette, SessionState.target.getWidth(), SessionState.target.getHeight());
+        int maxWide = Util.maxNumWide(Repository.INSTANCE.get().palette, SessionState.target.getWidth(), SessionState.target.getHeight());
         if (!request.isAllowReuse() && request.getNumWide() > maxWide) {
             // Auto correct, I suspect it's better to not notify.
             request.setNumWide(maxWide);
@@ -55,7 +56,7 @@ public class DesignController {
 
     private int[] calcPositions(int numWide, boolean allowReuse, ColorSpace colorSpace, int drillDown) {
 
-        Index index = SessionState.palette;
+        Index index = Repository.INSTANCE.get().palette;
         final ProcessedIndex processedIndex = ProcessedIndex.process(index, drillDown);
         MatchingIndex matchingIndex;
         if (drillDown == 1)

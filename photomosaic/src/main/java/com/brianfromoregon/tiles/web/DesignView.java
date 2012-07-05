@@ -1,6 +1,7 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.ColorSpace;
+import com.brianfromoregon.tiles.persist.Repository;
 import com.google.common.collect.Maps;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
@@ -34,11 +35,11 @@ public class DesignView {
         }
 
         public int width() {
-            return SessionState.palette.width;
+            return Repository.INSTANCE.get().palette.width;
         }
 
         public int height() {
-            return SessionState.palette.height;
+            return Repository.INSTANCE.get().palette.height;
         }
 
         public boolean isSRGB() {
@@ -56,7 +57,7 @@ public class DesignView {
         }
 
         public int paletteSize() {
-            return SessionState.palette.images.size();
+            return Repository.INSTANCE.get().palette.images.size();
         }
     }
 

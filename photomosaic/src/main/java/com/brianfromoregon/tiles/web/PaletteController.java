@@ -2,33 +2,40 @@ package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Indexer;
-import com.brianfromoregon.tiles.Log;
 import com.brianfromoregon.tiles.SamplePalette;
+import com.brianfromoregon.tiles.persist.Repository;
+import com.brianfromoregon.tiles.persist.State;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.jboss.resteasy.annotations.Form;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.ws.rs.*;
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.Set;
 
 @Path("palette")
 public class PaletteController {
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @GET
     @Path("{idx}")
     @Produces("image/jpeg")
     public byte[] img(@PathParam("idx") int idx) {
-        return SessionState.palette.images.get(idx).jpeg;
+        return Repository.INSTANCE.get().palette.images.get(idx).jpeg;
     }
 
     @GET
     public PaletteView.Response all() {
         PaletteView.Response response = new PaletteView.Response();
-        response.setExcludes("/Users/Brian/Pics/honeymoon\n/Users/Brian/test");
-        response.setRoots("/Users/Brian/Pics");
+        State loaded = Repository.INSTANCE.get();
+        response.setExcludes(loaded.excludes);
+        response.setRoots(loaded.roots);
         return response;
     }
 
@@ -52,27 +59,22 @@ public class PaletteController {
         }
 
         Iterable<String> excludes = request.excludesList();
-        List<Pattern> excludePatterns = Lists.newArrayList();
+        Set<File> excludeFiles = Sets.newHashSet();
         for (String exclude : excludes) {
-            try {
-                excludePatterns.add(Pattern.compile(exclude));
-            } catch (PatternSyntaxException e) {
-                Log.log(e.getMessage());
-                response.getErrors().put("excludes", String.format("Trouble with this exclude <a href=\"http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html\">pattern</a>: '%s'", exclude, e.getMessage()));
+            File f = new File(exclude);
+            if (!f.exists()) {
+                response.getErrors().put("excludes", "This exclude does not exist: "+exclude);
                 break;
             }
+            excludeFiles.add(f);
         }
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:˜/test");
-        ds.setUser("sa");
-        ds.setPassword("sa");
-        Connection conn = ds.getConnection();
+
         if (response.getErrors().isEmpty()) {
-            Index palette = new Indexer().index(rootFiles, SamplePalette.W, SamplePalette.H);
+            Index palette = new Indexer(Repository.INSTANCE.get().palette).index(rootFiles, excludeFiles, SamplePalette.W, SamplePalette.H);
             if (palette.images.isEmpty()) {
                 response.getErrors().put("roots", "Didn't find any matching images");
             } else {
-                SessionState.palette = palette;
+                Repository.INSTANCE.update(request.getRoots(), request.getExcludes(), palette);
             }
         }
 
