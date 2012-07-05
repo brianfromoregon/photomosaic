@@ -20,7 +20,8 @@ class SourceImageFinder extends DirectoryWalker {
     }
 
     public Set<File> findSourceImages(Iterable<File> directories) {
-        Set<File> results = new HashSet<>();
+        // linkedhashset to preserve order otherwise disk seeks will go nuts when indexing
+        Set<File> results = new LinkedHashSet<>();
         for (File directory : directories) {
             try {
                 walk(directory, results);

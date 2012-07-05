@@ -20,7 +20,7 @@
 </form>
 
 <#list model.images() as img>
-    <img src="palette/${img.get(0)}" title="${img.get(1)}" height="${model.height()}" width="${model.width()}" />
+    <img src="palette/${img.get(0)?c}" title="${img.get(1)}" height="${model.height()}" width="${model.width()}" />
 </#list>
 
 </body>

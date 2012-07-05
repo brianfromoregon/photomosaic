@@ -17,7 +17,7 @@ public class DesignController {
         design.setNumWide(18);
         ColorSpace cs = ColorSpace.CIELAB;
         design.setColorSpace(cs.name());
-        design.setDrillDown(1);
+        design.setDrillDown(4);
         design.setAllowReuse(true);
         design.setPositions(calcPositions(design.getNumWide(), design.isAllowReuse(), cs, design.getDrillDown()));
         return design;

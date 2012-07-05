@@ -22,7 +22,7 @@
         <#list 0..model.numTall()-1 as row>
             <tr>
                 <#list model.positions[model.numWide*row..model.numWide*(row+1)-1] as idx>
-                    <td><img src="palette/${idx}" height="${model.height()}" width="${model.width()}"/></td>
+                    <td><img src="palette/${idx?c}" height="${model.height()}" width="${model.width()}"/></td>
                 </#list>
             </tr>
         </#list>
