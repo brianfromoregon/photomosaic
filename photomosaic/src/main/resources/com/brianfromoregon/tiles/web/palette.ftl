@@ -1,27 +1,58 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <#include "jquery.ftl"/>
-    <script>
-        $(function() {
-        $( "input[type=submit]" ).button();
-        });
-    </script>
+    <link href="//current.bootstrapcdn.com/bootstrap-v204/css/bootstrap-combined.min.css" type="text/css"
+          rel="Stylesheet"/>
+    <script src="//current.bootstrapcdn.com/bootstrap-v204/js/bootstrap.min.js"></script>
 </head>
+
 <body>
-<#include "nav.ftl"/>
 
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav">
+                <li><a href="design">Design</a></li>
+                <li class="active"><a href="palette">Palette</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
 
-<form method="post" action="/palette">
-    <label for="roots">Search roots:</label> <font color="red">${model.errors.roots!}</font><br/> <textarea id="roots" name="roots" cols="80" rows="${model.numRoots()+1}">${model.roots}</textarea>
-    <br/>
-    <label for="excludes">Excludes:</label>  <font color="red">${model.errors.excludes!}</font><br/> <textarea id="excludes" name="excludes" cols="80" rows="${model.numExcludes()+1}">${model.excludes}</textarea>
-    <br/>
-    <input type="submit" value="Update Palette"/>
+<form method="post" action="/palette" class="well form-horizontal row span12">
+    <legend>Create your palette</legend>
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="roots">Search roots</label>
+            <div class="controls">
+                <textarea id="roots" class="input-xlarge" name="roots" cols="80" rows="${model.numRoots()+1}" placeholder="TODO">${model.roots}</textarea>
+                <p class="help-block">IF ERROR then ERROR TEXT else Describe search roots</p>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="excludes">Excludes</label>
+            <div class="controls">
+                <textarea id="excludes" class="input-xlarge" name="excludes" cols="80" rows="${model.numExcludes()+1}" placeholder="TODO">${model.excludes}</textarea>
+                <p class="help-block">IF ERROR then ERROR TEXT else Describe excludes</p>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-primary btn-large">Scan and Update</button>
+            </div>
+        </div>
+    </fieldset>
 </form>
 
+<div class="row span12">
 <#list model.images() as img>
     <img src="palette/${img.get(0)?c}" title="${img.get(1)}" height="${model.height()}" width="${model.width()}" />
 </#list>
-
+</div>
 </body>
 </html>
