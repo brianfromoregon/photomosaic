@@ -21,7 +21,6 @@
 </div>
 
 <form method="post" action="/palette" class="well form-horizontal row span12">
-    <legend>Create your palette</legend>
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="roots">Search roots</label>
@@ -43,7 +42,7 @@
     <fieldset>
         <div class="control-group">
             <div class="controls">
-                <button type="submit" class="btn btn-primary btn-large">Scan and Update</button>
+                <button type="submit" class="btn btn-primary btn-large"><i class="icon-refresh icon-white"></i> Update Palette</button>
             </div>
         </div>
     </fieldset>

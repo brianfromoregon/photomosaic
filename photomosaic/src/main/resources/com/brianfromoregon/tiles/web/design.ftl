@@ -2,12 +2,16 @@
 <html lang="en">
 
 <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <link href="//current.bootstrapcdn.com/bootstrap-v204/css/bootstrap-combined.min.css" type="text/css"
           rel="Stylesheet"/>
     <script src="//current.bootstrapcdn.com/bootstrap-v204/js/bootstrap.min.js"></script>
     <style type="text/css">
         .mosaic { border-collapse: collapse; padding: 0px; margin: 0px; border: none; }
     </style>
+    <script type="text/javascript">
+        $(".collapse").collapse()
+    </script>
 </head>
 <body>
 
@@ -40,7 +44,6 @@
 </#if>
 
 <form method="post" action="/design" enctype="multipart/form-data" class="well form-horizontal row span12">
-    <legend>Customize</legend>
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="target">Change target image</label>
@@ -48,46 +51,45 @@
                 <input type="file" accept="image/*" id="target" name="target" size="50"/>
             </div>
         </div>
-    </fieldset>
-    <fieldset>
         <div class="control-group">
             <label class="control-label" for="numWide">Mosaic width</label>
             <div class="controls">
                 <input class="span1" type="text" id="numWide" name="numWide" value="${model.numWide}"/>
             </div>
         </div>
-    </fieldset>
-    <fieldset>
         <div class="control-group">
             <label class="control-label" for="allowReuse">Allow reuse</label>
             <div class="controls">
                 <input type="checkbox" id="allowReuse" name="allowReuse" value="true" <#if model.allowReuse>checked</#if> />
             </div>
         </div>
-    </fieldset>
-    <fieldset>
         <div class="control-group">
-            <label class="control-label">Color space</label>
-            <div class="controls">
-                <input type="radio" name="colorSpace" value="sRGB" <#if model.isSRGB()>checked</#if> />
-                <a href="http://en.wikipedia.org/wiki/SRGB">sRGB</a>
-                <input type="radio" name="colorSpace" value="CIELAB" <#if model.isCIELAB()>checked</#if> />
-                <a href="http://en.wikipedia.org/wiki/Lab_color_space#CIELAB">CIELAB</a>
+            <div class="control-label">
+                <button class="btn" data-toggle="collapse" data-target="#advanced" type="button">
+                    <i class="icon-wrench"></i> Advanced
+                </button>
             </div>
         </div>
-    </fieldset>
-    <fieldset>
-        <div class="control-group">
-            <label class="control-label" for="drillDown">Drill down</label>
-            <div class="controls">
-                <input class="span1" type="text" id="drillDown" name="drillDown" value="${model.drillDown}"/>
-            </div>
+        <div id="advanced" class="collapse">
+                <div class="control-group">
+                    <label class="control-label">Color space</label>
+                    <div class="controls">
+                        <input type="radio" name="colorSpace" value="sRGB" <#if model.isSRGB()>checked</#if> />
+                        <a href="http://en.wikipedia.org/wiki/SRGB">sRGB</a>
+                        <input type="radio" name="colorSpace" value="CIELAB" <#if model.isCIELAB()>checked</#if> />
+                        <a href="http://en.wikipedia.org/wiki/Lab_color_space#CIELAB">CIELAB</a>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="drillDown">Drill down</label>
+                    <div class="controls">
+                        <input class="span1" type="text" id="drillDown" name="drillDown" value="${model.drillDown}"/>
+                    </div>
+                </div>
         </div>
-    </fieldset>
-    <fieldset>
         <div class="control-group">
             <div class="controls">
-                <button type="submit" class="btn btn-primary btn-large">Apply</button>
+                <button type="submit" class="btn btn-primary btn-large"><i class="icon-th icon-white"></i> Apply</button>
             </div>
         </div>
     </fieldset>
