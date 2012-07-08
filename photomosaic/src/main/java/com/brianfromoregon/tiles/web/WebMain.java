@@ -1,23 +1,19 @@
 package com.brianfromoregon.tiles.web;
 
-import com.brianfromoregon.tiles.*;
-import com.brianfromoregon.tiles.persist.Repository;
-import com.brianfromoregon.tiles.persist.State;
+import com.brianfromoregon.tiles.Log;
+import com.brianfromoregon.tiles.Services;
+import com.brianfromoregon.tiles.Util;
 import com.google.common.io.ByteStreams;
 import org.eclipse.jetty.server.Server;
+import org.jboss.resteasy.plugins.spring.SpringBeanProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.channels.NetworkChannel;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 
 /**
  * Starts a Jetty server and opens a browser.
@@ -25,13 +21,9 @@ import java.nio.file.Paths;
 public class WebMain {
 
     public static void main(String[] args) throws IOException {
-//
-//        Path p = Paths.get(new File("C:\\Users").toURI());
-//        System.out.println(FileSystems.getDefault().getPathMatcher("glob:C:\\Users").matches(p));
-//        if (true) return;
         AbstractApplicationContext context = new AnnotationConfigApplicationContext(Services.class);
+        context.addBeanFactoryPostProcessor(new SpringBeanProcessor());
         context.registerShutdownHook();
-        Repository.INSTANCE = context.getBean(Repository.class);
         SessionState.target = Util.bytesToBufferedImage(ByteStreams.toByteArray(WebMain.class.getResourceAsStream("brian.jpg")));
 
         Server server = context.getBean(Server.class);

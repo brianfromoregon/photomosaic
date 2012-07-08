@@ -1,19 +1,29 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.*;
-import com.brianfromoregon.tiles.persist.Repository;
+import com.brianfromoregon.tiles.persist.DataStore;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import java.awt.image.BufferedImage;
 import java.util.IdentityHashMap;
 
 @Path("design")
+@Component
 public class DesignController {
+    public DesignController() {
+        System.out.println("h");
+    }
+
+    @Inject DataStore dataStore;
 
     @GET
-    public DesignView.Response start() {
-        DesignView.Response design = new DesignView.Response();
+    public DesignView start() {
+        DesignView design = new DesignView();
         design.setNumWide(18);
         ColorSpace cs = ColorSpace.CIELAB;
         design.setColorSpace(cs.name());
@@ -24,38 +34,34 @@ public class DesignController {
     }
 
     @POST
-    public DesignView.Response create(@MultipartForm DesignView.Request request) {
-        DesignView.Response response = request.asResponse();
+    public DesignView create(@MultipartForm DesignView view) {
 
-        if (request.getNumWide() <= 1) {
-            request.setNumWide(2);
-            response.setNumWide(2);
+        if (view.getNumWide() <= 1) {
+            view.setNumWide(2);
         }
 
-        if (request.getDrillDown() < 1) {
-            request.setDrillDown(1);
-            response.setDrillDown(1);
+        if (view.getDrillDown() < 1) {
+            view.setDrillDown(1);
         }
 
-        BufferedImage newTarget = Util.bytesToBufferedImage(request.getTarget());
+        BufferedImage newTarget = Util.bytesToBufferedImage(view.getTarget());
         if (newTarget != null) {
             SessionState.target = newTarget;
         }
 
-        int maxWide = Util.maxNumWide(Repository.INSTANCE.get().palette, SessionState.target.getWidth(), SessionState.target.getHeight());
-        if (!request.isAllowReuse() && request.getNumWide() > maxWide) {
-            request.setNumWide(maxWide);
-            response.setNumWide(maxWide);
+        int maxWide = Util.maxNumWide(dataStore.loadPalette().getPalette(), SessionState.target.getWidth(), SessionState.target.getHeight());
+        if (!view.isAllowReuse() && view.getNumWide() > maxWide) {
+            view.setNumWide(maxWide);
         }
 
-        response.setPositions(calcPositions(request.getNumWide(), request.isAllowReuse(), ColorSpace.fromString(request.getColorSpace()), request.getDrillDown()));
+        view.setPositions(calcPositions(view.getNumWide(), view.isAllowReuse(), ColorSpace.fromString(view.getColorSpace()), view.getDrillDown()));
 
-        return response;
+        return view;
     }
 
     private int[] calcPositions(int numWide, boolean allowReuse, ColorSpace colorSpace, int drillDown) {
 
-        Index index = Repository.INSTANCE.get().palette;
+        Index index = dataStore.loadPalette().getPalette();
         final ProcessedIndex processedIndex = ProcessedIndex.process(index, drillDown);
         MatchingIndex matchingIndex;
         if (drillDown == 1)

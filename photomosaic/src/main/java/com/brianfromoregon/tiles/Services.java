@@ -1,7 +1,7 @@
 package com.brianfromoregon.tiles;
 
-import com.brianfromoregon.tiles.persist.Repository;
-import com.brianfromoregon.tiles.persist.State;
+import com.brianfromoregon.tiles.persist.DataStore;
+import com.brianfromoregon.tiles.persist.PaletteDescriptor;
 import com.brianfromoregon.tiles.web.DesignController;
 import com.brianfromoregon.tiles.web.PaletteController;
 import com.brianfromoregon.tiles.web.SettingsController;
@@ -49,7 +49,8 @@ public class Services {
     @Bean(initMethod = "start", destroyMethod = "stop") public Server jettyServer() {
         Server server = new Server(0);
         ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", true, false);
-        ServletHolder htmlEasy = new ServletHolder(new HtmleasyServletDispatcher());
+        HtmleasyServletDispatcher dispatcher = new HtmleasyServletDispatcher();
+        ServletHolder htmlEasy = new ServletHolder(dispatcher);
         htmlEasy.setInitParameter(Application.class.getName(), JaxRsApplication.class.getName());
         ServletHolder freemarker = new ServletHolder(new FreemarkerServlet());
         freemarker.setInitParameter("TemplatePath", "class://" + WebMain.class.getPackage().getName().replaceAll("\\.", "/"));
@@ -61,7 +62,7 @@ public class Services {
     @Bean public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
         bean.setDataSource(dataSource());
-        bean.setPackagesToScan(State.class.getPackage().getName());
+        bean.setPackagesToScan(PaletteDescriptor.class.getPackage().getName());
         bean.setJpaVendorAdapter(new HibernateJpaVendorAdapter() {{
             setGenerateDdl(true);
             setShowSql(true);
@@ -73,13 +74,14 @@ public class Services {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
-    @Bean public Repository paletteRepository() {
-        return new Repository();
+    @Bean public DataStore paletteRepository() {
+        return new DataStore();
     }
 
     public static class JaxRsApplication extends Application {
 
         public Set<Class<?>> getClasses() {
+
             Set<Class<?>> myServices = new HashSet<Class<?>>();
 
             // Add my own JAX-RS annotated classes

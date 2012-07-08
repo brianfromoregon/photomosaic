@@ -2,7 +2,6 @@ package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Tuple;
-import com.brianfromoregon.tiles.persist.Repository;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;

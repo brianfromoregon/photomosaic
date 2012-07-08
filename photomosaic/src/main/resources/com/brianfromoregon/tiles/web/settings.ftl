@@ -23,7 +23,7 @@
 <div class="container">
     <div class="row">
         <h2>ImageMagick required</h2>
-        <p>ImageMagick does all the heavy lifting of mosaic generation and image indexing, we need it!</p>
+        <p>ImageMagick does all the heavy lifting of mosaic generation and image indexing, you need it!</p>
     </div>
     <div class="row">
         <div class="span5 well">
@@ -34,7 +34,7 @@
         <div class="span5 well">
             <h3>Step 2: Configure</h3>
             <form method="post" action="/settings" class="form-inline">
-                <span class="help-block">Where did you install ImageMagick?</span>
+                <span class="help-block">Where did you install it?</span>
                 <input type="text" name="imagemagick" class="span3" placeholder="C:\imagemagick">
                 <button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Submit</button>
             </form>
