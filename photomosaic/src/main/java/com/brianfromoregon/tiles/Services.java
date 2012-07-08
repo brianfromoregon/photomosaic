@@ -4,6 +4,7 @@ import com.brianfromoregon.tiles.persist.Repository;
 import com.brianfromoregon.tiles.persist.State;
 import com.brianfromoregon.tiles.web.DesignController;
 import com.brianfromoregon.tiles.web.PaletteController;
+import com.brianfromoregon.tiles.web.SettingsController;
 import com.brianfromoregon.tiles.web.WebMain;
 import com.googlecode.htmleasy.HtmleasyProviders;
 import com.googlecode.htmleasy.HtmleasyServletDispatcher;
@@ -84,6 +85,7 @@ public class Services {
             // Add my own JAX-RS annotated classes
             myServices.add(PaletteController.class);
             myServices.add(DesignController.class);
+            myServices.add(SettingsController.class);
 
             // Add Htmleasy Providers
             myServices.addAll(HtmleasyProviders.getClasses());

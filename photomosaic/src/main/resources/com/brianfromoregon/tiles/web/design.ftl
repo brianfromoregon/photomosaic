@@ -21,6 +21,7 @@
             <ul class="nav">
                 <li class="active"><a href="design">Design</a></li>
                 <li><a href="palette">Palette</a></li>
+                <li><a href="settings">Settings</a></li>
             </ul>
         </div>
     </div>
@@ -46,7 +47,7 @@
 <form method="post" action="/design" enctype="multipart/form-data" class="well form-horizontal row span12">
     <fieldset>
         <div class="control-group">
-            <label class="control-label" for="target">Change target image</label>
+            <label class="control-label" for="target">Target image</label>
             <div class="controls">
                 <input type="file" accept="image/*" id="target" name="target" size="50"/>
             </div>
@@ -61,6 +62,7 @@
             <label class="control-label" for="allowReuse">Allow reuse</label>
             <div class="controls">
                 <input type="checkbox" id="allowReuse" name="allowReuse" value="true" <#if model.allowReuse>checked</#if> />
+                <p class="help-block">Whether the same image from your palette can be used more than once in the mosaic.</p>
             </div>
         </div>
         <div class="control-group">
@@ -78,12 +80,14 @@
                         <a href="http://en.wikipedia.org/wiki/SRGB">sRGB</a>
                         <input type="radio" name="colorSpace" value="CIELAB" <#if model.isCIELAB()>checked</#if> />
                         <a href="http://en.wikipedia.org/wiki/Lab_color_space#CIELAB">CIELAB</a>
+                        <p class="help-block">Explained and demonstrated in <a href="http://brianfromoregon.blogspot.com/2010/06/photomosaics.html">a blog post</a>.</p>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="drillDown">Drill down</label>
                     <div class="controls">
                         <input class="span1" type="text" id="drillDown" name="drillDown" value="${model.drillDown}"/>
+                        <p class="help-block">Explained and demonstrated in <a href="http://brianfromoregon.blogspot.com/2010/06/photomosaics.html">a blog post</a>.</p>
                     </div>
                 </div>
         </div>

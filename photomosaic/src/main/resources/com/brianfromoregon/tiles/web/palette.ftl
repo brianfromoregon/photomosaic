@@ -15,6 +15,7 @@
             <ul class="nav">
                 <li><a href="design">Design</a></li>
                 <li class="active"><a href="palette">Palette</a></li>
+                <li><a href="settings">Settings</a></li>
             </ul>
         </div>
     </div>
@@ -22,20 +23,28 @@
 
 <form method="post" action="/palette" class="well form-horizontal row span12">
     <fieldset>
-        <div class="control-group">
+        <div class="control-group <#if model.errors.roots??>error</#if>">
             <label class="control-label" for="roots">Search roots</label>
             <div class="controls">
-                <textarea id="roots" class="input-xlarge" name="roots" cols="80" rows="${model.numRoots()+1}" placeholder="TODO">${model.roots}</textarea>
-                <p class="help-block">IF ERROR then ERROR TEXT else Describe search roots</p>
+                <textarea id="roots" class="input-xlarge" name="roots" cols="80" rows="${model.numRoots()+1}"
+                          placeholder="C:\Users\Brian\Pictures">${model.roots}</textarea>
+                <div class="help-block">
+                    ${model.errors.roots!}
+                    <p>These directories will be scanned for images to include in your palette, one per line.</p>
+                </div>
             </div>
         </div>
     </fieldset>
     <fieldset>
-        <div class="control-group">
+        <div class="control-group <#if model.errors.excludes??>error</#if>">
             <label class="control-label" for="excludes">Excludes</label>
             <div class="controls">
-                <textarea id="excludes" class="input-xlarge" name="excludes" cols="80" rows="${model.numExcludes()+1}" placeholder="TODO">${model.excludes}</textarea>
-                <p class="help-block">IF ERROR then ERROR TEXT else Describe excludes</p>
+                <textarea id="excludes" class="input-xlarge" name="excludes" cols="80" rows="${model.numExcludes()+1}"
+                          placeholder="C:\Users\Brian\Pictures\honeymoon">${model.excludes}</textarea>
+                <div class="help-block">
+                    ${model.errors.excludes!}
+                    <p class="help-block">Directories or files to exclude from your palette, one per line.</p>
+                </div>
             </div>
         </div>
     </fieldset>

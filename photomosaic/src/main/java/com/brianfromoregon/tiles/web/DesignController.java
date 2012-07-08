@@ -28,11 +28,13 @@ public class DesignController {
         DesignView.Response response = request.asResponse();
 
         if (request.getNumWide() <= 1) {
-            response.getErrors().put("numWide", "Must be greater than 1");
+            request.setNumWide(2);
+            response.setNumWide(2);
         }
 
         if (request.getDrillDown() < 1) {
-            response.getErrors().put("drillDown", "Must be greater than 0");
+            request.setDrillDown(1);
+            response.setDrillDown(1);
         }
 
         BufferedImage newTarget = Util.bytesToBufferedImage(request.getTarget());
@@ -42,14 +44,11 @@ public class DesignController {
 
         int maxWide = Util.maxNumWide(Repository.INSTANCE.get().palette, SessionState.target.getWidth(), SessionState.target.getHeight());
         if (!request.isAllowReuse() && request.getNumWide() > maxWide) {
-            // Auto correct, I suspect it's better to not notify.
             request.setNumWide(maxWide);
             response.setNumWide(maxWide);
         }
 
-        if (response.getErrors().isEmpty()) {
-            response.setPositions(calcPositions(request.getNumWide(), request.isAllowReuse(), ColorSpace.fromString(request.getColorSpace()), request.getDrillDown()));
-        }
+        response.setPositions(calcPositions(request.getNumWide(), request.isAllowReuse(), ColorSpace.fromString(request.getColorSpace()), request.getDrillDown()));
 
         return response;
     }

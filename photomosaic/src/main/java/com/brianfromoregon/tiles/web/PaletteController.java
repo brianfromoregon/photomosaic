@@ -3,11 +3,13 @@ package com.brianfromoregon.tiles.web;
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Indexer;
 import com.brianfromoregon.tiles.SamplePalette;
+import com.brianfromoregon.tiles.ServerSettings;
 import com.brianfromoregon.tiles.persist.Repository;
 import com.brianfromoregon.tiles.persist.State;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.googlecode.htmleasy.RedirectException;
 import org.jboss.resteasy.annotations.Form;
 
 import javax.persistence.EntityManager;
@@ -46,7 +48,7 @@ public class PaletteController {
         Iterable<String> roots = request.rootsList();
         List<File> rootFiles = Lists.newArrayList();
         if (Iterables.isEmpty(roots)) {
-            response.getErrors().put("roots", "Need at least one root");
+            response.getErrors().put("roots", "Need to enter at least one search root.");
         } else {
             for (String root : roots) {
                 File f = new File(root);
@@ -63,13 +65,17 @@ public class PaletteController {
         for (String exclude : excludes) {
             File f = new File(exclude);
             if (!f.exists()) {
-                response.getErrors().put("excludes", "This exclude does not exist: "+exclude);
+                response.getErrors().put("excludes", "This file does not exist: "+exclude);
                 break;
             }
             excludeFiles.add(f);
         }
 
         if (response.getErrors().isEmpty()) {
+            if (!ServerSettings.isImageMagickAvailable()) {
+                throw new RedirectException(SettingsController.class);
+            }
+
             Index palette = new Indexer(Repository.INSTANCE.get().palette).index(rootFiles, excludeFiles, SamplePalette.W, SamplePalette.H);
             if (palette.images.isEmpty()) {
                 response.getErrors().put("roots", "Didn't find any matching images");

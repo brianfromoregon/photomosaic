@@ -23,7 +23,6 @@ public class DesignView {
 
     @ViewWith("design.ftl")
     public static class Response extends DesignView {
-        @Getter private Map<String, String> errors = Maps.newHashMap();
         @Getter @Setter private int[] positions;
 
         public boolean success() {

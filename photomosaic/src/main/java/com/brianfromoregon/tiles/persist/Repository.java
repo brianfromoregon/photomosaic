@@ -39,7 +39,7 @@ public class Repository {
     private void load() {
         loaded = entityManager.find(State.class, 0);
         if (loaded == null) {
-            update("C:\\Users\\Brian\\Pictures", ".*honeymoon.*\nC:\\Users\\Brian\\Pictures\\Scans\\.*", SamplePalette.SOLID_COLORS.generate());
+            update("", "", SamplePalette.SOLID_COLORS.generate());
         }
     }
 
