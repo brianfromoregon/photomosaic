@@ -11,6 +11,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.googlecode.htmleasy.RedirectException;
 import org.jboss.resteasy.annotations.Form;
+import org.jboss.resteasy.plugins.spring.SpringBeanProcessor;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

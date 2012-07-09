@@ -22,7 +22,6 @@ public class WebMain {
 
     public static void main(String[] args) throws IOException {
         AbstractApplicationContext context = new AnnotationConfigApplicationContext(Services.class);
-        context.addBeanFactoryPostProcessor(new SpringBeanProcessor());
         context.registerShutdownHook();
         SessionState.target = Util.bytesToBufferedImage(ByteStreams.toByteArray(WebMain.class.getResourceAsStream("brian.jpg")));
 
