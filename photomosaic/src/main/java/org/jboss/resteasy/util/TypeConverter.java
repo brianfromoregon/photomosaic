@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * I'm monkey patching to get around error: java.lang.ClassCastException: Cannot cast java.lang.Boolean to boolean
+ *
  * A utility class that can convert a String value as a typed object.
  *
  * @author <a href="ryan@damnhandy.com>Ryan J. McDonough</a>

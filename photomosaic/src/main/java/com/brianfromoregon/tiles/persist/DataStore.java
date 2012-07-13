@@ -12,7 +12,7 @@ import javax.persistence.PersistenceContext;
 public class DataStore {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    EntityManager entityManager;
 
     @Transactional
     public void savePalette(PaletteDescriptor paletteDescriptor) {

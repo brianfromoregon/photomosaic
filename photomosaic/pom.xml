@@ -75,6 +75,16 @@
             <version>8.1.4.v20120524</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>8.1.4.v20120524</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-annotations</artifactId>
+            <version>8.1.4.v20120524</version>
+        </dependency>
+        <dependency>
             <groupId>com.googlecode.htmleasy</groupId>
             <artifactId>htmleasy</artifactId>
             <version>0.7</version>
@@ -136,6 +146,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <version>3.1.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
             <version>3.1.1.RELEASE</version>
         </dependency>
         <dependency>

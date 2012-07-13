@@ -30,13 +30,13 @@
 <#if model.success()>
     <div class="row span12">
         <blockquote>
-            <p>Mosaic with <strong>${model.positions?size}</strong> tiles (${model.numWide}x${model.numTall()}) using <strong>${model.distinctTiles()}</strong> unique images from your palette of size <strong>${model.paletteSize()}</strong>.</p>
+            <p>Mosaic with <strong>${model.positions?size}</strong> tiles (${model.numWide}x${model.numTall()}) using <strong>${model.distinctTiles()}</strong> unique images from your palette of size <strong>${model.paletteSize}</strong>.</p>
         </blockquote>
         <table class="mosaic">
             <#list 0..model.numTall()-1 as row>
                 <tr class="mosaic">
                     <#list model.positions[model.numWide*row..model.numWide*(row+1)-1] as idx>
-                        <td class="mosaic"><img class="mosaic" src="palette/${idx?c}" height="${model.height()}" width="${model.width()}"/></td>
+                        <td class="mosaic"><img class="mosaic" src="palette/${idx?c}" height="${model.height}" width="${model.width}"/></td>
                     </#list>
                 </tr>
             </#list>

@@ -26,7 +26,7 @@
         <div class="control-group <#if model.errors.roots??>error</#if>">
             <label class="control-label" for="roots">Search roots</label>
             <div class="controls">
-                <textarea id="roots" class="input-xlarge" name="roots" cols="80" rows="${model.rootsList()?size+1}"
+                <textarea id="roots" class="input-xlarge" name="roots" cols="80" rows="${model.rootsList?size+1}"
                           placeholder="C:\Users\Brian\Pictures">${model.roots}</textarea>
                 <div class="help-block">
                     ${model.errors.roots!}
@@ -39,7 +39,7 @@
         <div class="control-group <#if model.errors.excludes??>error</#if>">
             <label class="control-label" for="excludes">Excludes</label>
             <div class="controls">
-                <textarea id="excludes" class="input-xlarge" name="excludes" cols="80" rows="${model.excludesList()?size+1}"
+                <textarea id="excludes" class="input-xlarge" name="excludes" cols="80" rows="${model.excludesList?size+1}"
                           placeholder="C:\Users\Brian\Pictures\honeymoon">${model.excludes}</textarea>
                 <div class="help-block">
                     ${model.errors.excludes!}
@@ -58,7 +58,7 @@
 </form>
 
 <div class="row span12">
-<#list model.images() as img>
+<#list model.images as img>
     <img src="palette/${img.get(0)?c}" title="${img.get(1)}" height="${model.height}" width="${model.width}" />
 </#list>
 </div>

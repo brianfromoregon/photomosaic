@@ -1,13 +1,12 @@
 package com.brianfromoregon.tiles.web;
 
 import com.brianfromoregon.tiles.ColorSpace;
-import com.brianfromoregon.tiles.persist.DataStore;
+import com.brianfromoregon.tiles.persist.PaletteDescriptor;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Named;
 import javax.ws.rs.FormParam;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,14 +15,15 @@ import java.util.Set;
 @Component
 public class DesignView {
 
-    @Named DataStore dataStore;
-
     @FormParam("numWide") @Getter @Setter private int numWide;
     @FormParam("allowReuse") @Getter @Setter private boolean allowReuse;
     @FormParam("colorSpace") @Getter @Setter private String colorSpace;
     @FormParam("drillDown") @Getter @Setter private int drillDown;
     @FormParam("target") @Getter @Setter private byte[] target;
     @Getter @Setter private int[] positions;
+    @Getter private int width;
+    @Getter private int height;
+    @Getter private int paletteSize;
 
     public boolean success() {
         return positions != null;
@@ -31,14 +31,6 @@ public class DesignView {
 
     public int numTall() {
         return positions.length / getNumWide();
-    }
-
-    public int width() {
-        return dataStore.loadPalette().getPalette().width;
-    }
-
-    public int height() {
-        return dataStore.loadPalette().getPalette().height;
     }
 
     public boolean isSRGB() {
@@ -55,7 +47,9 @@ public class DesignView {
         return set.size();
     }
 
-    public int paletteSize() {
-        return dataStore.loadPalette().getPalette().images.size();
+    public void setPaletteProperties(PaletteDescriptor palette) {
+        this.width = palette.getPalette().width;
+        this.height = palette.getPalette().height;
+        this.paletteSize = palette.getPalette().images.size();
     }
 }

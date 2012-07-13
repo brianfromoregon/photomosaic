@@ -15,22 +15,19 @@ import java.util.IdentityHashMap;
 @Path("design")
 @Component
 public class DesignController {
-    public DesignController() {
-        System.out.println("h");
-    }
-
     @Inject DataStore dataStore;
 
     @GET
     public DesignView start() {
-        DesignView design = new DesignView();
-        design.setNumWide(18);
+        DesignView view = new DesignView();
+        view.setNumWide(18);
         ColorSpace cs = ColorSpace.CIELAB;
-        design.setColorSpace(cs.name());
-        design.setDrillDown(4);
-        design.setAllowReuse(true);
-        design.setPositions(calcPositions(design.getNumWide(), design.isAllowReuse(), cs, design.getDrillDown()));
-        return design;
+        view.setColorSpace(cs.name());
+        view.setDrillDown(4);
+        view.setAllowReuse(true);
+        view.setPositions(calcPositions(view.getNumWide(), view.isAllowReuse(), cs, view.getDrillDown()));
+        view.setPaletteProperties(dataStore.loadPalette());
+        return view;
     }
 
     @POST
@@ -56,6 +53,7 @@ public class DesignController {
 
         view.setPositions(calcPositions(view.getNumWide(), view.isAllowReuse(), ColorSpace.fromString(view.getColorSpace()), view.getDrillDown()));
 
+        view.setPaletteProperties(dataStore.loadPalette());
         return view;
     }
 

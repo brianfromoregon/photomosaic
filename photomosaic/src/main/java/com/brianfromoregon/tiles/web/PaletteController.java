@@ -11,14 +11,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.googlecode.htmleasy.RedirectException;
 import org.jboss.resteasy.annotations.Form;
-import org.jboss.resteasy.plugins.spring.SpringBeanProcessor;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -41,8 +38,7 @@ public class PaletteController {
         PaletteDescriptor loaded = dataStore.loadPalette();
         view.setExcludesList(loaded.getExcludes());
         view.setRootsList(loaded.getRoots());
-        view.setWidth(loaded.getPalette().width);
-        view.setHeight(loaded.getPalette().height);
+        view.setPaletteProperties(loaded);
         return view;
     }
 
@@ -52,11 +48,7 @@ public class PaletteController {
         Iterable<String> roots = view.getRootsList();
         List<File> rootFiles = Lists.newArrayList();
         if (Iterables.isEmpty(roots)) {
-            PaletteDescriptor descriptor = new PaletteDescriptor();
-            descriptor.setRoots(new ArrayList<String>());
-            descriptor.setExcludes(new ArrayList<String>());
-            descriptor.setPalette(SamplePalette.SOLID_COLORS.generate());
-            dataStore.savePalette(descriptor);
+            dataStore.savePalette(PaletteDescriptor.DEFAULT);
             shouldIndex = false;
         } else {
             for (String root : roots) {
@@ -98,8 +90,7 @@ public class PaletteController {
             }
         }
 
-        view.setWidth(dataStore.loadPalette().getPalette().width);
-        view.setHeight(dataStore.loadPalette().getPalette().height);
+        view.setPaletteProperties(dataStore.loadPalette());
 
         return view;
     }
