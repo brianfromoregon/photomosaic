@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -24,28 +25,42 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource("classpath:/com/brianfromoregon/tiles/jdbc.properties")
+@PropertySource("classpath:/com/brianfromoregon/tiles/h2.properties")
 @EnableTransactionManagement
 @ComponentScan(basePackages = "com.brianfromoregon.tiles.web")
 public class ApplicationContext {
 
     @Autowired Environment env;
 
-    @Bean(destroyMethod = "close") public DataSource dataSource() {
+    @Bean(destroyMethod = "close") public DataSource memoryDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-        ds.setUrl(env.getProperty("jdbc.url"));
+        ds.setUrl(env.getProperty("jdbc.mem.url"));
         ds.setUsername(env.getProperty("jdbc.username"));
         ds.setPassword(env.getProperty("jdbc.password"));
         return ds;
     }
 
+    @Bean(destroyMethod = "close") public DataSource fsDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(env.getProperty("jdbc.driverClassName"));
+        ds.setUrl(env.getProperty("jdbc.mem.url"));
+        ds.setUsername(env.getProperty("jdbc.username"));
+        ds.setPassword(env.getProperty("jdbc.password"));
+        return ds;
+    }
+
+    @Bean public DataSource fallbackDataSource() {
+        return new FallbackDataSource(fsDataSource(), memoryDataSource());
+    }
+
     @Bean public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
-        bean.setDataSource(dataSource());
+        bean.setDataSource(fallbackDataSource());
         bean.setPackagesToScan(PaletteDescriptor.class.getPackage().getName());
         bean.setJpaVendorAdapter(new HibernateJpaVendorAdapter() {{
             setGenerateDdl(true);
+            setDatabase(Database.H2);
 //            setShowSql(true);
         }});
         return bean;
