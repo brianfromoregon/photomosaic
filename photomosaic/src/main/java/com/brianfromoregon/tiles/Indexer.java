@@ -2,20 +2,16 @@ package com.brianfromoregon.tiles;
 
 import com.brianfromoregon.tiles.Index.Image;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +70,7 @@ public class Indexer {
                 @Override
                 public void processElement(File sourceImage) {
                     File tmpFile = tmpFiles.get();
-                    CommandLine commandLine = new CommandLine(ServerSettings.convertExe().getAbsolutePath());
+                    CommandLine commandLine = new CommandLine(ImageMagick.convertExe().getAbsolutePath());
                     commandLine.addArgument(sourceImage.getAbsolutePath());
                     commandLine.addArgument("-auto-orient");
                     commandLine.addArgument("-strip");

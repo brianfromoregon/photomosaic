@@ -5,14 +5,12 @@ import com.brianfromoregon.tiles.persist.PaletteDescriptor;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.FormParam;
 import java.util.HashSet;
 import java.util.Set;
 
 @ViewWith("design.ftl")
-@Component
 public class DesignView {
 
     @FormParam("numWide") @Getter @Setter private int numWide;

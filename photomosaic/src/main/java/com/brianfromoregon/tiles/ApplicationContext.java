@@ -63,6 +63,10 @@ public class ApplicationContext {
         return new Init();
     }
 
+    @Bean public ImageMagick imageMagick() {
+        return new ImageMagick();
+    }
+
     public static class Init {
         @Inject DataStore dataStore;
 

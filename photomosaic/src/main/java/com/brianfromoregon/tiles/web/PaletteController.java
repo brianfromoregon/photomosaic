@@ -1,9 +1,9 @@
 package com.brianfromoregon.tiles.web;
 
+import com.brianfromoregon.tiles.ImageMagick;
 import com.brianfromoregon.tiles.Index;
 import com.brianfromoregon.tiles.Indexer;
 import com.brianfromoregon.tiles.SamplePalette;
-import com.brianfromoregon.tiles.ServerSettings;
 import com.brianfromoregon.tiles.persist.DataStore;
 import com.brianfromoregon.tiles.persist.PaletteDescriptor;
 import com.google.common.collect.Iterables;
@@ -74,7 +74,7 @@ public class PaletteController {
 
         shouldIndex &= view.getErrors().isEmpty();
         if (shouldIndex) {
-            if (!ServerSettings.isImageMagickAvailable()) {
+            if (!ImageMagick.isImageMagickValid()) {
                 throw new RedirectException(SettingsController.class);
             }
 

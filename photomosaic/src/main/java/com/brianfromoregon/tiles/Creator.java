@@ -1,16 +1,17 @@
 package com.brianfromoregon.tiles;
 
+import com.brianfromoregon.tiles.Index.Image;
 import com.google.common.base.Throwables;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import javax.imageio.ImageIO;
-import com.brianfromoregon.tiles.Index.Image;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.PumpStreamHandler;
 
 /**
  * Creates image mosaics.
@@ -82,7 +83,7 @@ public class Creator {
 
         Log.log("Creating final mosaic.");
         File mosaicFile = Util.createTempFile("finalmosaic", ".png");
-        CommandLine commandLine = new CommandLine(ServerSettings.montageExe().getAbsolutePath());
+        CommandLine commandLine = new CommandLine(ImageMagick.montageExe().getAbsolutePath());
         for (int i = 0; i < rowImageFiles.length; i++) {
             File row = rowImageFiles[i];
             commandLine.addArgument(row.getAbsolutePath());

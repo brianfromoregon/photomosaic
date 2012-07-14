@@ -13,7 +13,6 @@ import com.google.common.collect.Sets;
 import com.googlecode.htmleasy.ViewWith;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.FormParam;
 import java.util.IdentityHashMap;
@@ -24,7 +23,6 @@ import java.util.Set;
 import static com.brianfromoregon.tiles.Tuple.tuple;
 
 @ViewWith("palette.ftl")
-@Component
 public class PaletteView {
     @FormParam("roots") @Getter @Setter private String roots;
     @FormParam("excludes") @Getter @Setter private String excludes;
