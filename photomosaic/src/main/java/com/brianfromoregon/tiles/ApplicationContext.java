@@ -44,7 +44,7 @@ public class ApplicationContext {
     @Bean(destroyMethod = "close") public DataSource fsDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-        ds.setUrl(env.getProperty("jdbc.mem.url"));
+        ds.setUrl(env.getProperty("jdbc.fs.url"));
         ds.setUsername(env.getProperty("jdbc.username"));
         ds.setPassword(env.getProperty("jdbc.password"));
         return ds;

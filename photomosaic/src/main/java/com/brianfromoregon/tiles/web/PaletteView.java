@@ -28,6 +28,7 @@ public class PaletteView {
     @FormParam("excludes") @Getter @Setter private String excludes;
     @Getter private Map<String, String> errors = Maps.newHashMap();
     @Getter @Setter private int width, height;
+    @Getter @Setter private boolean shortTermMemory;
     @Getter private List<Tuple> images;
 
     public Set<String> getRootsList() {

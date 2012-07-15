@@ -1,9 +1,6 @@
 package com.brianfromoregon.tiles.web;
 
-import com.brianfromoregon.tiles.ImageMagick;
-import com.brianfromoregon.tiles.Index;
-import com.brianfromoregon.tiles.Indexer;
-import com.brianfromoregon.tiles.SamplePalette;
+import com.brianfromoregon.tiles.*;
 import com.brianfromoregon.tiles.persist.DataStore;
 import com.brianfromoregon.tiles.persist.PaletteDescriptor;
 import com.google.common.collect.Iterables;
@@ -24,6 +21,7 @@ import java.util.Set;
 public class PaletteController {
 
     @Inject DataStore dataStore;
+    @Inject FallbackDataSource fallbackDataSource;
 
     @GET
     @Path("{idx}")
@@ -39,6 +37,9 @@ public class PaletteController {
         view.setExcludesList(loaded.getExcludes());
         view.setRootsList(loaded.getRoots());
         view.setPaletteProperties(loaded);
+        if (fallbackDataSource.getConnectException() != null) {
+            view.setShortTermMemory(true);
+        }
         return view;
     }
 

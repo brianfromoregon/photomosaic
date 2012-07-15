@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <link href="//current.bootstrapcdn.com/bootstrap-v204/css/bootstrap-combined.min.css" type="text/css"
           rel="Stylesheet"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="//current.bootstrapcdn.com/bootstrap-v204/js/bootstrap.min.js"></script>
     <style type="text/css">
         .mosaic { border-collapse: collapse; padding: 0px; margin: 0px; border: none; }
