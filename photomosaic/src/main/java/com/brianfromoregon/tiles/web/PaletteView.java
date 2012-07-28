@@ -26,8 +26,9 @@ import static com.brianfromoregon.tiles.Tuple.tuple;
 public class PaletteView {
     @FormParam("roots") @Getter @Setter private String roots;
     @FormParam("excludes") @Getter @Setter private String excludes;
+    @FormParam("width") @Getter @Setter private int width;
+    @FormParam("height") @Getter @Setter private int height;
     @Getter private Map<String, String> errors = Maps.newHashMap();
-    @Getter @Setter private int width, height;
     @Getter @Setter private boolean shortTermMemory;
     @Getter private List<Tuple> images;
 

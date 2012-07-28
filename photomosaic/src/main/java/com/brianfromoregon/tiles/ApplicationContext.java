@@ -89,7 +89,7 @@ public class ApplicationContext {
             SessionState.target = Util.bytesToBufferedImage(ByteStreams.toByteArray(JaxRsApp.class.getResourceAsStream("brian.jpg")));
             PaletteDescriptor palette = dataStore.loadPalette();
             if (palette == null) {
-                dataStore.savePalette(PaletteDescriptor.DEFAULT);
+                dataStore.savePalette(PaletteDescriptor.getDefault());
             }
         }
     }

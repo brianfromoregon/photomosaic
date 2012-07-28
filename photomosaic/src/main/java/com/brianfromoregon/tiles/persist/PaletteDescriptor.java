@@ -11,12 +11,27 @@ import java.util.Set;
 
 @Entity
 public class PaletteDescriptor {
-    public static final PaletteDescriptor DEFAULT;
+    private static final PaletteDescriptor DEFAULT;
     static {
         DEFAULT = new PaletteDescriptor();
         DEFAULT.setRoots(new HashSet<String>());
         DEFAULT.setExcludes(new HashSet<String>());
-        DEFAULT.setPalette(SamplePalette.SOLID_COLORS.generate());
+        DEFAULT.setPalette(SamplePalette.SOLID_COLORS.generate(32, 22));
+    }
+
+    public static final PaletteDescriptor getDefault(int w, int h) {
+        if (w == DEFAULT.getPalette().width && h == DEFAULT.getPalette().height)
+            return getDefault();
+
+        PaletteDescriptor p = new PaletteDescriptor();
+        p.setRoots(new HashSet<String>());
+        p.setExcludes(new HashSet<String>());
+        p.setPalette(SamplePalette.SOLID_COLORS.generate(w, h));
+        return p;
+    }
+
+    public static final PaletteDescriptor getDefault() {
+        return DEFAULT;
     }
 
     @Getter @Setter @Id private int id=0;

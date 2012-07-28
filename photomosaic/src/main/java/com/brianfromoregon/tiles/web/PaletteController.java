@@ -45,11 +45,17 @@ public class PaletteController {
 
     @POST
     public PaletteView refresh(@Form PaletteView view) {
+        if (view.getWidth() < 1) {
+            view.setWidth(1);
+        }
+        if (view.getHeight() < 1) {
+            view.setHeight(1);
+        }
         boolean shouldIndex = true;
         Iterable<String> roots = view.getRootsList();
         List<File> rootFiles = Lists.newArrayList();
         if (Iterables.isEmpty(roots)) {
-            dataStore.savePalette(PaletteDescriptor.DEFAULT);
+            dataStore.savePalette(PaletteDescriptor.getDefault(view.getWidth(), view.getHeight()));
             shouldIndex = false;
         } else {
             for (String root : roots) {
@@ -79,7 +85,7 @@ public class PaletteController {
                 throw new RedirectException(SettingsController.class);
             }
 
-            Index palette = new Indexer(dataStore.loadPalette().getPalette()).index(rootFiles, excludeFiles, SamplePalette.W, SamplePalette.H);
+            Index palette = new Indexer(dataStore.loadPalette().getPalette()).index(rootFiles, excludeFiles, view.getWidth(), view.getHeight());
             if (palette.images.isEmpty()) {
                 view.getErrors().put("roots", "Didn't find any matching images");
             } else {

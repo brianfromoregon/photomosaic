@@ -6,6 +6,9 @@
           rel="Stylesheet"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="//current.bootstrapcdn.com/bootstrap-v204/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .tc { text-align: center }
+    </style>
     <script type="text/javascript">
         $(".alert").alert()
     </script>
@@ -47,8 +50,6 @@
                         </div>
                     </div>
                 </div>
-            </fieldset>
-            <fieldset>
                 <div class="control-group <#if model.errors.excludes??>error</#if>">
                     <label class="control-label" for="excludes">Excludes</label>
                     <div class="controls">
@@ -60,8 +61,24 @@
                         </div>
                     </div>
                 </div>
-            </fieldset>
-            <fieldset>
+                <div class="control-group">
+                    <div class="control-label">
+                        <button class="btn" data-toggle="collapse" data-target="#advanced" type="button">
+                            <i class="icon-wrench"></i> Advanced
+                        </button>
+                    </div>
+                </div>
+                <div id="advanced" class="collapse">
+                    <div class="control-group">
+                        <label class="control-label">Width x Height</label>
+                        <div class="controls">
+                            <input class="span1 tc" type="text" id="width" name="width" value="${model.width}"/>
+                            x
+                            <input class="span1 tc" type="text" id="height" name="height" value="${model.height}"/>
+                            <p class="help-block">This ratio should match the majority of your palette images so cropping will be minimal.</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="control-group">
                     <div class="controls">
                         <button type="submit" class="btn btn-primary btn-large"><i class="icon-refresh icon-white"></i> Update Palette</button>
