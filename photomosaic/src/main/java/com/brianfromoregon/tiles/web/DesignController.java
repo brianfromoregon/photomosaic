@@ -10,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.IdentityHashMap;
 
 @Path("design")
@@ -25,14 +26,31 @@ public class DesignController {
         view.setColorSpace(cs.name());
         view.setDrillDown(4);
         view.setAllowReuse(true);
-        view.setPositions(calcPositions(view.getNumWide(), view.isAllowReuse(), cs, view.getDrillDown()));
+        view.setPositions((int[]) calcPositions(view.getNumWide(), view.isAllowReuse(), cs, view.getDrillDown()).get(0));
         view.setPaletteProperties(dataStore.loadPalette());
         return view;
     }
 
     @POST
-    public DesignView create(@MultipartForm DesignView view) {
+    public DesignView post(@MultipartForm DesignView view) {
+        if ("create".equals(view.getAction())) {
+            return create(view);
+        } else {
+            return apply(view).get(0);
+        }
+    }
 
+    private DesignView create(DesignView view) {
+        Tuple t = apply(view);
+        view = t.get(0);
+        Mosaic m = t.get(1);
+
+        File f = new Creator().writeToFile(m);
+        view.setCreatedFile(f.getAbsolutePath());
+        return view;
+    }
+
+    private Tuple apply(DesignView view) {
         if (view.getNumWide() <= 1) {
             view.setNumWide(2);
         }
@@ -51,13 +69,14 @@ public class DesignController {
             view.setNumWide(maxWide);
         }
 
-        view.setPositions(calcPositions(view.getNumWide(), view.isAllowReuse(), ColorSpace.fromString(view.getColorSpace()), view.getDrillDown()));
+        Tuple t = calcPositions(view.getNumWide(), view.isAllowReuse(), ColorSpace.fromString(view.getColorSpace()), view.getDrillDown());
+        view.setPositions((int[]) t.get(0));
 
         view.setPaletteProperties(dataStore.loadPalette());
-        return view;
+        return new Tuple(view, t.get(1));
     }
 
-    private int[] calcPositions(int numWide, boolean allowReuse, ColorSpace colorSpace, int drillDown) {
+    private Tuple calcPositions(int numWide, boolean allowReuse, ColorSpace colorSpace, int drillDown) {
 
         Index index = dataStore.loadPalette().getPalette();
         final ProcessedIndex processedIndex = ProcessedIndex.process(index, drillDown);
@@ -76,6 +95,6 @@ public class DesignController {
                 tgtPos[mosaic.numWide() * row + col] = srcPos.get(mosaic.layout[row][col]);
             }
         }
-        return tgtPos;
+        return new Tuple(tgtPos, mosaic);
     }
 }

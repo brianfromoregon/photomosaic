@@ -18,9 +18,6 @@ import java.util.Collections;
  */
 public class Creator {
 
-    public static final int DEFAULT_DRILL_DOWN = 6;
-    public static final ColorSpace DEFAULT_COLOR_SPACE = ColorSpace.CIELAB;
-
     public Mosaic designMosaic(MatchingIndex index, BufferedImage targetImage, boolean reuseAllowed, int numWide) {
         int targetW = targetImage.getWidth();
         int targetH = targetImage.getHeight();

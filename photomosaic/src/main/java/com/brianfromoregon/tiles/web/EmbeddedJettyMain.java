@@ -18,7 +18,7 @@ public class EmbeddedJettyMain {
         try {
             Server server = new Server(0);
             WebAppContext context = new WebAppContext();
-            context.setResourceBase(new ClassPathResource("").getURL().toString());
+            context.setDescriptor(new ClassPathResource("WEB-INF/web.xml").getURL().toExternalForm());
             context.setConfigurations(new Configuration[]{new WebXmlConfiguration()});
             server.setHandler(context);
             server.start();

@@ -1,3 +1,4 @@
+<#ftl encoding="UTF-8">
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,7 +32,7 @@
 <div class="container">
     <#if model.shortTermMemory>
         <div class="row span4 alert fade in">
-            <button type="button" class="close" data-dismiss="alert">×</button>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
             <strong>Short term memory!</strong> <br/>Any palette updates will be forgotten on restart.
         </div>
     </#if>
@@ -75,7 +76,8 @@
                             <input class="span1 tc" type="text" id="width" name="width" value="${model.width}"/>
                             x
                             <input class="span1 tc" type="text" id="height" name="height" value="${model.height}"/>
-                            <p class="help-block">This ratio should match the majority of your palette images so cropping will be minimal.</p>
+                            <p class="help-block">This will be the size of each tile in your final mosaic.</p>
+                            <p class="help-block">Also, this width/height ratio should match most of your palette images for minimal cropping.</p>
                         </div>
                     </div>
                 </div>

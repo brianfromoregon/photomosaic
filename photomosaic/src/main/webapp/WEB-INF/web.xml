@@ -39,6 +39,10 @@
             <param-name>TemplatePath</param-name>
             <param-value>class://com/brianfromoregon/tiles/web</param-value>
         </init-param>
+        <init-param>
+            <param-name>ContentType</param-name>
+            <param-value>text/html;charset=UTF-8</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>

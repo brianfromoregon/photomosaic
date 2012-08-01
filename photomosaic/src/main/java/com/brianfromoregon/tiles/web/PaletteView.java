@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.brianfromoregon.tiles.Tuple.tuple;
-
 @ViewWith("palette.ftl")
 public class PaletteView {
     @FormParam("roots") @Getter @Setter private String roots;
@@ -56,7 +54,7 @@ public class PaletteView {
             }
         }.sortedCopy(palette.getPalette().images), new Function<Index.Image, Tuple>() {
             @Override public Tuple apply(Index.Image input) {
-                return tuple(indexes.get(input), input.file);
+                return new Tuple(indexes.get(input), input.file);
             }
         });
         this.width = palette.getPalette().width;

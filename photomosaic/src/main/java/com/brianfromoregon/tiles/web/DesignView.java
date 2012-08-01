@@ -18,6 +18,8 @@ public class DesignView {
     @FormParam("colorSpace") @Getter @Setter private String colorSpace;
     @FormParam("drillDown") @Getter @Setter private int drillDown;
     @FormParam("target") @Getter @Setter private byte[] target;
+    @FormParam("action") @Getter @Setter private String action;
+    @Getter @Setter private String createdFile;
     @Getter @Setter private int[] positions;
     @Getter private int width;
     @Getter private int height;

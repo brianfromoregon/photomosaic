@@ -5,12 +5,8 @@ import java.util.Arrays;
 public final class Tuple {
     private final Object[] vals;
 
-    private Tuple(Object[] vals) {
+    public Tuple(Object... vals) {
         this.vals = vals;
-    }
-
-    public static Tuple tuple(Object... vals) {
-        return new Tuple(vals);
     }
 
     public <T> T get(int index) {

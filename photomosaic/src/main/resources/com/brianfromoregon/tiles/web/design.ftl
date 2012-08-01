@@ -1,3 +1,4 @@
+<#ftl encoding="UTF-8">
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,6 +12,7 @@
     </style>
     <script type="text/javascript">
         $(".collapse").collapse()
+        $(".alert").alert()
     </script>
 </head>
 <body>
@@ -26,6 +28,13 @@
         </div>
     </div>
 </div>
+
+<#if model.createdFile??>
+    <div class="row span12 alert alert-success fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>You did it!</strong> <br/><a href="${model.createdFile}">${model.createdFile}</a>
+    </div>
+</#if>
 
 <#if model.success()>
     <div class="row span12">
@@ -56,6 +65,7 @@
             <label class="control-label" for="numWide">Mosaic width</label>
             <div class="controls">
                 <input class="span1" type="text" id="numWide" name="numWide" value="${model.numWide}"/>
+                <p class="help-block">The number of tile columns in your mosaic.</p>
             </div>
         </div>
         <div class="control-group">
@@ -93,7 +103,8 @@
         </div>
         <div class="control-group">
             <div class="controls">
-                <button type="submit" class="btn btn-primary btn-large"><i class="icon-th icon-white"></i> Apply</button>
+                <button type="submit" class="btn btn-primary btn-large" name="action" value="apply"><i class="icon-th icon-white"></i> Apply</button>
+                <button type="submit" class="btn btn-inverse btn-large" name="action" value="create"><i class="icon-ok icon-white"></i> Create</button>
             </div>
         </div>
     </fieldset>
